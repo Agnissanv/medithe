@@ -142,7 +142,7 @@ export default function Home() {
               <span className="eyebrow" style={{ color: 'var(--copper)' }}>Nouveauté</span>
               <h2 style={{ marginTop: '0.3rem' }}>{produitDuMoment.Nom}</h2>
               <p style={{ opacity: 0.8, maxWidth: '420px' }}>{produitDuMoment.Description}</p>
-              <p style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <span className="price-tag" style={{ fontSize: '1.3rem' }}>
                   {produitDuMoment.Prix.toLocaleString('fr-FR')} F CFA
                 </span>

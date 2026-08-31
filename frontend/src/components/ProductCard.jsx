@@ -88,6 +88,8 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: '0.4rem',
+    flexWrap: 'wrap',
+    gap: '0.3rem',
   },
   prixBarre: {
     textDecoration: 'line-through',
