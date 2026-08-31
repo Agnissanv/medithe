@@ -297,7 +297,7 @@ button {
 .offre-badge {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
   background: var(--copper); color: var(--forest); font-size: 0.7rem; font-weight: 700;
-  padding: 0.3em 0.9em; borderRadius: 50px; letter-spacing: 0.03em; text-transform: uppercase;
+  padding: 0.3em 0.9em; border-radius: 50px; letter-spacing: 0.03em; text-transform: uppercase;
 }
 .offre-prix { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 600; color: var(--forest); margin: 0.5rem 0; }
 .offre-prix-suffixe { font-size: 0.9rem; opacity: 0.6; }
@@ -326,3 +326,17 @@ button {
 
 /* Éditeur riche admin */
 .ql-editor { min-height: 120px; font-family: var(--font-body); background: var(--parchment); }
+
+/* Header : navigation desktop vs menu hamburger mobile */
+.header-nav-mobile { display: none; }
+
+@media (max-width: 768px) {
+  .header-nav-desktop { display: none; }
+  .header-hamburger { display: flex !important; align-items: center; justify-content: center; }
+  .header-nav-mobile {
+    display: flex;
+    flex-direction: column;
+    background: var(--forest);
+    border-top: 1px solid var(--line-dark);
+  }
+}
