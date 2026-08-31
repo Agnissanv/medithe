@@ -197,7 +197,7 @@ export default function Home() {
         ) : produitsFiltres.length === 0 ? (
           <p>Aucun thé ne correspond à cette recherche.</p>
         ) : (
-          <div style={styles.grid}>
+          <div className="catalogue-grid">
             {produitsFiltres.map((p) => <ProductCard key={p.ID} produit={p} />)}
           </div>
         )}
@@ -267,5 +267,4 @@ const styles = {
     borderRadius: 'var(--radius)', background: 'var(--parchment-dark)', fontFamily: 'var(--font-body)',
   },
   checkbox: { display: 'flex', alignItems: 'center', gap: '0.5em', fontSize: '0.9rem' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem' },
 };
