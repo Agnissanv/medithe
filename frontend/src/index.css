@@ -218,7 +218,7 @@ button {
     background-image: url('/brand/hero-produits-mobile.jpg');
     background-size: cover;
     background-position: top center;
-    min-height: 550px;
+    min-height: 600px;
     align-items: flex-start;
   }
   .hero-full-inner {
