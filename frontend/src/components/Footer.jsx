@@ -12,7 +12,7 @@ export default function Footer() {
           </p>
         </div>
 
-        <div>
+        <div className="footer-colonne-liens">
           <h4 style={styles.titreColonne}>Liens rapides</h4>
           <Link to="/" style={styles.lien}>Catalogue</Link>
           <Link to="/suivi" style={styles.lien}>Suivre ma commande</Link>
