@@ -137,7 +137,7 @@ button {
 /* Fiche produit : mise en page responsive + barre d'achat fixe sur mobile */
 .product-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2.5rem;
   margin-top: 1.5rem;
   align-items: start;
@@ -158,7 +158,7 @@ button {
 .sticky-cta { display: none; }
 
 @media (max-width: 768px) {
-  .product-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+  .product-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
   .reassurance-grid { grid-template-columns: 1fr; }
   .product-detail-page { padding-bottom: 90px; }
   .sticky-cta {
@@ -348,11 +348,11 @@ button {
 
 .badges-confiance-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.6rem;
   margin-top: 1rem;
 }
 
 @media (max-width: 480px) {
-  .badges-confiance-grid { grid-template-columns: 1fr; }
+  .badges-confiance-grid { grid-template-columns: minmax(0, 1fr); }
 }
