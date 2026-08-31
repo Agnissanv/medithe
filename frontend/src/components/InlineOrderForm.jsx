@@ -114,8 +114,7 @@ function Champ({ label, name, value, onChange, erreur, type = 'text' }) {
 
 const styles = {
   form: { background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: '12px', padding: '1.6rem', maxWidth: '480px', margin: '2rem auto' },
-  quantiteLigne: { display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' },
-  quantiteBox: { display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '0.2rem 0.6rem' },
+  quantiteLigne: { display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' },  quantiteBox: { display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '0.2rem 0.6rem' },
   input: { width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--parchment)' },
   ticket: { background: 'var(--forest)', borderRadius: '12px', padding: '2rem', maxWidth: '480px', margin: '2rem auto', textAlign: 'center', border: '1px dashed var(--copper)' },
   ticketNumero: { fontFamily: 'var(--font-mono)', fontSize: '1.4rem', color: 'var(--copper)', margin: '0.8rem 0' },
