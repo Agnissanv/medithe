@@ -76,7 +76,6 @@ export default function Home() {
     <div>
       {/* HERO */}
       <section className="hero-full">
-        <img src="/brand/hero-produits.jpg" alt="Produits de soin MédiThé" className="hero-full-mobile-img" />
         <div className="container">
           <div className="hero-full-inner">
             <span className="eyebrow" style={{ color: 'var(--copper-dark)' }}>
