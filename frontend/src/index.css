@@ -269,7 +269,7 @@ button {
 }
 
 @media (max-width: 768px) {
-  .product-page-fond { padding: 0; }
+  .product-page-fond { padding: 0 0 90px; }
   .product-page-carte { border-radius: 0; box-shadow: none; }
 }
 
@@ -342,4 +342,15 @@ button {
     background: var(--forest);
     border-top: 1px solid var(--line-dark);
   }
+}
+
+.badges-confiance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 480px) {
+  .badges-confiance-grid { grid-template-columns: 1fr; }
 }

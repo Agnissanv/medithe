@@ -69,7 +69,7 @@ export default function ProductDetail() {
             <div>
               <ProductGallery images={produit.Images} videoUrl={produit.VideoUrl} nom={produit.Nom} />
 
-              <div style={styles.badgesGrid}>
+              <div className="badges-confiance-grid">
                 <BadgeConfiance icon={Truck} titre="Livraison à domicile" texte="Partout où vous êtes" />
                 <BadgeConfiance icon={ShieldCheck} titre="Paiement à la livraison" texte="Aucun paiement en ligne" />
                 <BadgeConfiance icon={Leaf} titre="100% Naturel" texte="Qualité garantie" />
@@ -160,6 +160,5 @@ const styles = {
   prixBarre: { textDecoration: 'line-through', opacity: 0.5, fontFamily: 'var(--font-mono)', fontSize: '0.95rem' },
   badgePromo: { background: 'var(--danger)', color: 'white', fontSize: '0.72rem', fontWeight: 600, padding: '0.2em 0.6em', borderRadius: '50px', fontFamily: 'var(--font-mono)' },
   urgence: { color: 'var(--danger)', fontSize: '0.82rem', fontWeight: 600, fontFamily: 'var(--font-mono)', margin: '0.8rem 0' },
-  badgesGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginTop: '1rem' },
   badgeItem: { display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--parchment-dark)', borderRadius: 'var(--radius)', padding: '0.6rem 0.7rem' },
 };
