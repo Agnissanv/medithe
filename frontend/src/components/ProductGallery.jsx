@@ -64,10 +64,13 @@ const styles = {
   },
   image: { width: '100%', height: '100%', objectFit: 'cover' },
   video: { width: '100%', height: '100%', border: 'none' },
-  miniatures: { display: 'flex', gap: '0.6rem', marginTop: '0.6rem' },
+  miniatures: {
+    display: 'flex', gap: '0.6rem', marginTop: '0.6rem',
+    overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '4px',
+  },
   miniature: {
     width: '64px', height: '64px', borderRadius: 'var(--radius)', overflow: 'hidden',
-    border: '2px solid var(--line)', padding: 0, background: 'var(--sage-light)',
+    border: '2px solid var(--line)', padding: 0, background: 'var(--sage-light)', flexShrink: 0,
   },
   miniatureImg: { width: '100%', height: '100%', objectFit: 'cover' },
   miniatureVideo: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '1.2rem', color: 'var(--forest)' },
