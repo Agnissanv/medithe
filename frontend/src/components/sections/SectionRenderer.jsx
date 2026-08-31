@@ -46,7 +46,7 @@ export default function SectionRenderer({ section, produit, formulaireDomId }) {
       );
 
     case 'offre':
-      return <OffreSection section={section} produit={produit} />;
+      return <OffreSection section={section} produit={produit} formulaireDomId={formulaireDomId} />;
 
     case 'formulaire_achat':
       return (
@@ -76,7 +76,7 @@ export default function SectionRenderer({ section, produit, formulaireDomId }) {
   }
 }
 
-function OffreSection({ section, produit }) {
+function OffreSection({ section, produit, formulaireDomId }) {
   const navigate = useNavigate();
   const { addItem } = useCart();
 
@@ -87,14 +87,15 @@ function OffreSection({ section, produit }) {
       return;
     }
 
+    // Un bloc supplémentaire précis a été choisi par l'admin
     const cibleId = section.cibleFormulaireId ? `bloc-${section.cibleFormulaireId}` : null;
     if (cibleId && document.getElementById(cibleId)) {
       document.getElementById(cibleId).scrollIntoView({ behavior: 'smooth' });
       return;
     }
 
-    const premier = (produit.Sections || []).find((s) => s.type === 'formulaire_achat');
-    if (premier) document.getElementById(`bloc-${premier.id}`)?.scrollIntoView({ behavior: 'smooth' });
+    // Sinon, direction le formulaire principal (toujours présent sur la fiche)
+    if (formulaireDomId) document.getElementById(formulaireDomId)?.scrollIntoView({ behavior: 'smooth' });
   }
 
   return (

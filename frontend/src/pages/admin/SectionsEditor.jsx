@@ -300,7 +300,7 @@ function AccordeonForm({ section, onChange }) {
 }
 
 function OffreForm({ section, sections, onChange }) {
-  const formulaires = sections.filter((s) => s.type === 'formulaire_achat');
+  const formulairesSupplementaires = sections.filter((s) => s.type === 'formulaire_achat');
 
   function ajouterCarte() {
     onChange({
@@ -336,22 +336,16 @@ function OffreForm({ section, sections, onChange }) {
         </select>
 
         {(section.cibleType || 'scroll') === 'scroll' && (
-          formulaires.length > 0 ? (
-            <select
-              value={section.cibleFormulaireId || ''}
-              onChange={(e) => onChange({ cibleFormulaireId: e.target.value })}
-              style={styles.input}
-            >
-              <option value="">Le premier trouvé automatiquement</option>
-              {formulaires.map((f, i) => (
-                <option key={f.id} value={f.id}>{f.titre || `Formulaire d'achat #${i + 1}`}</option>
-              ))}
-            </select>
-          ) : (
-            <p style={{ fontSize: '0.78rem', color: 'var(--danger)', margin: 0 }}>
-              Aucun bloc "Formulaire d'achat" sur cette page pour l'instant — ajoutez-en un.
-            </p>
-          )
+          <select
+            value={section.cibleFormulaireId || ''}
+            onChange={(e) => onChange({ cibleFormulaireId: e.target.value })}
+            style={styles.input}
+          >
+            <option value="">Le formulaire principal (par défaut, en haut de la fiche)</option>
+            {formulairesSupplementaires.map((f, i) => (
+              <option key={f.id} value={f.id}>{f.titre || `Formulaire supplémentaire #${i + 1}`}</option>
+            ))}
+          </select>
         )}
       </div>
 
