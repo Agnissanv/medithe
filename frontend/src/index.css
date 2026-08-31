@@ -231,6 +231,7 @@ button {
   .footer-grid { grid-template-columns: 1fr; gap: 1.8rem; text-align: center; }
   .footer-grid img { margin-left: auto; margin-right: auto; }
   .footer-colonne-liens { display: flex; flex-direction: column; align-items: center; }
+  
 }
 
 .avis-grid {
