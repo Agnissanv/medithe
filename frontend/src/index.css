@@ -218,12 +218,12 @@ button {
     background-image: url('/brand/hero-produits-mobile.jpg');
     background-size: cover;
     background-position: top center;
-    min-height: 600px;
+    min-height: 550px;
     align-items: flex-start;
   }
   .hero-full-inner {
     max-width: 100%;
-    padding: 2.2rem 1.5rem 1.5rem;
+    padding: 2.8rem 1.5rem 1.5rem;
   }
   .reassurance-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
   .moment-grid { grid-template-columns: minmax(0, 1fr); }
