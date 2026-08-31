@@ -1,0 +1,328 @@
+/* ===================================================================
+   MEDITHE — Design tokens
+   Univers : herboristerie / apothicaire à thé — étiquettes botaniques,
+   vert forêt profond, ambre cuivré (rooibos), prix en mono comme
+   des étiquettes d'épicerie fine.
+=================================================================== */
+
+:root {
+  /* Couleurs — identité MédiThé */
+  --forest: #0B4D1E;
+  --forest-light: #12592B;
+  --parchment: #FFFFFF;
+  --parchment-dark: #EAF6EC;
+  --ink: #16211A;
+  --copper: #C99A2E;
+  --copper-dark: #A67B1E;
+  --sage: #1C8B39;
+  --sage-light: #DFF2E3;
+  --line: #D7E8DA;
+  --line-dark: #1D5C34;
+  --danger: #B4482F;
+  --success: #1C8B39;
+
+  /* Typo */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Work Sans', -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  --radius: 3px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5em;
+  color: var(--forest);
+}
+
+h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 600; }
+h2 { font-size: clamp(1.4rem, 2.5vw, 1.9rem); }
+h3 { font-size: 1.1rem; }
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.75em 1.5em;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--copper);
+  color: var(--parchment);
+}
+.btn-primary:hover { background: var(--copper-dark); }
+.btn-primary:disabled { background: var(--line); color: #8A8272; cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--forest);
+  color: var(--forest);
+}
+.btn-outline:hover { background: var(--forest); color: var(--parchment); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--forest);
+  padding: 0.5em 0.8em;
+}
+
+.price-tag {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--copper-dark);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+.container {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hairline {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+/* Focus visible partout, sobre mais net */
+:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Fiche produit : mise en page responsive + barre d'achat fixe sur mobile */
+.product-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-top: 1.5rem;
+  align-items: start;
+}
+
+.product-sections-zone {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.reassurance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.sticky-cta { display: none; }
+
+@media (max-width: 768px) {
+  .product-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+  .reassurance-grid { grid-template-columns: 1fr; }
+  .product-detail-page { padding-bottom: 90px; }
+  .sticky-cta {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--parchment);
+    border-top: 1px solid var(--line);
+    padding: 0.8rem 1rem;
+    z-index: 30;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+}
+
+/* Page d'accueil : hero, catégories, produit du moment, footer */
+.hero-full {
+  position: relative;
+  background-image: url('/brand/hero-produits.jpg');
+  background-size: cover;
+  background-position: center right;
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-full-mobile-img { display: none; }
+
+.hero-full-inner {
+  max-width: 460px;
+  padding: 2rem 0;
+}
+
+.reassurance-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.moment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+  padding-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .hero-full {
+    background-image: none;
+    min-height: auto;
+    display: block;
+  }
+  .hero-full-mobile-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .hero-full-inner {
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+  .reassurance-row { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+  .moment-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
+
+.avis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.benefices-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .benefices-grid { flex-direction: column; align-items: stretch; }
+}
+
+/* Fiche produit posée en "carte" sur fond gris doux, effet plus premium */
+.product-page-fond {
+  background: #EDEDE8;
+  min-height: 100%;
+  padding: 2rem 0 0;
+}
+
+.product-page-carte {
+  background: var(--parchment);
+  max-width: 1160px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(11, 77, 30, 0.08);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .product-page-fond { padding: 0; }
+  .product-page-carte { border-radius: 0; box-shadow: none; }
+}
+
+
+/* Sections génériques (page produit, réutilisable pour tout type de marque) */
+.section-generique { max-width: 900px; margin: 3rem auto; }
+.section-image-titre { text-align: center; }
+.section-image-titre img { max-width: 100%; border-radius: var(--radius); margin-bottom: 1rem; }
+.contenu-riche p { margin: 0 0 1em; line-height: 1.7; }
+.contenu-riche a { color: var(--copper-dark); text-decoration: underline; }
+
+.offres-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+.offre-carte {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--parchment);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.8rem;
+}
+.offre-carte-avant { border: 2px solid var(--copper); box-shadow: 0 6px 20px rgba(201,154,46,0.15); }
+.offre-badge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--copper); color: var(--forest); font-size: 0.7rem; font-weight: 700;
+  padding: 0.3em 0.9em; borderRadius: 50px; letter-spacing: 0.03em; text-transform: uppercase;
+}
+.offre-prix { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 600; color: var(--forest); margin: 0.5rem 0; }
+.offre-prix-suffixe { font-size: 0.9rem; opacity: 0.6; }
+.offre-description { font-size: 0.88rem; opacity: 0.75; margin-bottom: 1rem; }
+.offre-liste { list-style: none; padding: 0; margin: 0 0 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+.offre-liste li { font-size: 0.88rem; display: flex; gap: 0.5rem; }
+.offre-check { color: var(--copper); font-weight: 700; }
+
+.benefice-carte {
+  text-align: center; padding: 1.2rem; width: 170px;
+  background: var(--parchment-dark); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.benefice-icone {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%; background: var(--sage-light);
+  color: var(--sage); margin-bottom: 0.6rem;
+}
+.benefice-texte { font-size: 0.88rem; font-weight: 500; margin: 0; }
+
+/* Éditeur de blocs admin */
+.bloc-poignee {
+  cursor: grab; padding: 0.3rem 0.6rem; color: var(--sage);
+  font-size: 1.1rem; user-select: none; touch-action: none;
+}
+.bloc-poignee:active { cursor: grabbing; }
+
+/* Éditeur riche admin */
+.ql-editor { min-height: 120px; font-family: var(--font-body); background: var(--parchment); }
