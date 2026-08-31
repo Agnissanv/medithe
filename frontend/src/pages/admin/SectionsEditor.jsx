@@ -305,7 +305,7 @@ function OffreForm({ section, sections, onChange }) {
   function ajouterCarte() {
     onChange({
       cartes: [...(section.cartes || []), {
-        id: crypto.randomUUID(), eyebrow: '', prix: '', suffixePrix: '',
+        id: crypto.randomUUID(), eyebrow: '', prix: '', prixBarre: '', suffixePrix: '',
         description: '', fonctionnalitesTexte: '', miseEnAvant: false, badgeTexte: 'Le plus choisi', texteBouton: 'Choisir',
       }],
     });
@@ -351,9 +351,10 @@ function OffreForm({ section, sections, onChange }) {
 
       {(section.cartes || []).map((c) => (
         <div key={c.id} style={styles.repeaterItem}>
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
             <input placeholder="Nom" value={c.eyebrow} onChange={(e) => modifierCarte(c.id, { eyebrow: e.target.value })} style={{ ...styles.input, flex: 1 }} />
             <input placeholder="Prix" value={c.prix} onChange={(e) => modifierCarte(c.id, { prix: e.target.value })} style={{ ...styles.input, flex: 1 }} />
+            <input placeholder="Prix barré (optionnel)" value={c.prixBarre} onChange={(e) => modifierCarte(c.id, { prixBarre: e.target.value })} style={{ ...styles.input, flex: 1 }} />
             <input placeholder="Unité" value={c.suffixePrix} onChange={(e) => modifierCarte(c.id, { suffixePrix: e.target.value })} style={{ ...styles.input, flex: 1 }} />
           </div>
           <div style={{ marginBottom: '0.4rem' }}>

@@ -13,6 +13,11 @@ export default function OfferCards({ cartes = [], onChoisir }) {
             {c.prix}
             {c.suffixePrix && <span className="offre-prix-suffixe"> {c.suffixePrix}</span>}
           </div>
+          {c.prixBarre && (
+            <div className="offre-prix-barre-ligne">
+              <span className="offre-prix-barre">{c.prixBarre} {c.suffixePrix}</span>
+            </div>
+          )}
           {c.description && (
             <div className="contenu-riche offre-description" dangerouslySetInnerHTML={{ __html: c.description }} />
           )}

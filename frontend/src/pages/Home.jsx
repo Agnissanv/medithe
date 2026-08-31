@@ -225,7 +225,7 @@ const styles = {
   },
   reassuranceBar: {
     background: 'var(--parchment-dark)',
-    padding: '1.5rem 0',
+    padding: '1.1rem 0',
     borderBottom: '1px solid var(--line)',
   },
     categoriesGrid: {

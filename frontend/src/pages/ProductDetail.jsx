@@ -86,10 +86,10 @@ export default function ProductDetail() {
                   {produit.Prix.toLocaleString('fr-FR')} F CFA
                 </span>
                 {enPromo && (
-                  <>
+                  <div style={styles.prixBarreLigne}>
                     <span style={styles.prixBarre}>{produit.PrixBarre.toLocaleString('fr-FR')} F CFA</span>
                     <span style={styles.badgePromo}>-{economie.toLocaleString('fr-FR')} F</span>
-                  </>
+                  </div>
                 )}
               </div>
 
@@ -156,7 +156,8 @@ function BadgeConfiance({ icon: Icon, titre, texte }) {
 }
 
 const styles = {
-  prixLigne: { display: 'flex', alignItems: 'center', gap: '0.7rem', flexWrap: 'wrap' },
+  prixLigne: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.3rem' },
+  prixBarreLigne: { display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' },
   prixBarre: { textDecoration: 'line-through', opacity: 0.5, fontFamily: 'var(--font-mono)', fontSize: '0.95rem' },
   badgePromo: { background: 'var(--danger)', color: 'white', fontSize: '0.72rem', fontWeight: 600, padding: '0.2em 0.6em', borderRadius: '50px', fontFamily: 'var(--font-mono)' },
   urgence: { color: 'var(--danger)', fontSize: '0.82rem', fontWeight: 600, fontFamily: 'var(--font-mono)', margin: '0.8rem 0' },
