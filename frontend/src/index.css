@@ -240,15 +240,14 @@ button {
 }
 
 .benefices-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
   margin-top: 1.5rem;
 }
 
-@media (max-width: 768px) {
-  .benefices-grid { flex-direction: column; align-items: stretch; }
+@media (max-width: 480px) {
+  .benefices-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
 }
 
 /* Fiche produit posée en "carte" sur fond gris doux, effet plus premium */
