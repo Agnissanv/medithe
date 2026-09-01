@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import FaqAccordion from '../FaqAccordion.jsx';
 import AvisList from '../AvisList.jsx';
+import { optimiserImageCloudinary } from '../../utils/cloudinaryOptimize.js';
 import BeneficesList from '../BeneficesList.jsx';
 import InlineOrderForm from '../InlineOrderForm.jsx';
 import OfferCards from './OfferCards.jsx';
@@ -20,7 +21,15 @@ export default function SectionRenderer({ section, produit, formulaireDomId }) {
     case 'image_titre':
       return (
         <section className="section-generique section-image-titre">
-          {section.image && <img src={section.image} alt={section.titre || ''} />}
+          {section.image && (
+            <img
+              src={optimiserImageCloudinary(section.image, 700)}
+              alt={section.titre || ''}
+              loading="lazy"
+              width="700"
+              height="525"
+            />
+          )}
           {section.titre && <h3>{section.titre}</h3>}
           {section.sousTitre && <p>{section.sousTitre}</p>}
         </section>
