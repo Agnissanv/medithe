@@ -315,7 +315,7 @@ button {
 .offre-check { color: var(--copper); font-weight: 700; }
 
 .benefice-carte {
-  text-align: center; padding: 1.2rem; width: 170px;
+  text-align: center; padding: 1.2rem;
   background: var(--parchment-dark); border: 1px solid var(--line); border-radius: var(--radius);
 }
 .benefice-icone {
