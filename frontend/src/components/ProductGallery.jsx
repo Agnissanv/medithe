@@ -29,6 +29,8 @@ export default function ProductGallery({ images = [], videoUrl, nom }) {
             alt={nom}
             style={styles.image}
             fetchPriority="high"
+            width="800"
+            height="600"
           />
         ) : (
           <iframe
@@ -51,7 +53,7 @@ export default function ProductGallery({ images = [], videoUrl, nom }) {
               aria-label={s.type === 'video' ? 'Voir la vidéo' : `Voir l'image ${i + 1}`}
             >
               {s.type === 'image' ? (
-                <img src={s.src} alt="" style={styles.miniatureImg} />
+                <img src={optimiserImageCloudinary(s.src, 100)} alt="" style={styles.miniatureImg} width="64" height="64" />
               ) : (
                 <span style={styles.miniatureVideo}>▶</span>
               )}
