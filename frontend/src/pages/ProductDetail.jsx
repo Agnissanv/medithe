@@ -81,6 +81,10 @@ export default function ProductDetail() {
               <span className="eyebrow">{produit.Categorie}</span>
               <h1 style={{ marginTop: '0.3rem', marginBottom: '0.3rem' }}>{produit.Nom}</h1>
 
+              <p style={{ maxWidth: '480px', color: 'var(--ink)', opacity: 0.85, margin: '0.4rem 0 0.8rem' }}>
+                {produit.Description}
+              </p>
+
               <div style={styles.prixLigne}>
                 <span className="price-tag" style={{ fontSize: '1.4rem' }}>
                   {produit.Prix.toLocaleString('fr-FR')} F CFA
@@ -92,10 +96,6 @@ export default function ProductDetail() {
                   </div>
                 )}
               </div>
-
-              <p style={{ maxWidth: '480px', color: 'var(--ink)', opacity: 0.85, margin: '0.8rem 0' }}>
-                {produit.Description}
-              </p>
 
               {epuise ? (
                 <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--danger)', marginTop: '1rem' }}>
