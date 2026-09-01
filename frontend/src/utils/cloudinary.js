@@ -41,15 +41,33 @@ export async function compressImage(file) {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(bitmap, 0, 0, width, height);
 
-  const blob = await new Promise((resolve) =>
-    canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
-  );
+  // Compression progressive : on réduit la qualité par paliers tant que le fichier
+  // est trop lourd, plutôt que d'abandonner après un seul essai. On ne renonce
+  // qu'en dernier recours, si même une qualité très basse ne suffit pas.
+  const paliersQualite = [0.75, 0.6, 0.45, 0.3];
 
-  if (blob.size > MAX_SIZE_BYTES) {
-    throw new Error("L'image reste trop lourde après compression (max ~2 Mo). Essayez une image plus petite.");
+  for (const qualite of paliersQualite) {
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', qualite)
+    );
+    if (blob.size <= MAX_SIZE_BYTES) return blob;
   }
 
-  return blob;
+  // Dernier recours : on réduit aussi les dimensions en plus de la qualité minimale
+  const facteurReduction = 0.7;
+  canvas.width = Math.round(width * facteurReduction);
+  canvas.height = Math.round(height * facteurReduction);
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+  const blobFinal = await new Promise((resolve) =>
+    canvas.toBlob(resolve, 'image/jpeg', 0.3)
+  );
+
+  if (blobFinal.size > MAX_SIZE_BYTES) {
+    throw new Error("Cette image est exceptionnellement lourde même après compression maximale. Essayez une photo prise directement (pas une capture d'écran ou un scan haute résolution).");
+  }
+
+  return blobFinal;
 }
 
 /**
