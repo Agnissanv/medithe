@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getVideoEmbedUrl } from '../utils/videoEmbed.js';
+import { optimiserImageCloudinary } from '../utils/cloudinaryOptimize.js';
 
 export default function ProductGallery({ images = [], videoUrl, nom }) {
   const embedUrl = getVideoEmbedUrl(videoUrl);
@@ -23,7 +24,12 @@ export default function ProductGallery({ images = [], videoUrl, nom }) {
     <div>
       <div style={styles.principal}>
         {slide.type === 'image' ? (
-          <img src={slide.src} alt={nom} style={styles.image} />
+          <img
+            src={optimiserImageCloudinary(slide.src)}
+            alt={nom}
+            style={styles.image}
+            fetchPriority="high"
+          />
         ) : (
           <iframe
             src={slide.src}

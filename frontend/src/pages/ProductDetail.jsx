@@ -52,7 +52,7 @@ export default function ProductDetail() {
     } : null,
   });
 
-  if (!produit) return <div className="container" style={{ padding: '3rem 1.5rem' }}>Chargement…</div>;
+  if (!produit) return <ProductDetailSquelette />;
 
   const epuise = !produit.Disponible || produit.Stock <= 0;
   const enPromo = produit.PrixBarre && produit.PrixBarre > produit.Prix;
@@ -143,6 +143,32 @@ export default function ProductDetail() {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function ProductDetailSquelette() {
+  return (
+    <div className="product-page-fond">
+      <div className="product-page-carte">
+        <div className="container" style={{ padding: '2rem 1.5rem' }}>
+          <div className="squelette-lien" />
+          <div className="product-layout">
+            <div>
+              <div className="squelette-image" />
+              <div className="badges-confiance-grid">
+                {[0, 1, 2, 3].map((i) => <div key={i} className="squelette-badge" />)}
+              </div>
+            </div>
+            <div>
+              <div className="squelette-ligne" style={{ width: '30%', height: '14px' }} />
+              <div className="squelette-ligne" style={{ width: '70%', height: '32px', marginTop: '0.6rem' }} />
+              <div className="squelette-ligne" style={{ width: '40%', height: '24px', marginTop: '1rem' }} />
+              <div className="squelette-formulaire" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
