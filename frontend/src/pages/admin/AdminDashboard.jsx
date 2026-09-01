@@ -6,10 +6,19 @@ export default function AdminDashboard() {
   const { token } = useAdmin();
   const [stats, setStats] = useState(null);
   const [erreur, setErreur] = useState('');
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
 
-  useEffect(() => {
-    api.getStats(token).then(setStats).catch((e) => setErreur(e.message));
-  }, []);
+  function charger() {
+    api.getStats(token, dateDebut, dateFin).then(setStats).catch((e) => setErreur(e.message));
+  }
+
+  useEffect(charger, [dateDebut, dateFin]);
+
+  function reinitialiserDates() {
+    setDateDebut('');
+    setDateFin('');
+  }
 
   if (erreur) return <p style={{ color: 'var(--danger)' }}>{erreur}</p>;
   if (!stats) return <p>Chargement…</p>;
@@ -19,6 +28,20 @@ export default function AdminDashboard() {
   return (
     <div>
       <h1>Tableau de bord</h1>
+
+      <div style={styles.filtreDate}>
+        <div>
+          <label style={styles.labelDate}>Depuis</label>
+          <input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} style={styles.inputDate} />
+        </div>
+        <div>
+          <label style={styles.labelDate}>Jusqu'au</label>
+          <input type="date" value={dateFin} onChange={(e) => setDateFin(e.target.value)} style={styles.inputDate} />
+        </div>
+        {(dateDebut || dateFin) && (
+          <button className="btn-ghost" onClick={reinitialiserDates} style={{ alignSelf: 'flex-end' }}>Réinitialiser</button>
+        )}
+      </div>
 
       <div style={styles.cartes}>
         <Carte label="Chiffre d'affaires" valeur={`${stats.chiffreAffaires.toLocaleString('fr-FR')} F CFA`} />
@@ -84,6 +107,12 @@ function Carte({ label, valeur, accent }) {
 }
 
 const styles = {
+  filtreDate: { display: 'flex', gap: '1rem', alignItems: 'end', marginBottom: '1.5rem' },
+  labelDate: { display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem', fontWeight: 500 },
+  inputDate: {
+    padding: '0.5em 0.7em', border: '1px solid var(--line)',
+    borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', background: 'var(--parchment)',
+  },
   cartes: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
   carte: { background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '1.2rem' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' },

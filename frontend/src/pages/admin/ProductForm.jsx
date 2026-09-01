@@ -106,7 +106,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       </div>
 
       <div>
-        <label style={styles.label}>Description courte (référencement Google et aperçus — non affichée sur la fiche)</label>
+        <label style={styles.label}>Description courte (résumé, affiché en haut de la fiche)</label>
         <textarea name="description" value={form.description} onChange={handleChange} rows={2} style={styles.input} />
       </div>
 

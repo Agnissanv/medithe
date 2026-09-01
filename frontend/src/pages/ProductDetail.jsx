@@ -93,6 +93,10 @@ export default function ProductDetail() {
                 )}
               </div>
 
+              <p style={{ maxWidth: '480px', color: 'var(--ink)', opacity: 0.85, margin: '0.8rem 0' }}>
+                {produit.Description}
+              </p>
+
               {epuise ? (
                 <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--danger)', marginTop: '1rem' }}>
                   Actuellement épuisé

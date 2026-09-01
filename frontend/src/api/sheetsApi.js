@@ -75,7 +75,8 @@ export const api = {
   adminLogin: (password) => apiPost('adminLogin', { password }),
   closerLogin: (password) => apiPost('closerLogin', { password }),
   getCommandes: (token, statut) => apiGet('getCommandes', { token, ...(statut ? { statut } : {}) }),
-  getStats: (token) => apiGet('getStats', { token }),
+  getStats: (token, dateDebut, dateFin) =>
+    apiGet('getStats', { token, ...(dateDebut ? { dateDebut } : {}), ...(dateFin ? { dateFin } : {}) }),
   updateStatutCommande: (token, numero, statut, notes, nomCloser) =>
     apiPost('updateStatutCommande', { token, numero, statut, notes, nomCloser }),
   deleteCommande: (token, numero) => apiPost('deleteCommande', { token, numero }),
