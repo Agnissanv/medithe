@@ -15,7 +15,7 @@ export default function Header() {
       <header style={styles.header}>
         <div className="container" style={styles.inner}>
           <Link to="/" style={styles.logo} onClick={() => setMenuOuvert(false)}>
-            <img src="/brand/logo-circle.png" alt="MédiThé" style={styles.logoImg} />
+            <img src="/brand/logo-circle.png" alt="MédiThé" style={styles.logoImg} width="36" height="36" />
             MédiThé
           </Link>
 

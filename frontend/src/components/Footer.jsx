@@ -6,7 +6,7 @@ export default function Footer() {
     <footer style={styles.footer}>
       <div className="container footer-grid">
         <div>
-          <img src="/brand/logo.png" alt="MédiThé" style={{ height: '48px', marginBottom: '0.8rem' }} />
+          <img src="/brand/logo.png" alt="MédiThé" style={{ height: '48px', marginBottom: '0.8rem' }} width="48" height="48" />
           <p style={styles.texte}>
             Distributeur officiel et exclusif des thés de soin en Afrique. La santé à chaque gorgée de thé.
           </p>
