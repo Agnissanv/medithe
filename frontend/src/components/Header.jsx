@@ -20,7 +20,7 @@ export default function Header() {
           </Link>
 
           <nav className="header-nav-desktop" style={styles.nav}>
-            <Link to="/" style={styles.navLink}>Catalogue</Link>
+            <Link to="/" style={styles.navLink}>Accueil</Link>
             <Link to="/suivi" style={styles.navLink}>Suivre ma commande</Link>
           </nav>
 
@@ -45,7 +45,7 @@ export default function Header() {
 
         {menuOuvert && (
           <nav className="header-nav-mobile">
-            <Link to="/" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Catalogue</Link>
+            <Link to="/" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Accueil</Link>
             <Link to="/suivi" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Suivre ma commande</Link>
           </nav>
         )}
