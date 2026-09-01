@@ -279,6 +279,13 @@ button {
 .section-image-titre img { max-width: 100%; border-radius: var(--radius); margin-bottom: 1rem; }
 .contenu-riche p { margin: 0 0 1em; line-height: 1.7; }
 .contenu-riche a { color: var(--copper-dark); text-decoration: underline; }
+.contenu-riche h2, .contenu-riche h3 { margin-top: 1.2em; }
+.contenu-riche ul, .contenu-riche ol { margin: 0 0 1em; padding-left: 1.4em; line-height: 1.7; }
+.contenu-riche blockquote {
+  border-left: 3px solid var(--copper); margin: 1em 0; padding: 0.3em 0 0.3em 1em;
+  font-style: italic; opacity: 0.85;
+}
+.contenu-riche strong { color: var(--forest); }
 
 .offres-grid {
   display: grid;
