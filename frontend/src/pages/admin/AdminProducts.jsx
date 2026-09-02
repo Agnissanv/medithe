@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/sheetsApi.js';
 import ProductForm from './ProductForm.jsx';
-import { syncCatalogToCloudinary } from '../../utils/catalogSync.js';
+import { syncCatalogToCloudinary, syncProductDetailToCloudinary } from '../../utils/catalogSync.js';
 import { useAdmin } from '../../context/AdminContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,18 +30,20 @@ export default function AdminProducts() {
 
   useEffect(charger, []);
 
-    async function handleSubmit(data) {
+  async function handleSubmit(data) {
     setEnvoi(true);
     setErreur('');
     try {
+      let idProduit = edition === 'nouveau' ? null : edition.ID;
       if (edition === 'nouveau') {
-        await api.createProduit(token, data);
+        const resultat = await api.createProduit(token, data);
+        idProduit = resultat.id;
       } else {
         await api.updateProduit(token, edition.ID, data);
       }
       setEdition(null);
       charger();
-      synchroniserCatalogue();
+      synchroniserCatalogue(idProduit);
     } catch (err) {
       if (!gererErreurSession(err)) setErreur(err.message);
     } finally {
@@ -49,10 +51,16 @@ export default function AdminProducts() {
     }
   }
 
-  async function synchroniserCatalogue() {
+  async function synchroniserCatalogue(idProduitModifie) {
     try {
       const fresh = await api.getProduits();
-      await syncCatalogToCloudinary(fresh);
+      await syncCatalogToCloudinary(fresh); // catalogue léger, pour l'accueil
+
+      // Fichier détaillé complet, uniquement pour le produit qu'on vient de modifier
+      const produitModifie = fresh.find((p) => p.ID === idProduitModifie);
+      if (produitModifie) {
+        await syncProductDetailToCloudinary(produitModifie);
+      }
     } catch (e) {
       console.error('Synchronisation CDN échouée :', e.message);
     }
@@ -62,6 +70,7 @@ export default function AdminProducts() {
     if (!confirm(`Supprimer « ${produit.Nom} » ? Cette action est irréversible.`)) return;
     try {
       await api.deleteProduit(token, produit.ID);
+      synchroniserCatalogue();
       charger();
       synchroniserCatalogue();
     } catch (err) {

@@ -1,10 +1,10 @@
 /**
- * Synchronise le catalogue produits vers un fichier JSON statique sur Cloudinary,
- * pour que le site public le lise depuis un CDN plutôt que via Apps Script à
- * chaque visite (Apps Script ajoute une redirection incompressible ~1-2s).
- *
- * Apps Script reste la source de vérité pour l'écriture (Sheet) ; ce fichier
- * n'est qu'une copie de lecture rapide, régénérée à chaque modif produit.
+ * Synchronise le catalogue produits vers Cloudinary, sous deux formes :
+ * - un catalogue LÉGER (medithe-catalogue.json) pour la page d'accueil / listing,
+ *   qui ne grossit jamais avec le contenu riche des fiches produit ;
+ * - un fichier DÉTAILLÉ par produit (medithe-produit-{id}.json), contenant tout
+ *   son contenu (sections, offres, témoignages...), téléchargé uniquement quand
+ *   on visite CE produit précis.
  */
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -15,17 +15,31 @@ function getCatalogUrl() {
   return `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/${CATALOG_PUBLIC_ID}.json`;
 }
 
-/** Envoie la liste de produits actuelle vers Cloudinary (écrase la version précédente). */
-export async function syncCatalogToCloudinary(produits) {
-  if (!CLOUD_NAME || !CATALOG_PRESET) {
-    throw new Error('Synchronisation catalogue non configurée (variables Cloudinary manquantes)');
-  }
+function getProduitDetailUrl(id) {
+  return `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/medithe-produit-${id}.json`;
+}
 
-  const blob = new Blob([JSON.stringify(produits)], { type: 'application/json' });
+/** Ne garde que les champs nécessaires à l'affichage en liste (accueil, cartes produit). */
+function allegerProduit(p) {
+  return {
+    ID: p.ID,
+    Nom: p.Nom,
+    Prix: p.Prix,
+    PrixBarre: p.PrixBarre,
+    Categorie: p.Categorie,
+    Stock: p.Stock,
+    Disponible: p.Disponible,
+    Images: p.Images?.slice(0, 1) || [],
+    DateAjout: p.DateAjout,
+  };
+}
+
+async function uploadJsonToCloudinary(publicId, data) {
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
   const formData = new FormData();
   formData.append('file', blob);
   formData.append('upload_preset', CATALOG_PRESET);
-  formData.append('public_id', CATALOG_PUBLIC_ID);
+  formData.append('public_id', publicId);
 
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
     method: 'POST',
@@ -34,21 +48,40 @@ export async function syncCatalogToCloudinary(produits) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || 'Échec de la synchronisation du catalogue');
+    throw new Error(err?.error?.message || 'Échec de la synchronisation');
   }
 }
 
-/**
- * Lit le catalogue depuis le CDN. Pas de cache-busting : on laisse le réseau CDN
- * servir une copie mise en cache près du visiteur pour un chargement instantané.
- * Cloudinary invalide sa copie automatiquement dès qu'un admin resynchronise le fichier
- * (upload avec overwrite), donc un léger délai de propagation (quelques minutes max)
- * est un compromis largement préférable à forcer un aller-retour réseau à chaque visite.
- */
+/** Envoie le catalogue ALLÉGÉ (liste de tous les produits, champs minimaux). */
+export async function syncCatalogToCloudinary(produits) {
+  if (!CLOUD_NAME || !CATALOG_PRESET) {
+    throw new Error('Synchronisation catalogue non configurée');
+  }
+  await uploadJsonToCloudinary(CATALOG_PUBLIC_ID, produits.map(allegerProduit));
+}
+
+/** Envoie le détail COMPLET d'un seul produit, dans son propre fichier. */
+export async function syncProductDetailToCloudinary(produit) {
+  if (!CLOUD_NAME || !CATALOG_PRESET) {
+    throw new Error('Synchronisation produit non configurée');
+  }
+  await uploadJsonToCloudinary(`medithe-produit-${produit.ID}`, produit);
+}
+
+/** Lit le catalogue allégé depuis le CDN (page d'accueil / listing). */
 export async function fetchCatalogFromCdn() {
   const res = await fetch(getCatalogUrl());
   if (!res.ok) throw new Error('Catalogue CDN indisponible');
   const data = await res.json();
   if (!Array.isArray(data)) throw new Error('Catalogue CDN invalide');
+  return data;
+}
+
+/** Lit le détail complet d'UN SEUL produit depuis le CDN (fiche produit). */
+export async function fetchProductFromCdn(id) {
+  const res = await fetch(getProduitDetailUrl(id));
+  if (!res.ok) throw new Error('Produit CDN indisponible');
+  const data = await res.json();
+  if (!data || !data.ID) throw new Error('Produit CDN invalide');
   return data;
 }

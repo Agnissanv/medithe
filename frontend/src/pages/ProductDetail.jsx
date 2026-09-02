@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Truck, ShieldCheck, Leaf, PhoneCall } from 'lucide-react';
 import { api } from '../api/sheetsApi.js';
-import { fetchCatalogFromCdn } from '../utils/catalogSync.js';
+import { fetchProductFromCdn } from '../utils/catalogSync.js';
 import { mockProduits } from '../data/mockProduits.js';
 import { useSEO } from '../hooks/useSEO.js';
 import ProductGallery from '../components/ProductGallery.jsx';
@@ -18,13 +18,8 @@ export default function ProductDetail() {
   useEffect(() => {
     let annule = false;
 
-    fetchCatalogFromCdn()
-      .then((data) => {
-        if (annule) return;
-        const trouve = data.find((p) => p.ID === id);
-        if (trouve) { setProduit(trouve); return; }
-        throw new Error('Produit absent du catalogue CDN');
-      })
+    fetchProductFromCdn(id)
+      .then((p) => { if (!annule) setProduit(p); })
       .catch(() => {
         api.getProduit(id)
           .then((p) => { if (!annule) setProduit(p); })
