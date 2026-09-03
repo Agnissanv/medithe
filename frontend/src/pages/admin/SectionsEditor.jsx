@@ -256,9 +256,9 @@ function AvisForm({ section, onChange }) {
       />
       {(section.items || []).map((it, i) => (
         <div key={i} style={styles.repeaterItem}>
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem' }}>
-            <input placeholder="Nom" value={it.nom} onChange={(e) => modifier(i, 'nom', e.target.value)} style={{ ...styles.input, flex: 2 }} />
-            <select value={it.note} onChange={(e) => modifier(i, 'note', Number(e.target.value))} style={{ ...styles.input, flex: 1 }}>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+            <input placeholder="Nom" value={it.nom} onChange={(e) => modifier(i, 'nom', e.target.value)} style={{ ...styles.input, flex: '2 1 140px' }} />
+            <select value={it.note} onChange={(e) => modifier(i, 'note', Number(e.target.value))} style={{ ...styles.input, flex: '1 1 100px' }}>
               {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} étoiles</option>)}
             </select>
           </div>
@@ -396,7 +396,7 @@ function OffreForm({ section, sections, onChange }) {
             placeholder="Fonctionnalités, une par ligne" value={c.fonctionnalitesTexte} rows={3}
             onChange={(e) => modifierCarte(c.id, { fonctionnalitesTexte: e.target.value })} style={{ ...styles.input, marginBottom: '0.4rem' }}
           />
-          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginBottom: '0.4rem' }}>
+          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.85rem' }}>
               <input type="checkbox" checked={c.miseEnAvant} onChange={(e) => modifierCarte(c.id, { miseEnAvant: e.target.checked })} />
               Mettre en avant
