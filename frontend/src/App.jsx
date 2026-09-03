@@ -18,6 +18,9 @@ const AdminClosers = lazy(() => import('./pages/admin/AdminClosers.jsx'));
 const CloserLayout = lazy(() => import('./components/CloserLayout.jsx'));
 const CloserOrders = lazy(() => import('./pages/closing/CloserOrders.jsx'));
 
+const LivreurLayout = lazy(() => import('./components/LivreurLayout.jsx'));
+const LivreurOrders = lazy(() => import('./pages/livraison/LivreurOrders.jsx'));
+
 function ChargementZone() {
   return <div style={{ padding: '3rem', textAlign: 'center' }}>Chargement…</div>;
 }
@@ -55,6 +58,14 @@ export default function App() {
           <Suspense fallback={<ChargementZone />}><CloserLayout /></Suspense>
         }>
           <Route index element={<Suspense fallback={<ChargementZone />}><CloserOrders /></Suspense>} />
+        </Route>
+      </Route>
+
+      <Route element={<RequireRole roles={['livreur']} />}>
+        <Route path="/livraison" element={
+          <Suspense fallback={<ChargementZone />}><LivreurLayout /></Suspense>
+        }>
+          <Route index element={<Suspense fallback={<ChargementZone />}><LivreurOrders /></Suspense>} />
         </Route>
       </Route>
     </Routes>

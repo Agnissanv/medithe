@@ -24,7 +24,7 @@ export default function AdminSidebar() {
         <NavLink to="/admin" end style={linkStyle}>Tableau de bord</NavLink>
         <NavLink to="/admin/produits" style={linkStyle}>Produits</NavLink>
         <NavLink to="/admin/commandes" style={linkStyle}>Commandes</NavLink>
-        <NavLink to="/admin/closers" style={linkStyle}>Closers</NavLink>
+        <NavLink to="/admin/closers" style={linkStyle}>Équipe</NavLink>
       </nav>
       <button className="btn-ghost" onClick={handleLogout} style={{ color: 'var(--parchment)', opacity: 0.7, marginTop: 'auto' }}>
         Se déconnecter

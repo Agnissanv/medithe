@@ -35,6 +35,7 @@ function mapCommande(c) {
     NotesCallCenter: c.notes_interne,
     TraitePar: c.role_traitant,
     NomCloser: c.nom_traitant,
+    NomLivreur: c.nom_livreur,
   };
 }
 
@@ -125,6 +126,12 @@ export const api = {
     const { error } = await supabase.rpc('update_statut_commande', {
       p_numero: numero, p_statut: statut, p_notes: notes ?? null,
     });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
+    async updateStatutLivraison(numero, statut) {
+    const { error } = await supabase.rpc('update_statut_livraison', { p_numero: numero, p_statut: statut });
     if (error) throw new Error(error.message);
     return { success: true };
   },

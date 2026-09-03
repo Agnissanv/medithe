@@ -11,6 +11,7 @@ export default function AdminClosers() {
   const [erreur, setErreur] = useState('');
   const [dateDebut, setDateDebut] = useState('');
   const [dateFin, setDateFin] = useState('');
+  const [filtreRole, setFiltreRole] = useState('Tous');
 
   const [formOuvert, setFormOuvert] = useState(false);
   const [nom, setNom] = useState('');
@@ -50,8 +51,9 @@ export default function AdminClosers() {
     setDateFin('');
   }
 
-  const totalRemunerables = stats.reduce((s, c) => s + c.commandesRemunerables, 0);
-  const totalAPayer = stats.reduce((s, c) => s + c.montantAPayer, 0);
+  const statsFiltrees = filtreRole === 'Tous' ? stats : stats.filter((s) => s.role === filtreRole);
+  const totalRemunerables = statsFiltrees.reduce((s, c) => s + c.commandesRemunerables, 0);
+  const totalAPayer = statsFiltrees.reduce((s, c) => s + c.montantAPayer, 0);
 
   return (
     <div>
@@ -95,11 +97,19 @@ export default function AdminClosers() {
         Tarif : {TARIF_PAR_COMMANDE} F CFA par commande rémunérable (hors Injoignable, Annulé/Rejeté, Client oiseau).
       </p>
 
+      <div style={{ marginBottom: '1rem' }}>
+        <select value={filtreRole} onChange={(e) => setFiltreRole(e.target.value)} style={styles.input}>
+          <option value="Tous">Tous les rôles</option>
+          <option value="closer">Closers uniquement</option>
+          <option value="livreur">Livreurs uniquement</option>
+        </select>
+      </div>
+
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
       {chargement ? (
         <p>Chargement…</p>
-      ) : stats.length === 0 ? (
+      ) : statsFiltrees.length === 0 ? (
         <p>Aucun membre d'équipe enregistré pour l'instant.</p>
       ) : (
         <table style={styles.table}>
@@ -115,7 +125,7 @@ export default function AdminClosers() {
             </tr>
           </thead>
           <tbody>
-            {stats.map((c) => (
+            {statsFiltrees.map((c) => (
               <tr key={c.nom}>
                 <td style={{ ...styles.td, fontWeight: 600 }}>{c.nom}</td>
                 <td style={styles.td}>{c.role}</td>

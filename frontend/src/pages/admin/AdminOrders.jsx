@@ -3,7 +3,7 @@ import { api } from '../../api/supabaseApi.js';
 import { exportCommandesToCsv } from '../../utils/csv.js';
 
 const STATUTS = [
-  'Nouvelle', 'Livré', 'En cours de livraison', 'Expédié', "En cours d'expédition",
+  'Nouvelle', 'Expédié', "En cours d'expédition", 'Prêt pour livraison',
   'Programmer le', 'Je vous rappel', 'Injoignable', 'Annulé / Rejeté', 'Client oiseau'
 ];
 
@@ -12,6 +12,7 @@ const STYLE_STATUT = {
   'Livré': { fond: '#6FC768', bande: '#1F5D22' },
   'En cours de livraison': { fond: '#DCF3D8', bande: '#7CB679' },
   'Expédié': { fond: '#8FD189', bande: '#2F7A32' },
+  'Prêt pour livraison': { fond: '#B2DFDB', bande: '#00695C' },
   "En cours d'expédition": { fond: '#EAF6E7', bande: '#A7CBA1' },
   'Programmer le': { fond: '#FBE29B', bande: '#B8790E' },
   'Je vous rappel': { fond: '#FDEFC0', bande: '#D1A23A' },
