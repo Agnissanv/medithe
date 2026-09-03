@@ -20,9 +20,12 @@ export default function ProductDetail() {
     api.getProduit(id)
       .then((p) => { if (!annule) setProduit(p); })
       .catch(() => { if (!annule) setProduit(mockProduits.find((p) => p.ID === id) || null); });
+    return () => { annule = true; };
+  }, [id]);
+
   useEffect(() => {
     if (produit) trackViewContent(produit);
-  }, [produit]));
+  }, [produit]);
 
   useSEO({
     title: produit?.Nom,
