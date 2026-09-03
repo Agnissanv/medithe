@@ -77,11 +77,18 @@ export default function SectionsEditor({ sections, onChange, produitInitial }) {
     onChange([...sections, ...nouveaux]);
   }
 
+  function insererBloc(index, type) {
+    const nouveau = creerBlocParDefaut(type);
+    const copie = [...sections];
+    copie.splice(index, 0, nouveau);
+    onChange(copie);
+  }
+
   return (
     <div>
       <label style={styles.label}>Blocs de la fiche produit</label>
       <p style={{ fontSize: '0.78rem', opacity: 0.65, marginBottom: '0.8rem' }}>
-        Glissez la poignée ⠿ pour réordonner.
+        Glissez la poignée ⠿ pour réordonner, ou cliquez le "+" à l'endroit exact où insérer un nouveau bloc.
       </p>
 
       {produitInitial && (
@@ -90,28 +97,53 @@ export default function SectionsEditor({ sections, onChange, produitInitial }) {
         </button>
       )}
 
+      <PointInsertion index={0} onInserer={insererBloc} />
+
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-          {sections.map((section) => (
-            <BlocTrie key={section.id} section={section}>
-              <BlocContenu
-                section={section}
-                sections={sections}
-                onChange={(patch) => mettreAJour(section.id, patch)}
-                onSupprimer={() => supprimer(section.id)}
-              />
-            </BlocTrie>
+          {sections.map((section, index) => (
+            <React.Fragment key={section.id}>
+              <BlocTrie section={section}>
+                <BlocContenu
+                  section={section}
+                  sections={sections}
+                  onChange={(patch) => mettreAJour(section.id, patch)}
+                  onSupprimer={() => supprimer(section.id)}
+                />
+              </BlocTrie>
+              <PointInsertion index={index + 1} onInserer={insererBloc} />
+            </React.Fragment>
           ))}
         </SortableContext>
       </DndContext>
+    </div>
+  );
+}
 
-      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '0.8rem' }}>
-        {TYPES.map((t) => (
-          <button key={t.value} type="button" className="btn-outline btn" onClick={() => ajouterBloc(t.value)}>
-            + {t.label}
-          </button>
-        ))}
+function PointInsertion({ index, onInserer }) {
+  const [ouvert, setOuvert] = React.useState(false);
+
+  if (!ouvert) {
+    return (
+      <div style={styles.ligneInsertion}>
+        <button type="button" onClick={() => setOuvert(true)} style={styles.boutonInsertion} aria-label="Ajouter un bloc ici">
+          +
+        </button>
       </div>
+    );
+  }
+
+  return (
+    <div style={styles.paletteInsertion}>
+      {TYPES.map((t) => (
+        <button
+          key={t.value} type="button" className="btn-outline btn"
+          onClick={() => { onInserer(index, t.value); setOuvert(false); }}
+        >
+          + {t.label}
+        </button>
+      ))}
+      <button type="button" className="btn-ghost" onClick={() => setOuvert(false)}>Annuler</button>
     </div>
   );
 }
@@ -386,6 +418,16 @@ const blocTrieStyle = { border: '1px solid var(--line)', borderRadius: 'var(--ra
 
 const styles = {
   label: { display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem', fontWeight: 500 },
+  ligneInsertion: { display: 'flex', justifyContent: 'center', padding: '0.3rem 0' },
+  boutonInsertion: {
+    width: '28px', height: '28px', borderRadius: '50%', border: '1px dashed var(--line)',
+    background: 'var(--parchment)', color: 'var(--sage)', fontSize: '1rem', lineHeight: 1,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  paletteInsertion: {
+    display: 'flex', gap: '0.5rem', flexWrap: 'wrap', padding: '0.8rem',
+    background: 'var(--sage-light)', borderRadius: 'var(--radius)', margin: '0.4rem 0',
+  },
   input: {
     width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)',
     borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', background: 'var(--parchment)',
