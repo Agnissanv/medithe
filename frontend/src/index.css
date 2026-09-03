@@ -330,6 +330,7 @@ button {
   cursor: grab; padding: 0.3rem 0.6rem; color: var(--sage);
   font-size: 1.1rem; user-select: none; touch-action: none;
 }
+
 .bloc-poignee:active { cursor: grabbing; }
 
 /* Éditeur riche admin */
