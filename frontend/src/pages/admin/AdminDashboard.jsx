@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
-import { useAdmin } from '../../context/AdminContext.jsx';
 
 export default function AdminDashboard() {
-  const { token } = useAdmin();
   const [stats, setStats] = useState(null);
   const [erreur, setErreur] = useState('');
   const [dateDebut, setDateDebut] = useState('');
   const [dateFin, setDateFin] = useState('');
 
   function charger() {
-    api.getStats( dateDebut, dateFin).then(setStats).catch((e) => setErreur(e.message));
+    api.getStats(dateDebut, dateFin).then(setStats).catch((e) => setErreur(e.message));
   }
 
   useEffect(charger, [dateDebut, dateFin]);
@@ -109,10 +107,7 @@ function Carte({ label, valeur, accent }) {
 const styles = {
   filtreDate: { display: 'flex', gap: '1rem', alignItems: 'end', marginBottom: '1.5rem' },
   labelDate: { display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem', fontWeight: 500 },
-  inputDate: {
-    padding: '0.5em 0.7em', border: '1px solid var(--line)',
-    borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', background: 'var(--parchment)',
-  },
+  inputDate: { padding: '0.5em 0.7em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', background: 'var(--parchment)' },
   cartes: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
   carte: { background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '1.2rem' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' },

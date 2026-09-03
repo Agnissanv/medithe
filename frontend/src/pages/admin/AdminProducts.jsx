@@ -1,24 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import ProductForm from './ProductForm.jsx';
-import { useAdmin } from '../../context/AdminContext.jsx';
-import { useNavigate } from 'react-router-dom';
 
 export default function AdminProducts() {
-  const { logout } = useAdmin();
-  const navigate = useNavigate();
-
-  function gererErreurSession(err) {
-    if (err.message?.toLowerCase().includes('session') || err.message?.toLowerCase().includes('authentifi')) {
-      logout();
-      navigate('/admin/login');
-      return true;
-    }
-    return false;
-  }
   const [produits, setProduits] = useState([]);
   const [chargement, setChargement] = useState(true);
-  const [edition, setEdition] = useState(null); // null | 'nouveau' | produit
+  const [edition, setEdition] = useState(null);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState('');
 
@@ -33,28 +20,24 @@ export default function AdminProducts() {
     setEnvoi(true);
     setErreur('');
     try {
-      let idProduit = edition === 'nouveau' ? null : edition.ID;
       if (edition === 'nouveau') {
-        const resultat = await api.createProduit( data);
-        idProduit = resultat.id;
+        await api.createProduit(data);
       } else {
         await api.updateProduit(edition.ID, data);
       }
       setEdition(null);
       charger();
     } catch (err) {
-      if (!gererErreurSession(err)) setErreur(err.message);
+      setErreur(err.message);
     } finally {
       setEnvoi(false);
     }
   }
 
-
-
-    async function handleSupprimer(produit) {
+  async function handleSupprimer(produit) {
     if (!confirm(`Supprimer « ${produit.Nom} » ? Cette action est irréversible.`)) return;
     try {
-      await api.deleteProduit(id);
+      await api.deleteProduit(produit.ID);
       charger();
     } catch (err) {
       setErreur(err.message);

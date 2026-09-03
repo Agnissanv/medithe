@@ -9,16 +9,12 @@ import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import OrderTracking from './pages/OrderTracking.jsx';
 
-// Chargées uniquement quand quelqu'un visite réellement l'admin ou le closing —
-// jamais téléchargées par un visiteur de la boutique publique.
 const AdminLayout = lazy(() => import('./components/AdminLayout.jsx'));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts.jsx'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders.jsx'));
 const AdminClosers = lazy(() => import('./pages/admin/AdminClosers.jsx'));
 
-const CloserLogin = lazy(() => import('./pages/closing/CloserLogin.jsx'));
 const CloserLayout = lazy(() => import('./components/CloserLayout.jsx'));
 const CloserOrders = lazy(() => import('./pages/closing/CloserOrders.jsx'));
 
@@ -29,7 +25,7 @@ function ChargementZone() {
 export default function App() {
   return (
     <Routes>
-      {/* Vitrine publique — chargée immédiatement, sans rien d'admin dedans */}
+      {/* Vitrine publique */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/produit/:id" element={<ProductDetail />} />
@@ -38,29 +34,28 @@ export default function App() {
         <Route path="/suivi" element={<OrderTracking />} />
       </Route>
 
-      {/* Authentification admin */}
-      <Route path="/admin/login" element={
-        <Suspense fallback={<ChargementZone />}><AdminLogin /></Suspense>
-      } />
+      {/* Connexion unique pour toute l'équipe (admin, closer, livreur) */}
+      <Route path="/connexion" element={<Login />} />
 
-      {/* Espace admin protégé — code téléchargé uniquement à la visite */}
-      <Route path="/admin" element={
-        <Suspense fallback={<ChargementZone />}><AdminLayout /></Suspense>
-      }>
-        <Route index element={<Suspense fallback={<ChargementZone />}><AdminDashboard /></Suspense>} />
-        <Route path="produits" element={<Suspense fallback={<ChargementZone />}><AdminProducts /></Suspense>} />
-        <Route path="commandes" element={<Suspense fallback={<ChargementZone />}><AdminOrders /></Suspense>} />
-        <Route path="closers" element={<Suspense fallback={<ChargementZone />}><AdminClosers /></Suspense>} />
+      {/* Espace admin protégé */}
+      <Route element={<RequireRole roles={['admin']} />}>
+        <Route path="/admin" element={
+          <Suspense fallback={<ChargementZone />}><AdminLayout /></Suspense>
+        }>
+          <Route index element={<Suspense fallback={<ChargementZone />}><AdminDashboard /></Suspense>} />
+          <Route path="produits" element={<Suspense fallback={<ChargementZone />}><AdminProducts /></Suspense>} />
+          <Route path="commandes" element={<Suspense fallback={<ChargementZone />}><AdminOrders /></Suspense>} />
+          <Route path="closers" element={<Suspense fallback={<ChargementZone />}><AdminClosers /></Suspense>} />
+        </Route>
       </Route>
 
-      {/* Espace closing (closers) */}
-      <Route path="/closing/login" element={
-        <Suspense fallback={<ChargementZone />}><CloserLogin /></Suspense>
-      } />
-      <Route path="/closing" element={
-        <Suspense fallback={<ChargementZone />}><CloserLayout /></Suspense>
-      }>
-        <Route index element={<Suspense fallback={<ChargementZone />}><CloserOrders /></Suspense>} />
+      {/* Espace closing protégé */}
+      <Route element={<RequireRole roles={['closer']} />}>
+        <Route path="/closing" element={
+          <Suspense fallback={<ChargementZone />}><CloserLayout /></Suspense>
+        }>
+          <Route index element={<Suspense fallback={<ChargementZone />}><CloserOrders /></Suspense>} />
+        </Route>
       </Route>
     </Routes>
   );

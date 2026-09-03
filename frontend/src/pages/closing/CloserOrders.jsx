@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
-import { useCloser } from '../../context/CloserContext.jsx';
 
 const STATUTS = [
   'Nouvelle', 'Livré', 'En cours de livraison', 'Expédié', "En cours d'expédition",
@@ -21,9 +20,7 @@ const STYLE_STATUT = {
 };
 
 export default function CloserOrders() {
-  const { token } = useCloser();
   const [commandes, setCommandes] = useState([]);
-  const [nomsClosers, setNomsClosers] = useState([]);
   const [filtre, setFiltre] = useState('Toutes');
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState('');
@@ -31,48 +28,34 @@ export default function CloserOrders() {
 
   function charger() {
     setChargement(true);
-    api.getCommandes( filtre === 'Toutes' ? null : filtre)
+    api.getCommandes(filtre === 'Toutes' ? null : filtre)
       .then(setCommandes)
       .catch((e) => setErreur(e.message))
       .finally(() => setChargement(false));
   }
 
-  useEffect(() => {
-    api.getClosers(token).then(setNomsClosers).catch(() => {});
-  }, []);
-
   useEffect(charger, [filtre]);
 
   async function handleChangerStatut(commande, statut) {
-    if (!commande.NomCloser) return; // sécurité : impossible sans nom choisi
-    if (commande.TraitePar && commande.TraitePar !== 'closer') return; // verrouillé, sécurité supplémentaire
+    if (commande.TraitePar && commande.TraitePar !== 'closer') return;
     try {
-      await api.updateStatutCommande(commande.NumeroCommande, statut, undefined, commande.NomCloser || undefined);
+      await api.updateStatutCommande(commande.NumeroCommande, statut);
       setErreur('');
       charger();
     } catch (err) {
       setErreur(err.message);
+      charger();
     }
   }
 
   async function handleEnregistrerNote(commande, note) {
     if (commande.TraitePar && commande.TraitePar !== 'closer') return;
     try {
-      await api.updateStatutCommande(commande.NumeroCommande, commande.Statut, note, commande.NomCloser || undefined);
+      await api.updateStatutCommande(commande.NumeroCommande, commande.Statut, note);
       setErreur('');
     } catch (err) {
       setErreur(err.message);
-    }
-  }
-
-  async function handleChoisirCloser(commande, nom) {
-    if (!nom) return;
-    try {
-      await api.updateStatutCommande( commande.NumeroCommande, commande.Statut, undefined, nom);
-      setErreur('');
       charger();
-    } catch (err) {
-      setErreur(err.message);
     }
   }
 
@@ -111,7 +94,6 @@ export default function CloserOrders() {
             {commandes.map((c) => {
               const style = STYLE_STATUT[c.Statut] || STYLE_STATUT.Nouvelle;
               const verrouilleParAdmin = c.TraitePar === 'admin';
-              const nonAttribuee = !c.TraitePar;
 
               return (
                 <tr key={c.NumeroCommande} style={{ background: style.fond, borderLeft: `4px solid ${style.bande}` }}>
@@ -123,25 +105,14 @@ export default function CloserOrders() {
                   <td style={styles.td}>
                     {verrouilleParAdmin ? (
                       <span style={styles.badgeVerrou}>{c.Statut}</span>
-                    ) : nonAttribuee ? (
-                      <span style={styles.badgeAttente}>Choisissez d'abord votre nom →</span>
                     ) : (
                       <select value={c.Statut} onChange={(e) => handleChangerStatut(c, e.target.value)} style={styles.selectInline}>
                         {STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                     )}
                   </td>
-                  <td style={styles.td}>
-                    {c.NomCloser ? (
-                      <span style={{ fontWeight: 600, color: 'var(--forest)' }}>{c.NomCloser}</span>
-                    ) : nonAttribuee ? (
-                      <select defaultValue="" onChange={(e) => handleChoisirCloser(c, e.target.value)} style={styles.selectInline}>
-                        <option value="" disabled>Qui traite ceci ?</option>
-                        {nomsClosers.map((n) => <option key={n} value={n}>{n}</option>)}
-                      </select>
-                    ) : (
-                      <span style={{ opacity: 0.5 }}>—</span>
-                    )}
+                  <td style={{ ...styles.td, fontWeight: 600, color: 'var(--forest)' }}>
+                    {c.NomCloser || <span style={{ opacity: 0.4, fontWeight: 400 }}>Non attribué</span>}
                   </td>
                   <td style={styles.td}>
                     {verrouilleParAdmin ? (
@@ -204,7 +175,6 @@ const styles = {
     borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', resize: 'vertical', background: 'var(--parchment)',
   },
   badgeVerrou: { fontSize: '0.82rem', opacity: 0.7, fontStyle: 'italic' },
-  badgeAttente: { fontSize: '0.78rem', opacity: 0.6, fontStyle: 'italic', color: 'var(--copper-dark)' },
   overlay: { position: 'fixed', inset: 0, background: 'rgba(11,77,30,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 },
   modal: { background: 'var(--parchment)', padding: '2rem', borderRadius: 'var(--radius)', width: '400px', maxHeight: '80vh', overflowY: 'auto' },
 };

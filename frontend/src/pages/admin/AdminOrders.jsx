@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
-import { useAdmin } from '../../context/AdminContext.jsx';
 import { exportCommandesToCsv } from '../../utils/csv.js';
 
 const STATUTS = [
@@ -22,7 +21,6 @@ const STYLE_STATUT = {
 };
 
 export default function AdminOrders() {
-  const { token } = useAdmin();
   const [commandes, setCommandes] = useState([]);
   const [filtre, setFiltre] = useState('Toutes');
   const [chargement, setChargement] = useState(true);
@@ -43,7 +41,7 @@ export default function AdminOrders() {
 
   async function handleChangerStatut(numero, statut) {
     try {
-      await api.updateStatutCommande( numero, statut);
+      await api.updateStatutCommande(numero, statut);
       setErreur('');
       charger();
       if (commandeOuverte?.NumeroCommande === numero) {
@@ -51,13 +49,13 @@ export default function AdminOrders() {
       }
     } catch (err) {
       setErreur(err.message);
-      charger(); // resynchronise l'affichage si la commande était verrouillée entre-temps
+      charger();
     }
   }
 
   async function handleEnregistrerNote(numero, statutActuel, note) {
     try {
-      await api.updateStatutCommande( numero, statutActuel, note);
+      await api.updateStatutCommande(numero, statutActuel, note);
       setErreur('');
     } catch (err) {
       setErreur(err.message);
@@ -68,7 +66,7 @@ export default function AdminOrders() {
   async function handleSupprimer(numero) {
     if (!confirm(`Supprimer la commande ${numero} ? Cette action est irréversible.`)) return;
     try {
-      await api.deleteCommande( numero);
+      await api.deleteCommande(numero);
       charger();
     } catch (err) {
       setErreur(err.message);
@@ -78,7 +76,7 @@ export default function AdminOrders() {
   async function handleViderTout() {
     if (confirmationVidage !== 'SUPPRIMER') return;
     try {
-      await api.clearAllCommandes(token);
+      await api.clearAllCommandes();
       setVidageOuvert(false);
       setConfirmationVidage('');
       charger();
@@ -214,8 +212,7 @@ export default function AdminOrders() {
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h3 style={{ color: 'var(--danger)' }}>⚠ Vider toutes les commandes</h3>
             <p style={{ fontSize: '0.9rem', opacity: 0.85 }}>
-              Cette action supprime <strong>définitivement</strong> les {commandes.length} commande(s)
-              actuellement dans le Sheet. Impossible à annuler.
+              Cette action supprime <strong>définitivement</strong> les {commandes.length} commande(s) actuellement enregistrées. Impossible à annuler.
             </p>
             <p style={{ fontSize: '0.85rem', marginTop: '1rem' }}>
               Tape <strong>SUPPRIMER</strong> pour confirmer :
@@ -258,16 +255,7 @@ const styles = {
     width: '180px', fontSize: '0.8rem', padding: '0.4em 0.5em', border: '1px solid var(--line)',
     borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', resize: 'vertical', background: 'var(--parchment)',
   },
-  overlay: {
-    position: 'fixed', inset: 0, background: 'rgba(11,77,30,0.6)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20,
-  },
-  modal: {
-    background: 'var(--parchment)', padding: '2rem', borderRadius: 'var(--radius)',
-    width: '400px', maxHeight: '80vh', overflowY: 'auto',
-  },
-  confirmInput: {
-    width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)',
-    borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', marginTop: '0.5rem',
-  },
+  overlay: { position: 'fixed', inset: 0, background: 'rgba(11,77,30,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 },
+  modal: { background: 'var(--parchment)', padding: '2rem', borderRadius: 'var(--radius)', width: '400px', maxHeight: '80vh', overflowY: 'auto' },
+  confirmInput: { width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', marginTop: '0.5rem' },
 };
