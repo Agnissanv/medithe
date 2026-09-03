@@ -34,7 +34,11 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
       const commande = {
         nom: form.nomComplet, prenom: '', telephone: form.telephone,
         quartier: form.adresse, ville: '', note: form.note,
-        produits: [{ id: produit.ID, nom: produit.Nom, prix: produit.Prix, quantite }],
+        produits: [{
+          id: produit.ID, nom: produit.Nom, prix: produit.Prix, quantite,
+          commissionCloser: produit.CommissionCloser || 0,
+          commissionLivreur: produit.CommissionLivreur || 0,
+        }],
       };
       const resultat = await api.createCommande(commande);
       setConfirmation(resultat);

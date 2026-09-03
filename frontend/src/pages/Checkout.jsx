@@ -53,7 +53,11 @@ export default function Checkout() {
         quartier: form.adresse,
         ville: '',
         note: form.note,
-        produits: items.map((i) => ({ id: i.id, nom: i.nom, prix: i.prix, quantite: i.quantite })),
+        produits: items.map((i) => ({
+          id: i.id, nom: i.nom, prix: i.prix, quantite: i.quantite,
+          commissionCloser: i.commissionCloser || 0,
+          commissionLivreur: i.commissionLivreur || 0,
+        })),
       };
       const resultat = await api.createCommande(commande);
       setItemsCommandes(items);

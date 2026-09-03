@@ -27,7 +27,11 @@ export function CartProvider({ children }) {
       }
       return [
         ...prev,
-        { id: produit.ID, nom: produit.Nom, prix: produit.Prix, quantite },
+        {
+          id: produit.ID, nom: produit.Nom, prix: produit.Prix, quantite,
+          commissionCloser: produit.CommissionCloser || 0,
+          commissionLivreur: produit.CommissionLivreur || 0,
+        },
       ];
     });
   }

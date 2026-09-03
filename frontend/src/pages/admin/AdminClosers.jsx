@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
-const TARIF_PAR_COMMANDE = 500;
 
 export default function AdminClosers() {
   const { session } = useAuth();
@@ -94,7 +93,7 @@ export default function AdminClosers() {
       </div>
 
       <p style={{ fontSize: '0.82rem', opacity: 0.65, marginTop: '-0.5rem' }}>
-        Tarif : {TARIF_PAR_COMMANDE} F CFA par commande rémunérable (hors Injoignable, Annulé/Rejeté, Client oiseau).
+        Commission calculée automatiquement selon les tarifs définis par produit — closer sur les ventes confirmées, livreur sur les livraisons effectuées.
       </p>
 
       <div style={{ marginBottom: '1rem' }}>

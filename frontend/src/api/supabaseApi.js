@@ -1,7 +1,6 @@
 import { supabase } from '../lib/supabaseClient.js';
 
 const STATUTS_EXCLUS_CA = ['Annulé / Rejeté', 'Client oiseau', 'Injoignable'];
-const TARIF_PAR_COMMANDE = 500;
 
 // --- Traduction snake_case (base) -> PascalCase (déjà utilisé partout dans l'app) ---
 function mapProduit(p) {
@@ -11,6 +10,8 @@ function mapProduit(p) {
     Description: p.description,
     Prix: Number(p.prix),
     PrixBarre: p.prix_barre ? Number(p.prix_barre) : null,
+    CommissionCloser: Number(p.commission_closer),
+    CommissionLivreur: Number(p.commission_livreur),
     Categorie: p.categorie,
     Stock: p.stock,
     Images: p.images || [],
@@ -59,6 +60,8 @@ export const api = {
       description: produit.description,
       prix: produit.prix,
       prix_barre: produit.prixBarre,
+      commission_closer: produit.commissionCloser,
+      commission_livreur: produit.commissionLivreur,
       categorie: produit.categorie,
       stock: produit.stock,
       images: produit.images,
@@ -190,8 +193,30 @@ export const api = {
     });
 
     return profils.map((p) => {
+      if (p.role === 'livreur') {
+        // Le livreur est payé uniquement sur les commandes effectivement livrées
+        const cmdsLivrees = commandes.filter((c) => c.NomLivreur === p.nom && c.Statut === 'Livré');
+        const commission = cmdsLivrees.reduce((total, c) => {
+          return total + c.Produits.reduce((s, item) => s + (item.quantite * (item.commissionLivreur || 0)), 0);
+        }, 0);
+        return {
+          nom: p.nom,
+          role: p.role,
+          traitees: cmdsLivrees.length,
+          commandesRemunerables: cmdsLivrees.length,
+          annulees: 0,
+          montantGenere: cmdsLivrees.reduce((s, c) => s + c.MontantTotal, 0),
+          montantAPayer: commission,
+        };
+      }
+
+      // Closer : commission sur toute commande qui n'a pas échoué
       const cmds = commandes.filter((c) => c.NomCloser === p.nom);
       const nonExclues = cmds.filter((c) => !STATUTS_EXCLUS_CA.includes(c.Statut));
+      const commission = nonExclues.reduce((total, c) => {
+        return total + c.Produits.reduce((s, item) => s + (item.quantite * (item.commissionCloser || 0)), 0);
+      }, 0);
+
       return {
         nom: p.nom,
         role: p.role,
@@ -199,7 +224,7 @@ export const api = {
         commandesRemunerables: nonExclues.length,
         annulees: cmds.length - nonExclues.length,
         montantGenere: nonExclues.reduce((s, c) => s + c.MontantTotal, 0),
-        montantAPayer: nonExclues.length * TARIF_PAR_COMMANDE,
+        montantAPayer: commission,
       };
     });
   },

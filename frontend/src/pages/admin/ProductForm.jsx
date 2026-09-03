@@ -11,6 +11,8 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     description: produitInitial?.Description || '',
     prix: produitInitial?.Prix || '',
     prixBarre: produitInitial?.PrixBarre || '',
+    commissionCloser: produitInitial?.CommissionCloser ?? '',
+    commissionLivreur: produitInitial?.CommissionLivreur ?? '',
     categorie: produitInitial?.Categorie || CATEGORIES[0],
     stock: produitInitial?.Stock ?? '',
     disponible: produitInitial?.Disponible ?? true,
@@ -84,6 +86,8 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       description: form.description,
       prix: Number(form.prix),
       prixBarre: form.prixBarre ? Number(form.prixBarre) : null,
+      commissionCloser: Number(form.commissionCloser),
+      commissionLivreur: Number(form.commissionLivreur),
       categorie: form.categorie,
       stock: Number(form.stock),
       disponible: form.disponible,
@@ -116,6 +120,11 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
           <label style={styles.label}>Prix barré (optionnel)</label>
           <input type="number" name="prixBarre" value={form.prixBarre} onChange={handleChange} style={styles.input} />
         </div>
+      </div>
+
+      <div style={styles.row}>
+        <Champ label="Commission closer par unité vendue (F CFA)" name="commissionCloser" type="number" value={form.commissionCloser} onChange={handleChange} required />
+        <Champ label="Commission livreur par unité livrée (F CFA)" name="commissionLivreur" type="number" value={form.commissionLivreur} onChange={handleChange} required />
       </div>
 
       <Champ label="Stock" name="stock" type="number" value={form.stock} onChange={handleChange} required />
