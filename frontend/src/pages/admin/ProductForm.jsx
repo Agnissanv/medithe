@@ -185,7 +185,7 @@ function Champ({ label, name, value, onChange, type = 'text', required }) {
 
 const styles = {
   form: { display: 'flex', flexDirection: 'column', gap: '1rem' },
-  row: { display: 'flex', gap: '1rem' },
+  row: { display: 'flex', gap: '1rem', flexWrap: 'wrap' },
   label: { display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem', fontWeight: 500 },
   input: {
     width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)',

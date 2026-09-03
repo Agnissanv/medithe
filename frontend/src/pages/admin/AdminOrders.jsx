@@ -259,6 +259,6 @@ const styles = {
     borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', resize: 'vertical', background: 'var(--parchment)',
   },
   overlay: { position: 'fixed', inset: 0, background: 'rgba(11,77,30,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 },
-  modal: { background: 'var(--parchment)', padding: '2rem', borderRadius: 'var(--radius)', width: '400px', maxHeight: '80vh', overflowY: 'auto' },
+  modal: { background: 'var(--parchment)', padding: '1.5rem', borderRadius: 'var(--radius)', width: 'min(400px, 92vw)', maxHeight: '80vh', overflowY: 'auto' },
   confirmInput: { width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', marginTop: '0.5rem' },
 };

@@ -71,6 +71,7 @@ export default function AdminProducts() {
       {chargement ? (
         <p>Chargement…</p>
       ) : (
+        <div className="table-scroll">
         <table style={styles.table}>
           <thead>
             <tr>
@@ -102,6 +103,7 @@ export default function AdminProducts() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

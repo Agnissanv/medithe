@@ -179,5 +179,5 @@ const styles = {
   },
   badgeVerrou: { fontSize: '0.82rem', opacity: 0.7, fontStyle: 'italic' },
   overlay: { position: 'fixed', inset: 0, background: 'rgba(11,77,30,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 },
-  modal: { background: 'var(--parchment)', padding: '2rem', borderRadius: 'var(--radius)', width: '400px', maxHeight: '80vh', overflowY: 'auto' },
+  modal: { background: 'var(--parchment)', padding: '1.5rem', borderRadius: 'var(--radius)', width: 'min(400px, 92vw)', maxHeight: '80vh', overflowY: 'auto' },
 };
