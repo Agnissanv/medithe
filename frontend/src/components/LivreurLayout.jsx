@@ -17,7 +17,7 @@ export default function LivreurLayout() {
         <span style={styles.logo}>◈ MédiThé <span className="eyebrow" style={{ color: 'var(--sage)' }}>livraison</span></span>
         <button className="btn-ghost" onClick={handleLogout} style={{ color: 'var(--parchment)' }}>Se déconnecter</button>
       </header>
-      <main style={{ padding: '2rem 1.5rem' }}>
+      <main style={{ padding: '2rem 1.5rem' }} className="livraison-main">
         <Outlet />
       </main>
     </div>

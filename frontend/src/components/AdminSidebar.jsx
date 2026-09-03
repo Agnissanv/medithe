@@ -2,30 +2,33 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onNaviguer }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
     await logout();
     navigate('/connexion');
+    if (onNaviguer) onNaviguer();
   }
 
   const linkStyle = ({ isActive }) => ({
-    ...styles.link,
+    padding: '0.6em 0.8em',
+    borderRadius: 'var(--radius)',
+    fontSize: '0.9rem',
     background: isActive ? 'var(--forest-light)' : 'transparent',
     color: isActive ? 'var(--copper)' : 'var(--parchment)',
   });
 
   return (
-    <aside style={styles.sidebar}>
-      <div style={styles.logo}>◈ MédiThé <span className="eyebrow" style={{ color: 'var(--sage)' }}>admin</span></div>
-      <nav style={styles.nav}>
-        <NavLink to="/admin" end style={linkStyle}>Tableau de bord</NavLink>
-        <NavLink to="/admin/produits" style={linkStyle}>Produits</NavLink>
-        <NavLink to="/admin/commandes" style={linkStyle}>Commandes</NavLink>
-        <NavLink to="/admin/closers" style={linkStyle}>Équipe</NavLink>
-        <NavLink to="/admin/pixels" style={linkStyle}>Publicité</NavLink>
+    <aside className="admin-sidebar">
+      <div className="admin-sidebar-logo">◈ MédiThé <span className="eyebrow" style={{ color: 'var(--sage)' }}>admin</span></div>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <NavLink to="/admin" end style={linkStyle} onClick={onNaviguer}>Tableau de bord</NavLink>
+        <NavLink to="/admin/produits" style={linkStyle} onClick={onNaviguer}>Produits</NavLink>
+        <NavLink to="/admin/commandes" style={linkStyle} onClick={onNaviguer}>Commandes</NavLink>
+        <NavLink to="/admin/closers" style={linkStyle} onClick={onNaviguer}>Équipe</NavLink>
+        <NavLink to="/admin/pixels" style={linkStyle} onClick={onNaviguer}>Publicité</NavLink>
       </nav>
       <button className="btn-ghost" onClick={handleLogout} style={{ color: 'var(--parchment)', opacity: 0.7, marginTop: 'auto' }}>
         Se déconnecter
@@ -33,32 +36,3 @@ export default function AdminSidebar() {
     </aside>
   );
 }
-
-const styles = {
-  sidebar: {
-    width: '220px',
-    minHeight: '100vh',
-    background: 'var(--forest)',
-    padding: '1.5rem 1rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2rem',
-    position: 'sticky',
-    top: 0,
-  },
-  logo: {
-    fontFamily: 'var(--font-display)',
-    color: 'var(--parchment)',
-    fontSize: '1.1rem',
-    fontWeight: 600,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.2rem',
-  },
-  nav: { display: 'flex', flexDirection: 'column', gap: '0.3rem' },
-  link: {
-    padding: '0.6em 0.8em',
-    borderRadius: 'var(--radius)',
-    fontSize: '0.9rem',
-  },
-};
