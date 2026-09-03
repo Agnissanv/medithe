@@ -77,6 +77,7 @@ export default function CloserOrders() {
       ) : commandes.length === 0 ? (
         <p>Aucune commande{filtre !== 'Toutes' ? ` avec le statut « ${filtre} »` : ''}.</p>
       ) : (
+        <div className="table-scroll">
         <table style={styles.table}>
           <thead>
             <tr>
@@ -137,6 +138,7 @@ export default function CloserOrders() {
             })}
           </tbody>
         </table>
+        </div>
       )}
 
       {commandeOuverte && (

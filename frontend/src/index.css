@@ -456,3 +456,8 @@ button {
 @media (max-width: 900px) {
   .table-scroll table { min-width: 720px; }
 }
+
+@media (max-width: 480px) {
+  .carte-livraison-action { width: 100%; }
+  .carte-livraison-action button { width: 100%; justify-content: center; }
+}

@@ -104,13 +104,13 @@ export default function LivreurOrders() {
 function CarteCommande({ c, children }) {
   return (
     <div style={styles.carte}>
-      <div>
+      <div style={{ flex: '1 1 200px' }}>
         <p style={{ margin: 0, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{c.NumeroCommande}</p>
         <p style={{ margin: '0.3rem 0 0' }}>{c.Nom} — {c.Telephone}</p>
         <p style={{ margin: '0.2rem 0 0', opacity: 0.8 }}>{c.Quartier}</p>
         <p style={{ margin: '0.4rem 0 0' }} className="price-tag">{Number(c.MontantTotal).toLocaleString('fr-FR')} F CFA</p>
       </div>
-      <div>{children}</div>
+      <div className="carte-livraison-action">{children}</div>
     </div>
   );
 }
