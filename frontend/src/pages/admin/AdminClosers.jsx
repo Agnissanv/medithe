@@ -111,6 +111,7 @@ export default function AdminClosers() {
       ) : statsFiltrees.length === 0 ? (
         <p>Aucun membre d'équipe enregistré pour l'instant.</p>
       ) : (
+        <div className="table-scroll">
         <table style={styles.table}>
           <thead>
             <tr>
@@ -151,6 +152,7 @@ export default function AdminClosers() {
             </tr>
           </tfoot>
         </table>
+        </div>
       )}
     </div>
   );

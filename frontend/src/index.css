@@ -447,3 +447,12 @@ button {
 @media (max-width: 768px) {
   .livraison-main { padding: 1.2rem !important; }
 }
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 900px) {
+  .table-scroll table { min-width: 720px; }
+}
