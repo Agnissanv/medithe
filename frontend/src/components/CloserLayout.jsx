@@ -1,16 +1,14 @@
 import React from 'react';
-import { Navigate, Outlet, useNavigate } from 'react-router-dom';
-import { useCloser } from '../context/CloserContext.jsx';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function CloserLayout() {
-  const { isAuthenticated, logout } = useCloser();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
-  if (!isAuthenticated) return <Navigate to="/closing/login" replace />;
-
-  function handleLogout() {
-    logout();
-    navigate('/closing/login');
+  async function handleLogout() {
+    await logout();
+    navigate('/connexion');
   }
 
   return (
