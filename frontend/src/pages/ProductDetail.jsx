@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Truck, ShieldCheck, Leaf, PhoneCall } from 'lucide-react';
-import { api } from '../api/sheetsApi.js';
-import { fetchProductFromCdn } from '../utils/catalogSync.js';
+import { api } from '../api/supabaseApi.js';
 import { mockProduits } from '../data/mockProduits.js';
 import { useSEO } from '../hooks/useSEO.js';
 import ProductGallery from '../components/ProductGallery.jsx';
@@ -17,15 +16,9 @@ export default function ProductDetail() {
 
   useEffect(() => {
     let annule = false;
-
-    fetchProductFromCdn(id)
+    api.getProduit(id)
       .then((p) => { if (!annule) setProduit(p); })
-      .catch(() => {
-        api.getProduit(id)
-          .then((p) => { if (!annule) setProduit(p); })
-          .catch(() => { if (!annule) setProduit(mockProduits.find((p) => p.ID === id) || null); });
-      });
-
+      .catch(() => { if (!annule) setProduit(mockProduits.find((p) => p.ID === id) || null); });
     return () => { annule = true; };
   }, [id]);
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { api } from '../api/sheetsApi.js';
+import { api } from '../api/supabaseApi.js';
 
 const ETAPES = ['Nouvelle', 'Contactée', 'Confirmée', 'Livrée'];
 

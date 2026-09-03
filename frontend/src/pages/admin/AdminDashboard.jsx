@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../../api/sheetsApi.js';
+import { api } from '../../api/supabaseApi.js';
 import { useAdmin } from '../../context/AdminContext.jsx';
 
 export default function AdminDashboard() {

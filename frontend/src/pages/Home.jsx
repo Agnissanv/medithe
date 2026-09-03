@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
-import { api } from '../api/sheetsApi.js';
+import { api } from '../api/supabaseApi.js';
 import { mockProduits } from '../data/mockProduits.js';
-import { fetchCatalogFromCdn } from '../utils/catalogSync.js';
 
 export default function Home() {
   const [produits, setProduits] = useState([]);
@@ -15,22 +14,10 @@ export default function Home() {
   const catalogueRef = useRef(null);
 
   useEffect(() => {
-    fetchCatalogFromCdn()
-      .then((data) => {
-        setProduits(data);
-        setChargement(false);
-      })
-      .catch(() => {
-        const { cached, fresh } = api.getProduitsRapide();
-        if (cached) {
-          setProduits(cached);
-          setChargement(false);
-        }
-        fresh
-          .then(setProduits)
-          .catch(() => { if (!cached) setProduits(mockProduits); })
-          .finally(() => setChargement(false));
-      });
+    api.getProduits()
+      .then(setProduits)
+      .catch(() => setProduits(mockProduits))
+      .finally(() => setChargement(false));
   }, []);
 
   const categories = useMemo(

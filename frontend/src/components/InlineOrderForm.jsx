@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api/sheetsApi.js';
+import { api } from '../api/supabaseApi.js';
 
 const TELEPHONE_REGEX = /^[0-9+()\s.-]{8,20}$/;
 

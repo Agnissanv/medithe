@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../../api/sheetsApi.js';
+import { api } from '../../api/supabaseApi.js';
 import { useAdmin } from '../../context/AdminContext.jsx';
 
 const TARIF_PAR_COMMANDE = 500;
@@ -16,7 +16,7 @@ export default function AdminClosers() {
 
   function charger() {
     setChargement(true);
-    api.getStatsClosers(token, dateDebut, dateFin)
+    api.getStatsClosers(dateDebut, dateFin)
       .then(setStats)
       .catch((e) => setErreur(e.message))
       .finally(() => setChargement(false));
@@ -30,7 +30,7 @@ export default function AdminClosers() {
     setEnvoi(true);
     setErreur('');
     try {
-      await api.addCloser(token, nouveauNom.trim());
+      await api.addCloser(nouveauNom.trim());
       setNouveauNom('');
       charger();
     } catch (err) {
@@ -43,7 +43,7 @@ export default function AdminClosers() {
   async function handleRetirer(nom) {
     if (!confirm(`Retirer « ${nom} » de la liste des closers ? Son historique de commandes reste conservé.`)) return;
     try {
-      await api.removeCloser(token, nom);
+      await api.removeCloser(nom);
       charger();
     } catch (err) {
       setErreur(err.message);

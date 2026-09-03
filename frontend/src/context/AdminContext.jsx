@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { api } from '../api/sheetsApi.js';
+import { api } from '../api/supabaseApi.js';
 
 const AdminContext = createContext(null);
 const TOKEN_KEY = 'medithe_admin_token';

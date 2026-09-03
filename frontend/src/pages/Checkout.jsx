@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
-import { api } from '../api/sheetsApi.js';
+import { api } from '../api/supabaseApi.js';
 import { fetchCatalogFromCdn } from '../utils/catalogSync.js';
 import ProductCard from '../components/ProductCard.jsx';
 
