@@ -130,7 +130,7 @@ export default function Checkout() {
     <div className="container" style={{ padding: '2.5rem 1.5rem' }}>
       <h1>Finaliser la commande</h1>
 
-      <div style={styles.layout}>
+      <div className="checkout-layout">
         <form onSubmit={handleSubmit} style={styles.form} noValidate>
           <Champ label="Nom complet" name="nomComplet" value={form.nomComplet} onChange={handleChange} erreur={erreurs.nomComplet} />
           <Champ
@@ -203,7 +203,6 @@ function Champ({ label, name, value, onChange, erreur, aide, type = 'text' }) {
 }
 
 const styles = {
-  layout: { display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '2.5rem', marginTop: '1.5rem', alignItems: 'start' },
   form: { display: 'flex', flexDirection: 'column', gap: '1.1rem' },
   label: { display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem', fontWeight: 500 },
   input: {

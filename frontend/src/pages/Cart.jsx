@@ -23,17 +23,19 @@ export default function Cart() {
       <div style={styles.liste}>
         {items.map((item) => (
           <div key={item.id} style={styles.ligne}>
-            <div>
+            <div style={styles.infoZone}>
               <p style={{ margin: 0, fontWeight: 500 }}>{item.nom}</p>
               <span className="price-tag">{item.prix.toLocaleString('fr-FR')} F CFA</span>
             </div>
-            <div style={styles.quantiteBox}>
-              <button className="btn-ghost" onClick={() => updateQuantite(item.id, item.quantite - 1)}>−</button>
-              <span style={{ fontFamily: 'var(--font-mono)', minWidth: '2ch', textAlign: 'center' }}>{item.quantite}</span>
-              <button className="btn-ghost" onClick={() => updateQuantite(item.id, item.quantite + 1)}>+</button>
+            <div style={styles.controles}>
+              <div style={styles.quantiteBox}>
+                <button className="btn-ghost" onClick={() => updateQuantite(item.id, item.quantite - 1)}>−</button>
+                <span style={{ fontFamily: 'var(--font-mono)', minWidth: '2ch', textAlign: 'center' }}>{item.quantite}</span>
+                <button className="btn-ghost" onClick={() => updateQuantite(item.id, item.quantite + 1)}>+</button>
+              </div>
+              <span className="price-tag">{(item.prix * item.quantite).toLocaleString('fr-FR')} F CFA</span>
+              <button className="btn-ghost" onClick={() => removeItem(item.id)} aria-label={`Retirer ${item.nom}`}>✕</button>
             </div>
-            <span className="price-tag">{(item.prix * item.quantite).toLocaleString('fr-FR')} F CFA</span>
-            <button className="btn-ghost" onClick={() => removeItem(item.id)} aria-label={`Retirer ${item.nom}`}>✕</button>
           </div>
         ))}
       </div>
@@ -50,7 +52,7 @@ export default function Cart() {
         Le paiement se fait à la livraison, après confirmation téléphonique.
       </p>
 
-      <button className="btn btn-primary" onClick={() => navigate('/commande')} style={{ marginTop: '1rem' }}>
+      <button className="btn btn-primary" onClick={() => navigate('/commande')} style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}>
         Passer la commande
       </button>
     </div>
@@ -60,15 +62,18 @@ export default function Cart() {
 const styles = {
   liste: { display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' },
   ligne: {
-    display: 'grid',
-    gridTemplateColumns: '1fr auto auto auto',
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: '1.5rem',
+    gap: '1rem',
     padding: '1rem',
     background: 'var(--parchment-dark)',
     borderRadius: 'var(--radius)',
     border: '1px solid var(--line)',
   },
+  infoZone: { minWidth: '140px', flex: '1 1 auto' },
+  controles: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem' },
   quantiteBox: {
     display: 'flex',
     alignItems: 'center',

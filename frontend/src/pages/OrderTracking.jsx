@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
 import { api } from '../api/supabaseApi.js';
 
-const ETAPES = ['Nouvelle', 'Contactée', 'Confirmée', 'Livrée'];
+const ETAPES_PUBLIQUES = ['Commande reçue', 'Confirmée', 'En cours de livraison', 'Livrée'];
+
+const STATUT_VERS_ETAPE = {
+  'Nouvelle': 0,
+  'Programmer le': 0,
+  'Je vous rappel': 0,
+  'Injoignable': 0,
+  'Expédié': 1,
+  "En cours d'expédition": 1,
+  'Prêt pour livraison': 1,
+  'En cours de livraison': 2,
+  'Livré': 3,
+};
+
+const STATUTS_ANNULES = ['Annulé / Rejeté', 'Client oiseau'];
 
 export default function OrderTracking() {
   const [numero, setNumero] = useState('');
@@ -24,22 +38,22 @@ export default function OrderTracking() {
     }
   }
 
-  const etapeActuelle = commande ? ETAPES.indexOf(commande.Statut) : -1;
-  const estAnnulee = commande?.Statut === 'Annulée';
+  const estAnnulee = commande && STATUTS_ANNULES.includes(commande.Statut);
+  const etapeActuelle = commande ? (STATUT_VERS_ETAPE[commande.Statut] ?? 0) : -1;
 
   return (
     <div className="container" style={{ padding: '2.5rem 1.5rem', maxWidth: '560px', margin: '0 auto' }}>
       <h1>Suivre ma commande</h1>
       <p style={{ opacity: 0.75 }}>Entrez le numéro reçu à la confirmation de votre commande.</p>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+      <form onSubmit={handleSubmit} style={styles.formulaire}>
         <input
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
           placeholder="MED-260828-1234"
           style={styles.input}
         />
-        <button className="btn btn-primary" type="submit" disabled={recherche || !numero.trim()}>
+        <button className="btn btn-primary" type="submit" disabled={recherche || !numero.trim()} style={styles.boutonRecherche}>
           {recherche ? '…' : 'Rechercher'}
         </button>
       </form>
@@ -48,16 +62,18 @@ export default function OrderTracking() {
 
       {commande && (
         <div style={styles.resultat}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
             <span className="eyebrow">Commande {commande.NumeroCommande}</span>
             <span className="eyebrow">{new Date(commande.DateHeure).toLocaleDateString('fr-FR')}</span>
           </div>
 
           {estAnnulee ? (
-            <p style={{ color: 'var(--danger)', fontWeight: 500, marginTop: '1rem' }}>Commande annulée</p>
+            <p style={{ color: 'var(--danger)', fontWeight: 500, marginTop: '1rem' }}>
+              Cette commande a été annulée. N'hésitez pas à en repasser une nouvelle si vous le souhaitez.
+            </p>
           ) : (
             <div style={styles.etapes}>
-              {ETAPES.map((etape, i) => (
+              {ETAPES_PUBLIQUES.map((etape, i) => (
                 <div key={etape} style={styles.etape}>
                   <span style={{
                     ...styles.puce,
@@ -86,15 +102,17 @@ export default function OrderTracking() {
 }
 
 const styles = {
+  formulaire: { display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' },
   input: {
-    flex: 1, padding: '0.65em 0.8em', border: '1px solid var(--line)',
+    flex: '1 1 220px', padding: '0.65em 0.8em', border: '1px solid var(--line)',
     borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', background: 'var(--parchment-dark)',
   },
+  boutonRecherche: { flexShrink: 0 },
   resultat: {
     marginTop: '2rem', background: 'var(--parchment-dark)', border: '1px solid var(--line)',
     borderRadius: 'var(--radius)', padding: '1.3rem',
   },
   etapes: { display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '1.2rem' },
   etape: { display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.9rem' },
-  puce: { width: '10px', height: '10px', borderRadius: '50%', display: 'inline-block' },
+  puce: { width: '10px', height: '10px', borderRadius: '50%', display: 'inline-block', flexShrink: 0 },
 };

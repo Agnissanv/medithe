@@ -390,3 +390,15 @@ button {
 .squelette-badge { height: 60px; }
 .squelette-ligne { border-radius: 4px; }
 .squelette-formulaire { height: 380px; margin-top: 1.2rem; border-radius: 12px; }
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  margin-top: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .checkout-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+}
