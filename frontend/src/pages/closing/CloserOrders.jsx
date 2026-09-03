@@ -31,7 +31,7 @@ export default function CloserOrders() {
 
   function charger() {
     setChargement(true);
-    api.getCommandes(token, filtre === 'Toutes' ? null : filtre)
+    api.getCommandes( filtre === 'Toutes' ? null : filtre)
       .then(setCommandes)
       .catch((e) => setErreur(e.message))
       .finally(() => setChargement(false));
@@ -47,7 +47,7 @@ export default function CloserOrders() {
     if (!commande.NomCloser) return; // sécurité : impossible sans nom choisi
     if (commande.TraitePar && commande.TraitePar !== 'closer') return; // verrouillé, sécurité supplémentaire
     try {
-      await api.updateStatutCommande(token, commande.NumeroCommande, statut, undefined, commande.NomCloser || undefined);
+      await api.updateStatutCommande(commande.NumeroCommande, statut, undefined, commande.NomCloser || undefined);
       setErreur('');
       charger();
     } catch (err) {
@@ -58,7 +58,7 @@ export default function CloserOrders() {
   async function handleEnregistrerNote(commande, note) {
     if (commande.TraitePar && commande.TraitePar !== 'closer') return;
     try {
-      await api.updateStatutCommande(token, commande.NumeroCommande, commande.Statut, note, commande.NomCloser || undefined);
+      await api.updateStatutCommande(commande.NumeroCommande, commande.Statut, note, commande.NomCloser || undefined);
       setErreur('');
     } catch (err) {
       setErreur(err.message);
@@ -68,7 +68,7 @@ export default function CloserOrders() {
   async function handleChoisirCloser(commande, nom) {
     if (!nom) return;
     try {
-      await api.updateStatutCommande(token, commande.NumeroCommande, commande.Statut, undefined, nom);
+      await api.updateStatutCommande( commande.NumeroCommande, commande.Statut, undefined, nom);
       setErreur('');
       charger();
     } catch (err) {

@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   const [dateFin, setDateFin] = useState('');
 
   function charger() {
-    api.getStats(token, dateDebut, dateFin).then(setStats).catch((e) => setErreur(e.message));
+    api.getStats( dateDebut, dateFin).then(setStats).catch((e) => setErreur(e.message));
   }
 
   useEffect(charger, [dateDebut, dateFin]);

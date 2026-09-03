@@ -5,7 +5,7 @@ const AdminContext = createContext(null);
 const TOKEN_KEY = 'medithe_admin_token';
 
 export function AdminProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [ setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
 
   async function login(password) {
     const res = await api.adminLogin(password); // lève une erreur si mot de passe incorrect
@@ -19,7 +19,7 @@ export function AdminProvider({ children }) {
   }
 
   return (
-    <AdminContext.Provider value={{ token, isAuthenticated: !!token, login, logout }}>
+    <AdminContext.Provider value={{ isAuthenticated: !! login, logout }}>
       {children}
     </AdminContext.Provider>
   );

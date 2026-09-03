@@ -1,7 +1,8 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import PublicLayout from './components/PublicLayout.jsx';
-
+import Login from './pages/Login.jsx';
+import RequireRole from './components/RequireRole.jsx';
 import Home from './pages/Home.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import Cart from './pages/Cart.jsx';

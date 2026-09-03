@@ -5,7 +5,7 @@ const CloserContext = createContext(null);
 const TOKEN_KEY = 'medithe_closer_token';
 
 export function CloserProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [ setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
 
   async function login(password) {
     const res = await api.closerLogin(password);
@@ -19,7 +19,7 @@ export function CloserProvider({ children }) {
   }
 
   return (
-    <CloserContext.Provider value={{ token, isAuthenticated: !!token, login, logout }}>
+    <CloserContext.Provider value={{  isAuthenticated: !! login, logout }}>
       {children}
     </CloserContext.Provider>
   );

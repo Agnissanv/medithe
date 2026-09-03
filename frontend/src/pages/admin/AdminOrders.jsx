@@ -33,7 +33,7 @@ export default function AdminOrders() {
 
   function charger() {
     setChargement(true);
-    api.getCommandes(token, filtre === 'Toutes' ? null : filtre)
+    api.getCommandes(filtre === 'Toutes' ? null : filtre)
       .then(setCommandes)
       .catch((e) => setErreur(e.message))
       .finally(() => setChargement(false));
@@ -43,7 +43,7 @@ export default function AdminOrders() {
 
   async function handleChangerStatut(numero, statut) {
     try {
-      await api.updateStatutCommande(token, numero, statut);
+      await api.updateStatutCommande( numero, statut);
       setErreur('');
       charger();
       if (commandeOuverte?.NumeroCommande === numero) {
@@ -57,7 +57,7 @@ export default function AdminOrders() {
 
   async function handleEnregistrerNote(numero, statutActuel, note) {
     try {
-      await api.updateStatutCommande(token, numero, statutActuel, note);
+      await api.updateStatutCommande( numero, statutActuel, note);
       setErreur('');
     } catch (err) {
       setErreur(err.message);
@@ -68,7 +68,7 @@ export default function AdminOrders() {
   async function handleSupprimer(numero) {
     if (!confirm(`Supprimer la commande ${numero} ? Cette action est irréversible.`)) return;
     try {
-      await api.deleteCommande(token, numero);
+      await api.deleteCommande( numero);
       charger();
     } catch (err) {
       setErreur(err.message);
