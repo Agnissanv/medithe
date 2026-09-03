@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/supabaseApi.js';
+import { trackInitiateCheckout, trackPurchase } from '../utils/tracking.js';
 
 const TELEPHONE_REGEX = /^[0-9+()\s.-]{8,20}$/;
 
 export default function InlineOrderForm({ produit, domId = 'zone-commande', titre }) {
   const [quantite, setQuantite] = useState(1);
+
+  useEffect(() => {
+    trackInitiateCheckout([{ id: produit.ID }], produit.Prix);
+  }, []);
   const [form, setForm] = useState({ nomComplet: '', telephone: '', adresse: '', note: '' });
   const [erreurs, setErreurs] = useState({});
   const [erreurGlobale, setErreurGlobale] = useState('');
@@ -41,6 +46,7 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
         }],
       };
       const resultat = await api.createCommande(commande);
+      trackPurchase(resultat.numeroCommande, resultat.montantTotal);
       setConfirmation(resultat);
     } catch (err) {
       setErreurGlobale(err.message || 'Une erreur est survenue.');

@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext.jsx';
 import { api } from '../api/supabaseApi.js';
 import { fetchCatalogFromCdn } from '../utils/catalogSync.js';
 import ProductCard from '../components/ProductCard.jsx';
+import { trackInitiateCheckout, trackPurchase } from '../utils/tracking.js';
 
 const TELEPHONE_REGEX = /^[0-9+()\s.-]{8,20}$/;
 
@@ -19,6 +20,10 @@ export default function Checkout() {
 
   useEffect(() => {
     fetchCatalogFromCdn().then(setCatalogue).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (items.length) trackInitiateCheckout(items, sousTotal);
   }, []);
 
   if (items.length === 0 && !commandeConfirmee) {
@@ -60,6 +65,7 @@ export default function Checkout() {
         })),
       };
       const resultat = await api.createCommande(commande);
+      trackPurchase(resultat.numeroCommande, resultat.montantTotal);
       setItemsCommandes(items);
       setCommandeConfirmee(resultat);
       clearCart();

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { trackAddToCart } from '../utils/tracking.js';
 
 const CartContext = createContext(null);
 const STORAGE_KEY = 'medithe_panier';
@@ -18,6 +19,7 @@ export function CartProvider({ children }) {
   }, [items]);
 
   function addItem(produit, quantite = 1) {
+    trackAddToCart(produit, quantite);
     setItems((prev) => {
       const existant = prev.find((i) => i.id === produit.ID);
       if (existant) {

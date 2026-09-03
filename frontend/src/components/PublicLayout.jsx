@@ -1,9 +1,16 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header.jsx';
 import Footer from './Footer.jsx';
+import { trackPageView } from '../utils/tracking.js';
 
 export default function PublicLayout() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView();
+  }, [location.pathname]);
+
   return (
     <>
       <Header />
