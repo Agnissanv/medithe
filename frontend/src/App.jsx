@@ -8,6 +8,7 @@ import ProductDetail from './pages/ProductDetail.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import OrderTracking from './pages/OrderTracking.jsx';
+import { SqueletteEcranPlein } from './components/Squelettes.jsx';
 
 const AdminLayout = lazy(() => import('./components/AdminLayout.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
@@ -23,7 +24,7 @@ const LivreurLayout = lazy(() => import('./components/LivreurLayout.jsx'));
 const LivreurOrders = lazy(() => import('./pages/livraison/LivreurOrders.jsx'));
 
 function ChargementZone() {
-  return <div style={{ padding: '3rem', textAlign: 'center' }}>Chargement…</div>;
+  return <SqueletteEcranPlein />;
 }
 
 export default function App() {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Leaf } from 'lucide-react';
 
 // Squelette de la grille catalogue (Home.jsx) — même animation que ProductDetailSquelette
 export function SqueletteGrilleProduits({ nombre = 8 }) {
@@ -85,6 +86,17 @@ export function SqueletteTableauBord() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+
+// Loader plein écran — App.jsx (Suspense des routes) et RequireRole.jsx (vérification d'auth)
+export function SqueletteEcranPlein() {
+  return (
+    <div className="ecran-plein-loader">
+      <Leaf size={32} />
+      <span>Chargement…</span>
     </div>
   );
 }

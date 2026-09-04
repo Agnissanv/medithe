@@ -477,3 +477,22 @@ button {
   .carte-livraison-action { width: 100%; }
   .carte-livraison-action button { width: 100%; justify-content: center; }
 }
+
+
+.squelette-carte-corps {
+  padding: 1rem 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px dashed var(--line);
+}
+
+@keyframes ecran-plein-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.ecran-plein-loader {
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; color: var(--forest);
+}
+.ecran-plein-loader svg { animation: ecran-plein-pulse 1.4s ease-in-out infinite; }
+.ecran-plein-loader span { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
