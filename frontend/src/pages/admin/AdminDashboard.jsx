@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
+import { SqueletteTableauBord } from '../../components/Squelettes.jsx';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -19,7 +20,7 @@ export default function AdminDashboard() {
   }
 
   if (erreur) return <p style={{ color: 'var(--danger)' }}>{erreur}</p>;
-  if (!stats) return <p>Chargement…</p>;
+  if (!stats) return <SqueletteTableauBord />;
 
   const maxVentes = Math.max(...stats.topProduits.map((p) => p.qte), 1);
 

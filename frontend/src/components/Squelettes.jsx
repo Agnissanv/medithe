@@ -61,3 +61,30 @@ export function SqueletteCartesCommandes({ nombre = 3 }) {
     </div>
   );
 }
+
+
+// Squelette du tableau de bord — cartes stats + blocs statut/top produits
+export function SqueletteTableauBord() {
+  const blocLignes = [0, 1, 2, 3];
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '1.2rem' }}>
+            <div className="squelette-ligne" style={{ width: '55%', height: '10px' }} />
+            <div className="squelette-ligne" style={{ width: '70%', height: '22px', marginTop: '0.6rem' }} />
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        {[0, 1].map((bloc) => (
+          <div key={bloc} style={{ background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '1.3rem' }}>
+            {blocLignes.map((i) => (
+              <div key={i} className="squelette-ligne" style={{ height: '14px', width: `${80 - i * 10}%`, margin: '0.6rem 0' }} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
