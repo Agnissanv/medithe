@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
+import { SqueletteGrilleProduits } from '../components/Squelettes.jsx';
 import { api } from '../api/supabaseApi.js';
 import { mockProduits } from '../data/mockProduits.js';
 
@@ -179,7 +180,7 @@ export default function Home() {
         <hr className="hairline" style={{ margin: '1.5rem 0' }} />
 
         {chargement ? (
-          <p>Chargement du catalogue…</p>
+          <SqueletteGrilleProduits />
         ) : produitsFiltres.length === 0 ? (
           <p>Aucun thé ne correspond à cette recherche.</p>
         ) : (

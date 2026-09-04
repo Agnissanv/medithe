@@ -391,6 +391,22 @@ button {
 .squelette-ligne { border-radius: 4px; }
 .squelette-formulaire { height: 380px; margin-top: 1.2rem; border-radius: 12px; }
 
+.squelette-carte-produit {
+  display: flex;
+  flex-direction: column;
+  background: var(--parchment-dark);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.squelette-carte-corps {
+  padding: 1rem 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px dashed var(--line);
+}
+
 .checkout-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
