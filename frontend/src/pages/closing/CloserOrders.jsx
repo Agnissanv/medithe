@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
+import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 const STATUTS = [
   'Nouvelle', 'Expédié', "En cours d'expédition", 'Prêt pour livraison',
@@ -73,7 +74,7 @@ export default function CloserOrders() {
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
       {chargement ? (
-        <p>Chargement…</p>
+        <SqueletteTableau colonnes={9} />
       ) : commandes.length === 0 ? (
         <p>Aucune commande{filtre !== 'Toutes' ? ` avec le statut « ${filtre} »` : ''}.</p>
       ) : (

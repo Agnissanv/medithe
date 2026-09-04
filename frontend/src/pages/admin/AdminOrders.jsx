@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import { exportCommandesToCsv } from '../../utils/csv.js';
+import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 const STATUTS = [
   'Nouvelle', 'Expédié', "En cours d'expédition", 'Prêt pour livraison',
@@ -112,7 +113,7 @@ export default function AdminOrders() {
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
       {chargement ? (
-        <p>Chargement…</p>
+        <SqueletteTableau colonnes={10} />
       ) : commandes.length === 0 ? (
         <p>Aucune commande{filtre !== 'Toutes' ? ` avec le statut « ${filtre} »` : ''}.</p>
       ) : (

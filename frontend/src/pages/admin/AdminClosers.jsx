@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 
 export default function AdminClosers() {
@@ -107,7 +108,7 @@ export default function AdminClosers() {
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
       {chargement ? (
-        <p>Chargement…</p>
+        <SqueletteTableau colonnes={7} />
       ) : statsFiltrees.length === 0 ? (
         <p>Aucun membre d'équipe enregistré pour l'instant.</p>
       ) : (

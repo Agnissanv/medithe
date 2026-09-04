@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import ProductForm from './ProductForm.jsx';
+import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 export default function AdminProducts() {
   const [produits, setProduits] = useState([]);
@@ -69,7 +70,7 @@ export default function AdminProducts() {
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
       {chargement ? (
-        <p>Chargement…</p>
+        <SqueletteTableau colonnes={6} />
       ) : (
         <div className="table-scroll">
         <table style={styles.table}>

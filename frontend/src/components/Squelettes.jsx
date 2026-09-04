@@ -17,3 +17,25 @@ export function SqueletteGrilleProduits({ nombre = 8 }) {
     </div>
   );
 }
+
+
+// Squelette de tableau générique — réutilisé sur tous les écrans à listes (Admin*, Closer*)
+export function SqueletteTableau({ colonnes = 5, lignes = 5 }) {
+  return (
+    <div className="table-scroll">
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <tbody>
+          {Array.from({ length: lignes }).map((_, i) => (
+            <tr key={i}>
+              {Array.from({ length: colonnes }).map((_, j) => (
+                <td key={j} style={{ padding: '0.7rem 0.6rem', borderBottom: '1px solid var(--line)' }}>
+                  <div className="squelette-ligne" style={{ height: '12px', width: j === 0 ? '70%' : '85%' }} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

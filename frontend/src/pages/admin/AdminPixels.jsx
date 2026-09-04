@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient.js';
+import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 export default function AdminPixels() {
   const [pixels, setPixels] = useState([]);
@@ -69,7 +70,7 @@ export default function AdminPixels() {
 
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
-      {chargement ? <p>Chargement…</p> : pixels.length === 0 ? (
+      {chargement ? <SqueletteTableau colonnes={5} /> : pixels.length === 0 ? (
         <p style={{ opacity: 0.6 }}>Aucun pixel configuré.</p>
       ) : (
         <table style={styles.table}>
