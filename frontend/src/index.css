@@ -517,3 +517,100 @@ button {
 @media (max-width: 640px) {
   .toast-panier { top: auto; bottom: 1rem; left: 1rem; right: 1rem; justify-content: center; }
 }
+
+/* ===== Page À Propos ===== */
+.apropos-hero { background: var(--parchment-dark); border-bottom: 1px solid var(--line); padding: 3rem 0; }
+.apropos-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; }
+@media (max-width: 900px) { .apropos-hero-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.apropos-hero-visuel { position: relative; }
+.apropos-hero-img { width: 100%; height: 380px; object-fit: cover; border-radius: var(--radius); border: 4px solid var(--parchment); box-shadow: 0 12px 30px rgba(11,77,30,0.15); }
+.apropos-hero-badges { position: absolute; bottom: 1rem; left: 1rem; right: 1rem; display: flex; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+.apropos-badge-flottant { background: rgba(255,255,255,0.94); border-radius: var(--radius); padding: 0.7rem 0.9rem; display: flex; align-items: center; gap: 0.7rem; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.apropos-badge-flottant--sombre { background: rgba(11,77,30,0.94); color: var(--parchment); flex-direction: column; align-items: center; text-align: center; }
+.apropos-badge-icone { width: 34px; height: 34px; border-radius: 50%; background: var(--sage-light); color: var(--sage); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.apropos-badge-label { margin: 0; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sage); font-weight: 600; }
+.apropos-badge-valeur { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; color: var(--forest); }
+.apropos-badge-chiffre { font-family: var(--font-mono); font-weight: 600; font-size: 1.1rem; color: var(--copper); }
+.apropos-badge-mini { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.apropos-pastille { display: inline-flex; align-items: center; gap: 0.4em; background: var(--sage-light); color: var(--forest); padding: 0.4em 0.9em; border-radius: 50px; border: 1px solid var(--line); margin-bottom: 0.8rem; }
+.apropos-hero-texte p { color: rgba(22,33,26,0.8); line-height: 1.6; }
+.apropos-citation { font-family: var(--font-display); font-style: italic; font-size: 0.92rem; border-left: 3px solid var(--copper); padding: 0.3rem 0 0.3rem 1rem; background: rgba(255,255,255,0.5); border-radius: 0 var(--radius) var(--radius) 0; }
+.apropos-cta-ligne { display: flex; flex-wrap: wrap; gap: 1rem; padding-top: 0.5rem; }
+
+.apropos-section { padding: 3.5rem 0; border-bottom: 1px solid var(--line); }
+.apropos-section--alt { background: var(--parchment); }
+.apropos-entete { max-width: 620px; margin: 0 auto 2.5rem; text-align: center; }
+.apropos-entete p { color: rgba(22,33,26,0.7); font-size: 0.92rem; margin-top: 0.5rem; }
+.apropos-entete-inline { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.2rem; margin-bottom: 2.5rem; }
+.apropos-entete-inline p { color: rgba(22,33,26,0.7); font-size: 0.9rem; margin-top: 0.5rem; }
+
+.apropos-piliers-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+@media (max-width: 900px) { .apropos-piliers-grid { grid-template-columns: minmax(0, 1fr); } }
+.apropos-pilier { position: relative; background: var(--parchment-dark); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.8rem; }
+.apropos-pilier--highlight { border: 2px solid rgba(201,154,46,0.5); }
+.apropos-pilier-badge { position: absolute; top: -0.7rem; right: 1.2rem; background: var(--copper); color: var(--parchment); font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.3em 0.8em; border-radius: 50px; }
+.apropos-pilier-icone { width: 52px; height: 52px; border-radius: var(--radius); background: var(--forest); color: var(--copper); display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; }
+.apropos-pilier-desc { color: rgba(22,33,26,0.75); font-size: 0.88rem; line-height: 1.6; margin: 0.6rem 0 1.2rem; }
+.apropos-pilier-liste { list-style: none; margin: 0; padding: 1rem 0 0; border-top: 1px dashed var(--line); display: flex; flex-direction: column; gap: 0.5rem; }
+.apropos-pilier-liste li { display: flex; align-items: center; gap: 0.5em; font-size: 0.8rem; color: rgba(22,33,26,0.8); }
+
+.apropos-histoire-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 3rem; align-items: center; }
+@media (max-width: 900px) { .apropos-histoire-grid { grid-template-columns: minmax(0, 1fr); } }
+.apropos-histoire-texte p { color: rgba(22,33,26,0.8); font-size: 0.92rem; line-height: 1.65; margin: 0.8rem 0; }
+.apropos-feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
+@media (max-width: 480px) { .apropos-feature-grid { grid-template-columns: minmax(0, 1fr); } }
+.apropos-feature-item { display: flex; align-items: flex-start; gap: 0.7rem; background: var(--parchment-dark); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem; }
+.apropos-feature-item h4 { margin: 0; font-size: 0.85rem; color: var(--forest); }
+.apropos-feature-item p { margin: 0.2rem 0 0; font-size: 0.76rem; color: rgba(22,33,26,0.7); }
+
+.apropos-histoire-visuel { position: relative; }
+.apropos-histoire-img { width: 100%; height: 340px; object-fit: cover; border-radius: var(--radius); border: 4px solid var(--parchment); box-shadow: 0 10px 26px rgba(11,77,30,0.15); }
+.apropos-citation-carte { position: absolute; bottom: -1.5rem; left: -1.2rem; background: var(--forest); color: var(--parchment); padding: 1.2rem; border-radius: var(--radius); max-width: 260px; box-shadow: 0 14px 30px rgba(0,0,0,0.25); }
+.apropos-citation-carte p { font-family: var(--font-display); font-style: italic; font-size: 0.78rem; margin: 0.4rem 0; color: var(--parchment-dark); }
+.apropos-citation-carte span { display: block; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--copper); margin-top: 0.6rem; }
+@media (max-width: 640px) { .apropos-citation-carte { display: none; } }
+
+.apropos-carousel-nav { display: flex; gap: 0.6rem; }
+.apropos-nav-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--parchment); border: 1px solid var(--line); color: var(--forest); display: flex; align-items: center; justify-content: center; }
+.apropos-nav-btn:hover { background: var(--forest); color: var(--parchment); }
+
+.apropos-carousel { display: flex; gap: 1.3rem; overflow-x: auto; padding: 0.3rem 0.2rem 1rem; scroll-behavior: smooth; }
+.apropos-cert-carte { flex: 0 0 280px; background: var(--parchment); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.3rem; display: flex; flex-direction: column; justify-content: space-between; }
+.apropos-cert-vignette { position: relative; height: 150px; background: var(--parchment-dark); border: 1px solid var(--line); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 1rem; cursor: pointer; text-align: center; padding: 0.8rem; }
+.apropos-cert-vignette span { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; color: var(--copper); font-weight: 600; }
+.apropos-cert-survol { position: absolute; inset: 0; background: rgba(11,77,30,0.85); opacity: 0; transition: opacity 0.2s ease; display: flex; align-items: center; justify-content: center; }
+.apropos-cert-vignette:hover .apropos-cert-survol { opacity: 1; }
+.apropos-cert-desc { font-size: 0.78rem; color: rgba(22,33,26,0.7); line-height: 1.5; margin-top: 0.4rem; }
+.apropos-cert-bouton { margin-top: 1.2rem; width: 100%; justify-content: center; font-size: 0.78rem; }
+
+.apropos-section-sombre { background: var(--forest); color: var(--parchment); padding: 3.5rem 0; }
+.apropos-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--line-dark); text-align: center; }
+@media (max-width: 640px) { .apropos-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.apropos-stat-carte { background: rgba(255,255,255,0.06); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 1.1rem 0.6rem; }
+.apropos-stat-valeur { display: block; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 4vw, 2.4rem); color: var(--copper); margin-bottom: 0.2rem; }
+.apropos-stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--parchment-dark); }
+
+.apropos-entete--sombre h2 { color: var(--parchment); }
+
+.apropos-pays-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+@media (max-width: 900px) { .apropos-pays-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .apropos-pays-grid { grid-template-columns: minmax(0, 1fr); } }
+.apropos-pays-carte { background: var(--forest-light); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+.apropos-pays-carte h4 { margin: 0; font-size: 0.92rem; color: var(--parchment); }
+.apropos-pays-carte p { margin: 0.15rem 0 0; font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+.apropos-statut-badge { background: rgba(28,139,57,0.25); color: var(--sage-light); font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; font-weight: 600; padding: 0.3em 0.7em; border-radius: 50px; border: 1px solid rgba(28,139,57,0.4); white-space: nowrap; }
+.apropos-statut-badge--bientot { background: rgba(201,154,46,0.2); color: var(--copper); border-color: rgba(201,154,46,0.4); }
+
+.apropos-note-expansion { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 2rem; background: rgba(255,255,255,0.05); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 0.8rem; font-size: 0.76rem; color: rgba(255,255,255,0.8); max-width: 560px; margin-left: auto; margin-right: auto; text-align: center; }
+
+.apropos-modal-fond { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.apropos-modal { background: var(--parchment); border-radius: var(--radius); max-width: 560px; width: 100%; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+.apropos-modal-entete { background: var(--forest); color: var(--parchment); padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; font-family: var(--font-display); font-weight: 600; }
+.apropos-modal-entete span { display: flex; align-items: center; gap: 0.5em; font-size: 0.95rem; }
+.apropos-modal-entete button { background: rgba(255,255,255,0.1); color: var(--parchment); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.apropos-modal-corps { padding: 1.3rem; }
+.apropos-modal-corps img { width: 100%; height: 220px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 1rem; }
+.apropos-modal-corps p { font-size: 0.88rem; color: rgba(22,33,26,0.8); line-height: 1.6; margin-top: 0.4rem; }
+.apropos-modal-pied { background: var(--parchment-dark); padding: 0.9rem 1.3rem; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; }

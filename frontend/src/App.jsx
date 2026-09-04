@@ -8,6 +8,7 @@ import ProductDetail from './pages/ProductDetail.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import OrderTracking from './pages/OrderTracking.jsx';
+import About from './pages/About.jsx';
 import { SqueletteEcranPlein } from './components/Squelettes.jsx';
 
 const AdminLayout = lazy(() => import('./components/AdminLayout.jsx'));
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/panier" element={<Cart />} />
         <Route path="/commande" element={<Checkout />} />
         <Route path="/suivi" element={<OrderTracking />} />
+        <Route path="/a-propos" element={<About />} />
       </Route>
 
       {/* Connexion unique pour toute l'équipe (admin, closer, livreur) */}

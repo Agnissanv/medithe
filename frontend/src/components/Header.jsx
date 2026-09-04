@@ -21,8 +21,9 @@ export default function Header() {
 
           <nav className="header-nav-desktop" style={styles.nav}>
             <Link to="/" style={styles.navLink}>Accueil</Link>
-            <Link to="/suivi" style={styles.navLink}>Suivre ma commande</Link>
-          </nav>
+        <Link to="/suivi" style={styles.navLink}>Suivre ma commande</Link>
+        <Link to="/a-propos" style={styles.navLink}>À propos</Link>
+      </nav>
 
           <div style={styles.actionsDroite}>
             <Link to="/panier" style={styles.cartLink} aria-label="Voir le panier" onClick={() => setMenuOuvert(false)}>
@@ -47,6 +48,7 @@ export default function Header() {
           <nav className="header-nav-mobile">
             <Link to="/" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Accueil</Link>
             <Link to="/suivi" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Suivre ma commande</Link>
+            <Link to="/a-propos" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>À propos</Link>
           </nav>
         )}
       </header>
