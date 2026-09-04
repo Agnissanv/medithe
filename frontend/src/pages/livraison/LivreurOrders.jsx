@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { SqueletteCartesCommandes } from '../../components/Squelettes.jsx';
 
 export default function LivreurOrders() {
   const { profil } = useAuth();
@@ -50,7 +51,7 @@ export default function LivreurOrders() {
       <h1>Mes livraisons</h1>
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
       {chargement ? (
-        <p>Chargement…</p>
+        <SqueletteCartesCommandes />
       ) : (
         <>
           <section style={{ marginBottom: '2rem' }}>

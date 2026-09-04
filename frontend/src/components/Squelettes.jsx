@@ -39,3 +39,25 @@ export function SqueletteTableau({ colonnes = 5, lignes = 5 }) {
     </div>
   );
 }
+
+
+// Squelette de cartes commandes — pour les listes en cartes (livraison)
+export function SqueletteCartesCommandes({ nombre = 3 }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+      {Array.from({ length: nombre }).map((_, i) => (
+        <div key={i} style={{
+          background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)',
+          padding: '1rem 1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
+        }}>
+          <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <div className="squelette-ligne" style={{ width: '35%', height: '12px' }} />
+            <div className="squelette-ligne" style={{ width: '60%', height: '12px' }} />
+            <div className="squelette-ligne" style={{ width: '45%', height: '12px' }} />
+          </div>
+          <div className="squelette-ligne" style={{ width: '120px', height: '38px', borderRadius: 'var(--radius)' }} />
+        </div>
+      ))}
+    </div>
+  );
+}
