@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { trackAddToCart } from '../utils/tracking.js';
 
 const CartContext = createContext(null);
 const STORAGE_KEY = 'medithe_panier';
 
 export function CartProvider({ children }) {
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -36,6 +38,9 @@ export function CartProvider({ children }) {
         },
       ];
     });
+    clearTimeout(toastTimer.current);
+    setToast(`${produit.Nom} ajouté au panier`);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
   }
 
   function updateQuantite(id, quantite) {
@@ -62,6 +67,7 @@ export function CartProvider({ children }) {
       value={{ items, addItem, updateQuantite, removeItem, clearCart, sousTotal, nombreArticles }}
     >
       {children}
+      {toast && <div className="toast-panier">✓ {toast}</div>}
     </CartContext.Provider>
   );
 }
