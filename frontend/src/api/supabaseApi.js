@@ -99,14 +99,14 @@ export const api = {
 
   // ---------------- COMMANDES ----------------
   async createCommande(commande) {
-    const { data, error } = await supabase.from('commandes').insert({
-      nom: commande.nom,
-      telephone: commande.telephone,
-      adresse: commande.quartier,
-      note: commande.note || '',
-      produits: commande.produits,
-      montant_total: commande.produits.reduce((s, p) => s + p.prix * p.quantite, 0),
-    }).select().single();
+    const { data, error } = await supabase.rpc('creer_commande', {
+      p_nom: commande.nom,
+      p_telephone: commande.telephone,
+      p_adresse: commande.quartier,
+      p_note: commande.note || '',
+      p_produits: commande.produits,
+      p_montant_total: commande.produits.reduce((s, p) => s + p.prix * p.quantite, 0),
+    }).single();
     if (error) throw new Error(error.message);
     return { success: true, numeroCommande: data.numero_commande, montantTotal: Number(data.montant_total) };
   },
