@@ -158,6 +158,7 @@ export default function Checkout() {
           {erreurGlobale && <p style={{ color: 'var(--danger)' }}>{erreurGlobale}</p>}
 
           <button className="btn btn-primary" type="submit" disabled={envoi}>
+            {envoi && <span className="spinner-bouton" />}
             {envoi ? 'Envoi en cours…' : 'Confirmer la commande'}
           </button>
           <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>

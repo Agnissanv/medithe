@@ -54,7 +54,8 @@ export default function OrderTracking() {
           style={styles.input}
         />
         <button className="btn btn-primary" type="submit" disabled={recherche || !numero.trim()} style={styles.boutonRecherche}>
-          {recherche ? '…' : 'Rechercher'}
+          {recherche && <span className="spinner-bouton" />}
+          {recherche ? 'Recherche…' : 'Rechercher'}
         </button>
       </form>
 
