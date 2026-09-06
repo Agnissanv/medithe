@@ -8,7 +8,7 @@ import InlineOrderForm from '../InlineOrderForm.jsx';
 import OfferCards from './OfferCards.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
-export default function SectionRenderer({ section, produit, formulaireDomId }) {
+export default function SectionRenderer({ section, produit, formulaireDomId, previsualisation = false }) {
   switch (section.type) {
     case 'texte':
       return (
@@ -55,12 +55,12 @@ export default function SectionRenderer({ section, produit, formulaireDomId }) {
       );
 
     case 'offre':
-      return <OffreSection section={section} produit={produit} formulaireDomId={formulaireDomId} />;
+      return <OffreSection section={section} produit={produit} formulaireDomId={formulaireDomId} previsualisation={previsualisation} />;
 
     case 'formulaire_achat':
       return (
         <div className="section-generique">
-          <InlineOrderForm produit={produit} domId={`bloc-${section.id}`} titre={section.titre} />
+          <InlineOrderForm produit={produit} domId={`bloc-${section.id}`} titre={section.titre} previsualisation={previsualisation} />
         </div>
       );
 
@@ -85,11 +85,12 @@ export default function SectionRenderer({ section, produit, formulaireDomId }) {
   }
 }
 
-function OffreSection({ section, produit, formulaireDomId }) {
+function OffreSection({ section, produit, formulaireDomId, previsualisation = false }) {
   const navigate = useNavigate();
   const { addItem } = useCart();
 
   function handleChoisir() {
+    if (previsualisation) return; // sécurité : pas d'ajout panier / navigation réelle en aperçu
     if (section.cibleType === 'commande') {
       addItem(produit, 1);
       navigate('/commande');

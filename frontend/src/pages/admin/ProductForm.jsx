@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Eye, X } from 'lucide-react';
 import { uploadImageToCloudinary, MAX_IMAGES_PAR_PRODUIT } from '../../utils/cloudinary.js';
 import SectionsEditor from './SectionsEditor.jsx';
 import { nettoyerTexteRiche } from '../../utils/richTextClean.js';
+import ProductDetailContenu from '../../components/ProductDetailContenu.jsx';
 
 const CATEGORIES = ['Thé vert', 'Thé noir', 'Thé blanc', 'Rooibos', 'Tisane', 'Autre'];
 
@@ -22,6 +24,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
   });
   const [uploadEnCours, setUploadEnCours] = useState(false);
   const [erreurUpload, setErreurUpload] = useState('');
+  const [apercuOuvert, setApercuOuvert] = useState(false);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -97,7 +100,47 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     });
   }
 
+  const produitApercu = {
+    ID: produitInitial?.ID || 'apercu',
+    Nom: form.nom || 'Nom du produit',
+    Description: form.description,
+    Prix: Number(form.prix) || 0,
+    PrixBarre: form.prixBarre ? Number(form.prixBarre) : null,
+    CommissionCloser: Number(form.commissionCloser) || 0,
+    CommissionLivreur: Number(form.commissionLivreur) || 0,
+    Categorie: form.categorie,
+    Stock: Number(form.stock) || 0,
+    Images: form.images,
+    Disponible: form.disponible,
+    VideoUrl: form.videoUrl,
+    Sections: form.sections,
+  };
+
   return (
+    <>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => setApercuOuvert(true)}
+        style={styles.boutonApercu}
+      >
+        <Eye size={16} /> Aperçu
+      </button>
+
+      {apercuOuvert && (
+        <div style={styles.apercuOverlay}>
+          <div style={styles.apercuBarre}>
+            <span className="eyebrow" style={{ color: 'var(--parchment)' }}>Mode aperçu — commande et suivi publicitaire désactivés</span>
+            <button type="button" className="btn-ghost" onClick={() => setApercuOuvert(false)} style={{ color: 'var(--parchment)' }}>
+              <X size={20} />
+            </button>
+          </div>
+          <div style={styles.apercuContenu}>
+            <ProductDetailContenu produit={produitApercu} previsualisation />
+          </div>
+        </div>
+      )}
+
     <form onSubmit={handleSubmit} style={styles.form}>
       <div style={styles.row}>
         <Champ label="Nom" name="nom" value={form.nom} onChange={handleChange} required />
@@ -171,6 +214,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
         <button type="button" className="btn-outline btn" onClick={onAnnuler}>Annuler</button>
       </div>
     </form>
+    </>
   );
 }
 
@@ -184,6 +228,20 @@ function Champ({ label, name, value, onChange, type = 'text', required }) {
 }
 
 const styles = {
+  boutonApercu: {
+    position: 'fixed', top: '5rem', right: '1.5rem', zIndex: 35,
+    display: 'flex', alignItems: 'center', gap: '0.4rem',
+    boxShadow: '0 6px 18px rgba(0,0,0,0.2)',
+  },
+  apercuOverlay: {
+    position: 'fixed', inset: 0, zIndex: 50, background: 'var(--parchment)',
+    display: 'flex', flexDirection: 'column',
+  },
+  apercuBarre: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    background: 'var(--forest)', padding: '0.9rem 1.2rem', flexShrink: 0,
+  },
+  apercuContenu: { flex: 1, overflowY: 'auto' },
   form: { display: 'flex', flexDirection: 'column', gap: '1rem' },
   row: { display: 'flex', gap: '1rem', flexWrap: 'wrap' },
   label: { display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem', fontWeight: 500 },

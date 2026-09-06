@@ -5,11 +5,11 @@ import { trackInitiateCheckout, trackPurchase } from '../utils/tracking.js';
 
 const TELEPHONE_REGEX = /^[0-9+()\s.-]{8,20}$/;
 
-export default function InlineOrderForm({ produit, domId = 'zone-commande', titre }) {
+export default function InlineOrderForm({ produit, domId = 'zone-commande', titre, previsualisation = false }) {
   const [quantite, setQuantite] = useState(1);
 
   useEffect(() => {
-    trackInitiateCheckout([{ id: produit.ID }], produit.Prix);
+    if (!previsualisation) trackInitiateCheckout([{ id: produit.ID }], produit.Prix);
   }, []);
   const [form, setForm] = useState({ nomComplet: '', telephone: '', adresse: '', note: '' });
   const [erreurs, setErreurs] = useState({});
@@ -32,6 +32,7 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (previsualisation) return; // sécurité : aucune commande réelle ne doit partir en mode aperçu
     if (!valider()) return;
     setEnvoi(true);
     setErreurGlobale('');
@@ -99,8 +100,13 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
 
       {erreurGlobale && <p style={{ color: 'var(--danger)', fontSize: '0.85rem' }}>{erreurGlobale}</p>}
 
-      <button className="btn btn-primary" type="submit" disabled={envoi} style={{ width: '100%', justifyContent: 'center', marginTop: '0.6rem' }}>
-        {envoi ? 'Envoi…' : 'Confirmer la commande'}
+      <button
+        className="btn btn-primary"
+        type="submit"
+        disabled={envoi || previsualisation}
+        style={{ width: '100%', justifyContent: 'center', marginTop: '0.6rem', opacity: previsualisation ? 0.6 : 1 }}
+      >
+        {previsualisation ? 'Aperçu — commande désactivée' : envoi ? 'Envoi…' : 'Confirmer la commande'}
       </button>
       <p style={{ fontSize: '0.75rem', opacity: 0.6, textAlign: 'center', marginTop: '0.5rem' }}>
         Paiement à la livraison, après confirmation téléphonique.
