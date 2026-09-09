@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient.js';
 
-const STATUTS_EXCLUS_CA = ['Annulé / Rejeté', 'Client oiseau', 'Injoignable'];
+const STATUTS_EXCLUS_CA = ['Annulé / Rejeté', 'Client oiseau', 'Injoignable', 'Échec de livraison'];
 
 // --- Traduction snake_case (base) -> PascalCase (déjà utilisé partout dans l'app) ---
 function mapProduit(p) {
@@ -145,6 +145,14 @@ export const api = {
 
     async updateStatutLivraison(numero, statut) {
     const { error } = await supabase.rpc('update_statut_livraison', { p_numero: numero, p_statut: statut });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
+  async marquerEchecLivraison(numero, motif) {
+    const { error } = await supabase.rpc('update_statut_livraison', {
+      p_numero: numero, p_statut: 'Échec de livraison', p_motif: motif,
+    });
     if (error) throw new Error(error.message);
     return { success: true };
   },

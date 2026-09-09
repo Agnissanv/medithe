@@ -16,6 +16,7 @@ const STATUT_VERS_ETAPE = {
 };
 
 const STATUTS_ANNULES = ['Annulé / Rejeté', 'Client oiseau'];
+const STATUTS_ECHEC = ['Échec de livraison'];
 
 export default function OrderTracking() {
   const [numero, setNumero] = useState('');
@@ -39,6 +40,7 @@ export default function OrderTracking() {
   }
 
   const estAnnulee = commande && STATUTS_ANNULES.includes(commande.Statut);
+  const estEchec = commande && STATUTS_ECHEC.includes(commande.Statut);
   const etapeActuelle = commande ? (STATUT_VERS_ETAPE[commande.Statut] ?? 0) : -1;
 
   return (
@@ -71,6 +73,10 @@ export default function OrderTracking() {
           {estAnnulee ? (
             <p style={{ color: 'var(--danger)', fontWeight: 500, marginTop: '1rem' }}>
               Cette commande a été annulée. N'hésitez pas à en repasser une nouvelle si vous le souhaitez.
+            </p>
+          ) : estEchec ? (
+            <p style={{ color: 'var(--danger)', fontWeight: 500, marginTop: '1rem' }}>
+              La livraison n'a pas pu aboutir. Notre équipe va vous recontacter pour convenir d'un nouveau créneau.
             </p>
           ) : (
             <div style={styles.etapes}>

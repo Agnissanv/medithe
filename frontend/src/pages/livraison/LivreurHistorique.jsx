@@ -3,6 +3,8 @@ import { api } from '../../api/supabaseApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { SqueletteCartesCommandes } from '../../components/Squelettes.jsx';
 
+const STATUTS_HISTORIQUE = ['Livré', 'Échec de livraison'];
+
 function dateDuJour() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -17,9 +19,11 @@ export default function LivreurHistorique() {
 
   function charger() {
     setChargement(true);
-    api.getCommandes('Livré')
+    api.getCommandes()
       .then((toutes) => {
-        setCommandes(toutes.filter((c) => c.NomLivreur === profil?.nom));
+        setCommandes(
+          toutes.filter((c) => STATUTS_HISTORIQUE.includes(c.Statut) && c.NomLivreur === profil?.nom)
+        );
       })
       .catch((e) => setErreur(e.message))
       .finally(() => setChargement(false));
@@ -45,7 +49,9 @@ export default function LivreurHistorique() {
   }
 
   const filtrees = commandes.filter(estDansLaPeriode);
-  const totalPeriode = filtrees.reduce((s, c) => s + Number(c.MontantTotal), 0);
+  const livrees = filtrees.filter((c) => c.Statut === 'Livré');
+  const echouees = filtrees.filter((c) => c.Statut === 'Échec de livraison');
+  const totalPeriode = livrees.reduce((s, c) => s + Number(c.MontantTotal), 0);
 
   return (
     <div>
@@ -75,25 +81,40 @@ export default function LivreurHistorique() {
       ) : (
         <>
           <p style={{ opacity: 0.75, marginBottom: '1rem' }}>
-            {filtrees.length} commande{filtrees.length > 1 ? 's' : ''} livrée{filtrees.length > 1 ? 's' : ''} —{' '}
-            <strong>{totalPeriode.toLocaleString('fr-FR')} F CFA</strong> au total
+            {livrees.length} livrée{livrees.length > 1 ? 's' : ''} — <strong>{totalPeriode.toLocaleString('fr-FR')} F CFA</strong>
+            {echouees.length > 0 && (
+              <> · <span style={{ color: 'var(--danger)' }}>{echouees.length} échec{echouees.length > 1 ? 's' : ''}</span></>
+            )}
           </p>
           <div style={styles.liste}>
-            {filtrees.map((c) => (
-              <div key={c.NumeroCommande} style={styles.carte}>
-                <div style={{ flex: '1 1 200px' }}>
-                  <p style={{ margin: 0, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{c.NumeroCommande}</p>
-                  <p style={{ margin: '0.3rem 0 0' }}>{c.Nom} — {c.Telephone}</p>
-                  <p style={{ margin: '0.2rem 0 0', opacity: 0.8 }}>{c.Quartier}</p>
+            {filtrees.map((c) => {
+              const echec = c.Statut === 'Échec de livraison';
+              return (
+                <div key={c.NumeroCommande} style={{ ...styles.carte, borderLeft: `4px solid ${echec ? 'var(--danger)' : '#1F5D22'}` }}>
+                  <div style={{ flex: '1 1 220px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                      <p style={{ margin: 0, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{c.NumeroCommande}</p>
+                      <span style={{ ...styles.badge, ...(echec ? styles.badgeEchec : styles.badgeLivree) }}>
+                        {echec ? 'Échec' : 'Livrée'}
+                      </span>
+                    </div>
+                    <p style={{ margin: '0.3rem 0 0' }}>{c.Nom} — {c.Telephone}</p>
+                    <p style={{ margin: '0.2rem 0 0', opacity: 0.8 }}>{c.Quartier}</p>
+                    {echec && c.NotesCallCenter && (
+                      <p style={{ margin: '0.4rem 0 0', fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--danger)' }}>
+                        « {c.NotesCallCenter} »
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p className="price-tag" style={{ margin: 0 }}>{Number(c.MontantTotal).toLocaleString('fr-FR')} F CFA</p>
+                    <p style={{ margin: '0.3rem 0 0', fontSize: '0.82rem', opacity: 0.65 }}>
+                      {new Date(c.DateHeure).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p className="price-tag" style={{ margin: 0 }}>{Number(c.MontantTotal).toLocaleString('fr-FR')} F CFA</p>
-                  <p style={{ margin: '0.3rem 0 0', fontSize: '0.82rem', opacity: 0.65 }}>
-                    {new Date(c.DateHeure).toLocaleDateString('fr-FR')}
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
@@ -110,4 +131,7 @@ const styles = {
     background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)',
     padding: '1rem 1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
   },
+  badge: { fontSize: '0.7rem', fontWeight: 600, padding: '0.15em 0.5em', borderRadius: '999px', textTransform: 'uppercase', letterSpacing: '0.03em' },
+  badgeLivree: { background: '#DCF3D8', color: '#1F5D22' },
+  badgeEchec: { background: '#F1AC9E', color: 'var(--danger)' },
 };

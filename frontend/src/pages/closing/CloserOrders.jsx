@@ -4,7 +4,7 @@ import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 const STATUTS = [
   'Nouvelle', 'Expédié', "En cours d'expédition", 'Prêt pour livraison',
-  'Programmer le', 'Je vous rappel', 'Injoignable', 'Annulé / Rejeté', 'Client oiseau'
+  'Programmer le', 'Je vous rappel', 'Injoignable', 'Échec de livraison', 'Annulé / Rejeté', 'Client oiseau'
 ];
 
 const STYLE_STATUT = {
@@ -17,6 +17,7 @@ const STYLE_STATUT = {
   'Programmer le': { fond: '#FBE29B', bande: '#B8790E' },
   'Je vous rappel': { fond: '#FDEFC0', bande: '#D1A23A' },
   'Injoignable': { fond: '#BBDEFB', bande: '#1565C0' },
+  'Échec de livraison': { fond: '#F1AC9E', bande: 'var(--danger)' },
   'Annulé / Rejeté': { fond: '#F1AC9E', bande: 'var(--danger)' },
   'Client oiseau': { fond: '#E57368', bande: '#8B1E12' },
 };

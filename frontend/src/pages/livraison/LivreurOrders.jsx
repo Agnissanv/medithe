@@ -8,6 +8,9 @@ export default function LivreurOrders() {
   const [commandes, setCommandes] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState('');
+  const [echecOuvert, setEchecOuvert] = useState(null);
+  const [motifEchec, setMotifEchec] = useState('');
+  const [envoiEchec, setEnvoiEchec] = useState(false);
 
   function charger() {
     setChargement(true);
@@ -40,6 +43,22 @@ export default function LivreurOrders() {
     } catch (err) {
       setErreur(err.message);
       charger();
+    }
+  }
+
+  async function handleConfirmerEchec() {
+    if (!motifEchec.trim()) return;
+    setEnvoiEchec(true);
+    try {
+      await api.marquerEchecLivraison(echecOuvert.NumeroCommande, motifEchec.trim());
+      setErreur('');
+      setEchecOuvert(null);
+      setMotifEchec('');
+      charger();
+    } catch (err) {
+      setErreur(err.message);
+    } finally {
+      setEnvoiEchec(false);
     }
   }
 
@@ -82,9 +101,18 @@ export default function LivreurOrders() {
                   return (
                     <CarteCommande key={c.NumeroCommande} c={c}>
                       {estAMoi ? (
-                        <button className="btn btn-primary" onClick={() => handleConfirmerLivraison(c.NumeroCommande)}>
-                          Confirmer la livraison
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                          <button className="btn btn-primary" onClick={() => handleConfirmerLivraison(c.NumeroCommande)}>
+                            Confirmer la livraison
+                          </button>
+                          <button
+                            className="btn-outline btn"
+                            style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}
+                            onClick={() => { setEchecOuvert(c); setMotifEchec(''); }}
+                          >
+                            Signaler un échec
+                          </button>
+                        </div>
                       ) : (
                         <span style={{ fontSize: '0.85rem', opacity: 0.6, fontStyle: 'italic' }}>
                           Pris en charge par {c.NomLivreur}
@@ -97,6 +125,42 @@ export default function LivreurOrders() {
             )}
           </section>
         </>
+      )}
+
+      {echecOuvert && (
+        <div style={styles.overlay} onClick={() => !envoiEchec && setEchecOuvert(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ color: 'var(--danger)' }}>Signaler un échec de livraison</h3>
+            <p style={{ fontSize: '0.9rem', opacity: 0.85, margin: '0.3rem 0 1rem' }}>
+              Commande <strong style={{ fontFamily: 'var(--font-mono)' }}>{echecOuvert.NumeroCommande}</strong> —{' '}
+              {echecOuvert.Nom}
+            </p>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.4rem' }}>
+              Motif (client absent, adresse introuvable, refus...)
+            </label>
+            <textarea
+              value={motifEchec}
+              onChange={(e) => setMotifEchec(e.target.value)}
+              placeholder="Ex : client injoignable après 3 appels"
+              rows={3}
+              autoFocus
+              style={styles.textareaMotif}
+            />
+            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.2rem' }}>
+              <button
+                className="btn btn-primary"
+                style={{ background: 'var(--danger)' }}
+                disabled={!motifEchec.trim() || envoiEchec}
+                onClick={handleConfirmerEchec}
+              >
+                {envoiEchec ? 'Envoi…' : "Confirmer l'échec"}
+              </button>
+              <button className="btn-outline btn" disabled={envoiEchec} onClick={() => setEchecOuvert(null)}>
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -121,5 +185,11 @@ const styles = {
   carte: {
     background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)',
     padding: '1rem 1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
+  },
+  overlay: { position: 'fixed', inset: 0, background: 'rgba(11,77,30,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 },
+  modal: { background: 'var(--parchment)', padding: '1.5rem', borderRadius: 'var(--radius)', width: 'min(420px, 92vw)' },
+  textareaMotif: {
+    width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)',
+    fontFamily: 'var(--font-body)', resize: 'vertical', background: 'var(--parchment-dark)',
   },
 };
