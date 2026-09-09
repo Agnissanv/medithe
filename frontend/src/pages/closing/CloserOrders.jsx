@@ -39,7 +39,10 @@ export default function CloserOrders() {
   useEffect(charger, [filtre]);
 
   function estVerrouillee(commande) {
-    return (commande.TraitePar && commande.TraitePar !== 'closer') || commande.Statut === 'Livré';
+    return (
+      (commande.TraitePar && commande.TraitePar !== 'closer') ||
+      ['En cours de livraison', 'Livré'].includes(commande.Statut)
+    );
   }
 
   async function handleChangerStatut(commande, statut) {
