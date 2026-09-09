@@ -46,17 +46,25 @@ export default function AdminDashboard() {
         <Carte label="Chiffre d'affaires" valeur={`${stats.chiffreAffaires.toLocaleString('fr-FR')} F CFA`} />
         <Carte label="Commandes" valeur={stats.nombreCommandes} />
         <Carte label="Alertes stock faible" valeur={stats.stockFaible.length} accent={stats.stockFaible.length > 0} />
+        <Carte
+          label="Livraisons échouées"
+          valeur={stats.parStatut['Échec de livraison'] || 0}
+          accent={(stats.parStatut['Échec de livraison'] || 0) > 0}
+        />
       </div>
 
       <div style={styles.grid2}>
         <section style={styles.bloc}>
           <h3>Commandes par statut</h3>
-          {Object.entries(stats.parStatut).map(([statut, n]) => (
-            <div key={statut} style={styles.ligneStatut}>
-              <span>{statut}</span>
-              <span className="price-tag">{n}</span>
-            </div>
-          ))}
+          {Object.entries(stats.parStatut).map(([statut, n]) => {
+            const echec = statut === 'Échec de livraison';
+            return (
+              <div key={statut} style={styles.ligneStatut}>
+                <span style={echec ? { color: 'var(--danger)', fontWeight: 600 } : undefined}>{statut}</span>
+                <span className="price-tag" style={echec ? { color: 'var(--danger)' } : undefined}>{n}</span>
+              </div>
+            );
+          })}
         </section>
 
         <section style={styles.bloc}>
@@ -109,7 +117,7 @@ const styles = {
   filtreDate: { display: 'flex', gap: '1rem', alignItems: 'end', marginBottom: '1.5rem' },
   labelDate: { display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem', fontWeight: 500 },
   inputDate: { padding: '0.5em 0.7em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)', background: 'var(--parchment)' },
-  cartes: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
+  cartes: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' },
   carte: { background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '1.2rem' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' },
   bloc: { background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '1.3rem' },
