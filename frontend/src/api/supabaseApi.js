@@ -112,9 +112,19 @@ export const api = {
   },
 
   async getCommandeByNumero(numero) {
-    const { data, error } = await supabase.from('commandes').select('*').eq('numero_commande', numero).single();
-    if (error) throw new Error('Commande introuvable');
-    return mapCommande(data);
+    // Le client public (anon, non connecté) n'a aucun droit direct sur `commandes` — comme pour
+    // creer_commande(), on passe par une fonction security definer qui ne renvoie que les champs
+    // utiles au suivi public (jamais le nom/téléphone/adresse/notes internes d'une commande).
+    const { data, error } = await supabase.rpc('suivre_commande', { p_numero: numero });
+    const commande = data?.[0];
+    if (error || !commande) throw new Error('Commande introuvable');
+    return {
+      NumeroCommande: commande.numero_commande,
+      DateHeure: commande.date_heure,
+      Produits: commande.produits,
+      MontantTotal: Number(commande.montant_total),
+      Statut: commande.statut,
+    };
   },
 
   async getCommandes(statut) {

@@ -29,7 +29,7 @@ export default function OrderTracking() {
     setErreur('');
     setCommande(null);
     try {
-      const data = await api.getCommande(numero.trim());
+      const data = await api.getCommandeByNumero(numero.trim());
       setCommande(data);
     } catch (err) {
       setErreur("Commande introuvable. Vérifiez le numéro saisi.");
