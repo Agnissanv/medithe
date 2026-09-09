@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext.jsx';
 
@@ -20,10 +20,16 @@ export default function Header() {
           </Link>
 
           <nav className="header-nav-desktop" style={styles.nav}>
-            <Link to="/" style={styles.navLink}>Accueil</Link>
-        <Link to="/suivi" style={styles.navLink}>Suivre ma commande</Link>
-        <Link to="/a-propos" style={styles.navLink}>À propos</Link>
-      </nav>
+            <NavLink to="/" end style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
+              Accueil
+            </NavLink>
+            <NavLink to="/suivi" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
+              Suivre ma commande
+            </NavLink>
+            <NavLink to="/a-propos" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
+              À propos
+            </NavLink>
+          </nav>
 
           <div style={styles.actionsDroite}>
             <Link to="/panier" style={styles.cartLink} aria-label="Voir le panier" onClick={() => setMenuOuvert(false)}>
@@ -46,9 +52,28 @@ export default function Header() {
 
         {menuOuvert && (
           <nav className="header-nav-mobile">
-            <Link to="/" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Accueil</Link>
-            <Link to="/suivi" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>Suivre ma commande</Link>
-            <Link to="/a-propos" style={styles.navLinkMobile} onClick={() => setMenuOuvert(false)}>À propos</Link>
+            <NavLink
+              to="/"
+              end
+              style={({ isActive }) => ({ ...styles.navLinkMobile, ...(isActive ? styles.navLinkMobileActif : {}) })}
+              onClick={() => setMenuOuvert(false)}
+            >
+              Accueil
+            </NavLink>
+            <NavLink
+              to="/suivi"
+              style={({ isActive }) => ({ ...styles.navLinkMobile, ...(isActive ? styles.navLinkMobileActif : {}) })}
+              onClick={() => setMenuOuvert(false)}
+            >
+              Suivre ma commande
+            </NavLink>
+            <NavLink
+              to="/a-propos"
+              style={({ isActive }) => ({ ...styles.navLinkMobile, ...(isActive ? styles.navLinkMobileActif : {}) })}
+              onClick={() => setMenuOuvert(false)}
+            >
+              À propos
+            </NavLink>
           </nav>
         )}
       </header>
@@ -102,6 +127,14 @@ const styles = {
     color: 'var(--parchment)',
     fontSize: '0.9rem',
     opacity: 0.85,
+    padding: '0.3em 0',
+    transition: 'opacity 0.15s ease, box-shadow 0.15s ease',
+  },
+  navLinkActif: {
+    opacity: 1,
+    fontWeight: 600,
+    color: 'var(--copper)',
+    boxShadow: 'inset 0 -2px 0 var(--copper)',
   },
   navLinkMobile: {
     display: 'block',
@@ -109,6 +142,13 @@ const styles = {
     fontSize: '0.95rem',
     padding: '0.9rem 1.5rem',
     borderTop: '1px solid var(--line-dark)',
+  },
+  navLinkMobileActif: {
+    color: 'var(--copper)',
+    fontWeight: 600,
+    background: 'rgba(201,154,46,0.1)',
+    borderLeft: '3px solid var(--copper)',
+    paddingLeft: 'calc(1.5rem - 3px)',
   },
   actionsDroite: {
     display: 'flex',
