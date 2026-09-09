@@ -38,8 +38,12 @@ export default function CloserOrders() {
 
   useEffect(charger, [filtre]);
 
+  function estVerrouillee(commande) {
+    return (commande.TraitePar && commande.TraitePar !== 'closer') || commande.Statut === 'Livré';
+  }
+
   async function handleChangerStatut(commande, statut) {
-    if (commande.TraitePar && commande.TraitePar !== 'closer') return;
+    if (estVerrouillee(commande)) return;
     try {
       await api.updateStatutCommande(commande.NumeroCommande, statut);
       setErreur('');
@@ -51,7 +55,7 @@ export default function CloserOrders() {
   }
 
   async function handleEnregistrerNote(commande, note) {
-    if (commande.TraitePar && commande.TraitePar !== 'closer') return;
+    if (estVerrouillee(commande)) return;
     try {
       await api.updateStatutCommande(commande.NumeroCommande, commande.Statut, note);
       setErreur('');
@@ -96,7 +100,7 @@ export default function CloserOrders() {
           <tbody>
             {commandes.map((c) => {
               const style = STYLE_STATUT[c.Statut] || STYLE_STATUT.Nouvelle;
-              const verrouilleParAdmin = c.TraitePar === 'admin';
+              const verrouilleParAdmin = estVerrouillee(c);
 
               return (
                 <tr key={c.NumeroCommande} style={{ background: style.fond, borderLeft: `4px solid ${style.bande}` }}>

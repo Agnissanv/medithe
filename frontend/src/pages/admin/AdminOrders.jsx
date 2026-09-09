@@ -144,7 +144,7 @@ export default function AdminOrders() {
                   <td style={{ ...styles.td, fontFamily: 'var(--font-mono)' }}>{c.Telephone}</td>
                   <td style={{ ...styles.td, fontFamily: 'var(--font-mono)' }}>{Number(c.MontantTotal).toLocaleString('fr-FR')} F</td>
                   <td style={styles.td}>
-                    {c.TraitePar === 'closer' ? (
+                    {c.TraitePar === 'closer' || c.Statut === 'Livré' ? (
                       <span style={styles.badgeVerrou}>{c.Statut}</span>
                     ) : (
                       <select
@@ -160,7 +160,7 @@ export default function AdminOrders() {
                     {c.NomCloser || <span style={{ opacity: 0.4, fontWeight: 400 }}>Non attribué</span>}
                   </td>
                   <td style={styles.td}>
-                    {c.TraitePar === 'closer' ? (
+                    {c.TraitePar === 'closer' || c.Statut === 'Livré' ? (
                       <span style={{ ...styles.badgeVerrou, display: 'block' }}>{c.NotesCallCenter || '—'}</span>
                     ) : (
                       <textarea

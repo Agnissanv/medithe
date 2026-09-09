@@ -23,6 +23,7 @@ const CloserOrders = lazy(() => import('./pages/closing/CloserOrders.jsx'));
 
 const LivreurLayout = lazy(() => import('./components/LivreurLayout.jsx'));
 const LivreurOrders = lazy(() => import('./pages/livraison/LivreurOrders.jsx'));
+const LivreurHistorique = lazy(() => import('./pages/livraison/LivreurHistorique.jsx'));
 
 function ChargementZone() {
   return <SqueletteEcranPlein />;
@@ -71,6 +72,7 @@ export default function App() {
           <Suspense fallback={<ChargementZone />}><LivreurLayout /></Suspense>
         }>
           <Route index element={<Suspense fallback={<ChargementZone />}><LivreurOrders /></Suspense>} />
+          <Route path="historique" element={<Suspense fallback={<ChargementZone />}><LivreurHistorique /></Suspense>} />
         </Route>
       </Route>
     </Routes>
