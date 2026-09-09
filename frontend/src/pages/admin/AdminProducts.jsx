@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import ProductForm from './ProductForm.jsx';
+import { useConfirm } from '../../context/ConfirmContext.jsx';
 
 export default function AdminProducts() {
+  const confirmer = useConfirm();
   const [produits, setProduits] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [edition, setEdition] = useState(null);
@@ -35,7 +37,10 @@ export default function AdminProducts() {
   }
 
   async function handleSupprimer(produit) {
-    if (!confirm(`Supprimer « ${produit.Nom} » ? Cette action est irréversible.`)) return;
+    const ok = await confirmer(`Supprimer « ${produit.Nom} » ? Cette action est irréversible.`, {
+      titre: 'Supprimer le produit', labelConfirmer: 'Supprimer',
+    });
+    if (!ok) return;
     try {
       await api.deleteProduit(produit.ID);
       charger();

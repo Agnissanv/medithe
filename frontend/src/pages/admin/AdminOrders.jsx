@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import { exportCommandesToCsv } from '../../utils/csv.js';
 import { SqueletteTableau } from '../../components/Squelettes.jsx';
+import { useConfirm } from '../../context/ConfirmContext.jsx';
 
 const STATUTS = [
   'Nouvelle', 'Expédié', "En cours d'expédition", 'Prêt pour livraison',
@@ -24,6 +25,7 @@ const STYLE_STATUT = {
 };
 
 export default function AdminOrders() {
+  const confirmer = useConfirm();
   const [commandes, setCommandes] = useState([]);
   const [filtre, setFiltre] = useState('Toutes');
   const [chargement, setChargement] = useState(true);
@@ -67,7 +69,10 @@ export default function AdminOrders() {
   }
 
   async function handleSupprimer(numero) {
-    if (!confirm(`Supprimer la commande ${numero} ? Cette action est irréversible.`)) return;
+    const ok = await confirmer(`Supprimer la commande ${numero} ? Cette action est irréversible.`, {
+      titre: 'Supprimer la commande', labelConfirmer: 'Supprimer',
+    });
+    if (!ok) return;
     try {
       await api.deleteCommande(numero);
       charger();

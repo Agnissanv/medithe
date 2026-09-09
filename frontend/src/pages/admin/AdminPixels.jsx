@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient.js';
-import { SqueletteTableau } from '../../components/Squelettes.jsx';
+import { useConfirm } from '../../context/ConfirmContext.jsx';
 
 export default function AdminPixels() {
+  const confirmer = useConfirm();
   const [pixels, setPixels] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState('');
@@ -43,7 +44,8 @@ export default function AdminPixels() {
   }
 
   async function handleSupprimer(id) {
-    if (!confirm('Supprimer ce pixel ?')) return;
+    const ok = await confirmer('Supprimer ce pixel ?', { titre: 'Supprimer le pixel', labelConfirmer: 'Supprimer' });
+    if (!ok) return;
     await supabase.from('parametres_pixels').delete().eq('id', id);
     charger();
   }
@@ -70,7 +72,7 @@ export default function AdminPixels() {
 
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
-      {chargement ? <SqueletteTableau colonnes={5} /> : pixels.length === 0 ? (
+      {chargement ? <p>Chargement…</p> : pixels.length === 0 ? (
         <p style={{ opacity: 0.6 }}>Aucun pixel configuré.</p>
       ) : (
         <table style={styles.table}>
