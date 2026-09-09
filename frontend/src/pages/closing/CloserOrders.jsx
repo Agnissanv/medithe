@@ -71,7 +71,7 @@ export default function CloserOrders() {
 
   return (
     <div>
-      <div style={styles.header}>
+      <div className="page-header-actions">
         <h1>Commandes à traiter</h1>
         <select value={filtre} onChange={(e) => setFiltre(e.target.value)} style={styles.select}>
           <option value="Toutes">Tous les statuts</option>
@@ -176,7 +176,6 @@ export default function CloserOrders() {
 }
 
 const styles = {
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
   select: { padding: '0.5em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--parchment)' },
   selectInline: { padding: '0.3em 0.5em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--parchment)', fontSize: '0.85rem' },
   table: { width: '100%', borderCollapse: 'collapse' },

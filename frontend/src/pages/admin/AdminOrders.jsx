@@ -90,9 +90,9 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <div style={styles.header}>
+      <div className="page-header-actions">
         <h1>Commandes</h1>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div className="page-header-controls">
           <select value={filtre} onChange={(e) => setFiltre(e.target.value)} style={styles.select}>
             <option value="Toutes">Tous les statuts</option>
             {STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -249,7 +249,6 @@ export default function AdminOrders() {
 }
 
 const styles = {
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.8rem' },
   select: { padding: '0.5em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--parchment)' },
   selectInline: { padding: '0.3em 0.5em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--parchment)', fontSize: '0.85rem' },
   table: { width: '100%', borderCollapse: 'collapse' },

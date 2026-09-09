@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import ProductForm from './ProductForm.jsx';
-import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 export default function AdminProducts() {
   const [produits, setProduits] = useState([]);
@@ -62,7 +61,7 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <div style={styles.header}>
+      <div className="page-header-actions">
         <h1>Produits</h1>
         <button className="btn btn-primary" onClick={() => setEdition('nouveau')}>+ Ajouter un produit</button>
       </div>
@@ -70,7 +69,7 @@ export default function AdminProducts() {
       {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
 
       {chargement ? (
-        <SqueletteTableau colonnes={6} />
+        <p>Chargement…</p>
       ) : (
         <div className="table-scroll">
         <table style={styles.table}>
@@ -111,7 +110,6 @@ export default function AdminProducts() {
 }
 
 const styles = {
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { textAlign: 'left', padding: '0.6rem', borderBottom: '1px solid var(--line)', fontSize: '0.8rem', color: 'var(--sage)', textTransform: 'uppercase', letterSpacing: '0.05em' },
   td: { padding: '0.7rem 0.6rem', borderBottom: '1px solid var(--line)', fontSize: '0.9rem' },
