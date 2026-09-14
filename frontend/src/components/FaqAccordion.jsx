@@ -22,7 +22,13 @@ export default function FaqAccordion({ items = [] }) {
 }
 
 const styles = {
-  item: { borderBottom: '1px solid var(--line)' },
+  item: {
+    background: 'var(--parchment-dark)',
+    border: '1px solid var(--line)',
+    borderRadius: 'var(--radius)',
+    padding: '0 1rem',
+    marginBottom: '0.6rem',
+  },
   question: {
     width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     padding: '1rem 0', background: 'transparent', textAlign: 'left', fontWeight: 500, fontSize: '0.95rem',
