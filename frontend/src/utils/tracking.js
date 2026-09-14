@@ -73,46 +73,92 @@ function injecterScripts(pixels) {
   }
 }
 
+// ---- Envoi côté serveur (API de conversion Meta/TikTok/Google) ----------------
+// Complète le tracking navigateur ci-dessus : plus fiable (pas affecté par les
+// bloqueurs de pub ni la perte de données iOS). Le même event_id est utilisé côté
+// navigateur ET côté serveur pour que Meta/TikTok ne comptent pas l'événement deux fois.
+
+function genererEventId() {
+  return (window.crypto?.randomUUID?.() || `evt-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+}
+
+function obtenirClientId() {
+  const cle = '_medithe_cid';
+  const trouve = document.cookie.split('; ').find((c) => c.startsWith(cle + '='));
+  if (trouve) return trouve.split('=')[1];
+  const id = genererEventId();
+  document.cookie = `${cle}=${id}; max-age=${60 * 60 * 24 * 365}; path=/`;
+  return id;
+}
+
+function envoyerEvenementServeur(evenement, eventId, donnees) {
+  // Best-effort : on n'attend jamais cet appel et on ignore ses erreurs, pour ne
+  // jamais ralentir ou casser une action utilisateur (ajout panier, commande…).
+  try {
+    fetch('/api/track-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ evenement, event_id: eventId, donnees, client_id: obtenirClientId() }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // navigateur sans fetch/cookies (très rare) : on ignore silencieusement
+  }
+}
+
 export async function trackPageView() {
   const pixels = await chargerPixels();
-  if (window.fbq) window.fbq('track', 'PageView');
+  const eventId = genererEventId();
+  if (window.fbq) window.fbq('track', 'PageView', {}, { eventID: eventId });
   if (window.ttq) pixels.filter((p) => p.plateforme === 'tiktok').forEach((p) => window.ttq.instance(p.pixel_id).page());
+  envoyerEvenementServeur('PageView', eventId, {});
 }
 
 export async function trackViewContent(produit) {
   const pixels = await chargerPixels();
-  const donnees = { content_name: produit.Nom, content_ids: [produit.ID], value: produit.Prix, currency: 'XOF' };
-  if (window.fbq) window.fbq('track', 'ViewContent', donnees);
+  const eventId = genererEventId();
+  const donnees = { content_name: produit.Nom, content_ids: [produit.ID], content_id: produit.ID, value: produit.Prix, currency: 'XOF' };
+  if (window.fbq) window.fbq('track', 'ViewContent', donnees, { eventID: eventId });
   if (window.ttq) pixels.filter((p) => p.plateforme === 'tiktok').forEach((p) =>
-    window.ttq.instance(p.pixel_id).track('ViewContent', { content_id: produit.ID, value: produit.Prix, currency: 'XOF' })
+    window.ttq.instance(p.pixel_id).track('ViewContent', { content_id: produit.ID, value: produit.Prix, currency: 'XOF' }, { event_id: eventId })
   );
   if (window.gtag) window.gtag('event', 'view_item', { value: produit.Prix, currency: 'XOF', items: [{ item_id: produit.ID, item_name: produit.Nom }] });
+  envoyerEvenementServeur('ViewContent', eventId, donnees);
 }
 
 export async function trackAddToCart(produit, quantite) {
   const pixels = await chargerPixels();
+  const eventId = genererEventId();
   const valeur = produit.Prix * quantite;
-  if (window.fbq) window.fbq('track', 'AddToCart', { content_ids: [produit.ID], value: valeur, currency: 'XOF' });
+  const donnees = { content_id: produit.ID, content_ids: [produit.ID], value: valeur, currency: 'XOF' };
+  if (window.fbq) window.fbq('track', 'AddToCart', donnees, { eventID: eventId });
   if (window.ttq) pixels.filter((p) => p.plateforme === 'tiktok').forEach((p) =>
-    window.ttq.instance(p.pixel_id).track('AddToCart', { content_id: produit.ID, value: valeur, currency: 'XOF' })
+    window.ttq.instance(p.pixel_id).track('AddToCart', { content_id: produit.ID, value: valeur, currency: 'XOF' }, { event_id: eventId })
   );
   if (window.gtag) window.gtag('event', 'add_to_cart', { value: valeur, currency: 'XOF' });
+  envoyerEvenementServeur('AddToCart', eventId, donnees);
 }
 
 export async function trackInitiateCheckout(items, total) {
   const pixels = await chargerPixels();
-  if (window.fbq) window.fbq('track', 'InitiateCheckout', { content_ids: items.map((i) => i.id), value: total, currency: 'XOF' });
+  const eventId = genererEventId();
+  const donnees = { content_ids: items.map((i) => i.id), value: total, currency: 'XOF', num_items: items.length };
+  if (window.fbq) window.fbq('track', 'InitiateCheckout', donnees, { eventID: eventId });
   if (window.ttq) pixels.filter((p) => p.plateforme === 'tiktok').forEach((p) =>
-    window.ttq.instance(p.pixel_id).track('InitiateCheckout', { value: total, currency: 'XOF' })
+    window.ttq.instance(p.pixel_id).track('InitiateCheckout', { value: total, currency: 'XOF' }, { event_id: eventId })
   );
   if (window.gtag) window.gtag('event', 'begin_checkout', { value: total, currency: 'XOF' });
+  envoyerEvenementServeur('InitiateCheckout', eventId, donnees);
 }
 
 export async function trackPurchase(numeroCommande, total) {
   const pixels = await chargerPixels();
-  if (window.fbq) window.fbq('track', 'Purchase', { value: total, currency: 'XOF' });
+  const eventId = genererEventId();
+  const donnees = { order_id: numeroCommande, value: total, currency: 'XOF' };
+  if (window.fbq) window.fbq('track', 'Purchase', { value: total, currency: 'XOF' }, { eventID: eventId });
   if (window.ttq) pixels.filter((p) => p.plateforme === 'tiktok').forEach((p) =>
-    window.ttq.instance(p.pixel_id).track('CompletePayment', { value: total, currency: 'XOF' })
+    window.ttq.instance(p.pixel_id).track('CompletePayment', { value: total, currency: 'XOF' }, { event_id: eventId })
   );
   if (window.gtag) window.gtag('event', 'purchase', { transaction_id: numeroCommande, value: total, currency: 'XOF' });
+  envoyerEvenementServeur('Purchase', eventId, donnees);
 }
