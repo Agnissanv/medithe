@@ -8,9 +8,17 @@ import InlineOrderForm from '../InlineOrderForm.jsx';
 import OfferCards from './OfferCards.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
+function estHtmlVide(html) {
+  if (!html) return true;
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim().length === 0;
+}
+
 export default function SectionRenderer({ section, produit, formulaireDomId, previsualisation = false }) {
   switch (section.type) {
     case 'texte':
+      // Bloc laissé vide par l'admin (aucun titre, aucun texte) : on n'affiche pas le cadre,
+      // sinon ça laisse un grand espace vide sur la fiche produit sans rien pour l'expliquer.
+      if (!section.titre && estHtmlVide(section.contenuHtml)) return null;
       return (
         <section className="section-generique">
           {section.titre && <h2>{section.titre}</h2>}
@@ -19,6 +27,7 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
       );
 
     case 'image_titre':
+      if (!section.image && !section.titre && !section.sousTitre) return null;
       return (
         <section className="section-generique section-image-titre">
           {section.image && (
@@ -39,18 +48,20 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
       return <BeneficesList items={section.items || []} titre={section.titreSection} />;
 
     case 'avis':
+      if (!section.items?.length) return null;
       return (
         <section className="section-generique">
           {section.titreSection && <h2>{section.titreSection}</h2>}
-          <AvisList items={section.items || []} />
+          <AvisList items={section.items} />
         </section>
       );
 
     case 'accordeon':
+      if (!section.items?.length) return null;
       return (
         <section className="section-generique">
           {section.titreSection && <h2>{section.titreSection}</h2>}
-          <FaqAccordion items={section.items || []} />
+          <FaqAccordion items={section.items} />
         </section>
       );
 
@@ -88,6 +99,8 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
 function OffreSection({ section, produit, formulaireDomId, previsualisation = false }) {
   const navigate = useNavigate();
   const { addItem } = useCart();
+
+  if (!section.cartes?.length) return null;
 
   function handleChoisir() {
     if (previsualisation) return; // sécurité : pas d'ajout panier / navigation réelle en aperçu
