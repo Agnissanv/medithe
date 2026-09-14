@@ -271,18 +271,59 @@ function AvisForm({ section, onChange }) {
   );
 }
 
+const IMAGE_TITRE_RATIO_CIBLE = 4 / 3;
+const IMAGE_TITRE_TOLERANCE_RATIO = 0.03; // ~3% de marge (ex: 1200x900, 1600x1200, etc.)
+const IMAGE_TITRE_LARGEUR_MIN = 800;
+
+function validerDimensionsImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const { naturalWidth: largeur, naturalHeight: hauteur } = img;
+      const ratio = largeur / hauteur;
+      if (Math.abs(ratio - IMAGE_TITRE_RATIO_CIBLE) > IMAGE_TITRE_TOLERANCE_RATIO) {
+        reject(new Error(
+          `Format refusé : cette image fait ${largeur}×${hauteur}px (ratio ${ratio.toFixed(2)}). ` +
+          `Il faut une image au format paysage 4:3 (ex. 1200×900, 1600×1200...). Recadre-la puis réessaie.`
+        ));
+        return;
+      }
+      if (largeur < IMAGE_TITRE_LARGEUR_MIN) {
+        reject(new Error(`Image trop petite (${largeur}×${hauteur}px). Largeur minimum requise : ${IMAGE_TITRE_LARGEUR_MIN}px.`));
+        return;
+      }
+      resolve();
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Impossible de lire cette image.")); };
+    img.src = url;
+  });
+}
+
 function ImageTitreForm({ section, onChange }) {
   const [uploadEnCours, setUploadEnCours] = React.useState(false);
+  const [erreurImage, setErreurImage] = React.useState('');
 
   async function handleFile(e) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setErreurImage('');
+
+    try {
+      await validerDimensionsImage(file);
+    } catch (err) {
+      setErreurImage(err.message);
+      e.target.value = ''; // permet de re-choisir le même fichier après correction
+      return;
+    }
+
     setUploadEnCours(true);
     try {
       const url = await uploadImageToCloudinary(file);
       onChange({ image: url });
     } catch (err) {
-      alert(err.message);
+      setErreurImage(err.message);
     } finally {
       setUploadEnCours(false);
     }
@@ -299,9 +340,12 @@ function ImageTitreForm({ section, onChange }) {
       )}
       <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} disabled={uploadEnCours} />
       <p style={{ fontSize: '0.78rem', opacity: 0.65, margin: 0 }}>
-        L'image est automatiquement recadrée au format 4:3 (paysage). Pour éviter qu'un sujet important soit coupé,
-        privilégie une photo déjà proche de ce ratio plutôt qu'une photo très verticale ou très carrée.
+        Format exigé : paysage, ratio 4:3 (ex. 1200×900px), largeur minimum {IMAGE_TITRE_LARGEUR_MIN}px.
+        Une image qui ne respecte pas ce format sera refusée à l'upload.
       </p>
+      {erreurImage && (
+        <p style={{ fontSize: '0.82rem', color: 'var(--danger)', fontWeight: 500, margin: 0 }}>{erreurImage}</p>
+      )}
       <input type="text" placeholder="Titre" value={section.titre} onChange={(e) => onChange({ titre: e.target.value })} style={styles.input} />
       <input type="text" placeholder="Sous-titre" value={section.sousTitre} onChange={(e) => onChange({ sousTitre: e.target.value })} style={styles.input} />
     </div>
