@@ -276,7 +276,15 @@ button {
 /* Sections génériques (page produit, réutilisable pour tout type de marque) */
 .section-generique { max-width: 900px; margin: 3rem auto; }
 .section-image-titre { text-align: center; }
-.section-image-titre img { max-width: 100%; border-radius: var(--radius); margin-bottom: 1rem; }
+.section-image-titre img {
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 1rem;
+  border-radius: var(--radius);
+}
 .contenu-riche p { margin: 0 0 1em; line-height: 1.7; }
 .contenu-riche a { color: var(--copper-dark); text-decoration: underline; }
 .contenu-riche h2, .contenu-riche h3 { margin-top: 1.2em; }

@@ -290,8 +290,18 @@ function ImageTitreForm({ section, onChange }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-      {section.image && <img src={section.image} alt="" style={{ width: '160px', borderRadius: 'var(--radius)' }} />}
+      {section.image && (
+        <img
+          src={section.image}
+          alt=""
+          style={{ width: '160px', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 'var(--radius)', display: 'block' }}
+        />
+      )}
       <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} disabled={uploadEnCours} />
+      <p style={{ fontSize: '0.78rem', opacity: 0.65, margin: 0 }}>
+        L'image est automatiquement recadrée au format 4:3 (paysage). Pour éviter qu'un sujet important soit coupé,
+        privilégie une photo déjà proche de ce ratio plutôt qu'une photo très verticale ou très carrée.
+      </p>
       <input type="text" placeholder="Titre" value={section.titre} onChange={(e) => onChange({ titre: e.target.value })} style={styles.input} />
       <input type="text" placeholder="Sous-titre" value={section.sousTitre} onChange={(e) => onChange({ sousTitre: e.target.value })} style={styles.input} />
     </div>
