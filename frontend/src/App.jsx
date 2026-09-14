@@ -17,6 +17,7 @@ const AdminProducts = lazy(() => import('./pages/admin/AdminProducts.jsx'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders.jsx'));
 const AdminClosers = lazy(() => import('./pages/admin/AdminClosers.jsx'));
 const AdminPixels = lazy(() => import('./pages/admin/AdminPixels.jsx'));
+const AdminApparence = lazy(() => import('./pages/admin/AdminApparence.jsx'));
 
 const CloserLayout = lazy(() => import('./components/CloserLayout.jsx'));
 const CloserOrders = lazy(() => import('./pages/closing/CloserOrders.jsx'));
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="commandes" element={<Suspense fallback={<ChargementZone />}><AdminOrders /></Suspense>} />
           <Route path="closers" element={<Suspense fallback={<ChargementZone />}><AdminClosers /></Suspense>} />
           <Route path="pixels" element={<Suspense fallback={<ChargementZone />}><AdminPixels /></Suspense>} />
+          <Route path="apparence" element={<Suspense fallback={<ChargementZone />}><AdminApparence /></Suspense>} />
         </Route>
       </Route>
 

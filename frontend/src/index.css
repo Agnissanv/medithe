@@ -6,18 +6,27 @@
 =================================================================== */
 
 :root {
-  /* Couleurs — identité MédiThé */
+  /* Couleurs de marque — 3 valeurs personnalisables (admin > Apparence),
+     surchargées au chargement par utils/theme.js depuis parametres_apparence.
+     Les valeurs ci-dessous sont les couleurs MédiThé par défaut : rien ne
+     change visuellement tant que personne n'y touche dans l'admin. */
   --forest: #0B4D1E;
-  --forest-light: #12592B;
-  --parchment: #FFFFFF;
-  --parchment-dark: #EAF6EC;
-  --ink: #16211A;
   --copper: #C99A2E;
-  --copper-dark: #A67B1E;
-  --sage: #1C8B39;
-  --sage-light: #DFF2E3;
-  --line: #D7E8DA;
-  --line-dark: #1D5C34;
+  --parchment-dark: #EAF6EC;
+
+  /* Teintes dérivées automatiquement des 3 couleurs ci-dessus via color-mix() —
+     jamais éditées à la main ni exposées dans l'admin, pour rester cohérentes
+     quelle que soit la couleur de marque choisie par un futur client revendu. */
+  --forest-light: color-mix(in srgb, var(--forest) 95%, white);
+  --sage: color-mix(in srgb, var(--forest) 50%, white);
+  --sage-light: color-mix(in srgb, var(--forest) 10%, white);
+  --line: color-mix(in srgb, var(--forest) 15%, white);
+  --line-dark: color-mix(in srgb, var(--forest) 90%, white);
+  --copper-dark: color-mix(in srgb, var(--copper) 82%, black);
+
+  /* Fixes — ne suivent jamais la marque (lisibilité du texte, retours succès/erreur) */
+  --parchment: #FFFFFF;
+  --ink: #16211A;
   --danger: #B4482F;
   --success: #1C8B39;
 
@@ -399,6 +408,33 @@ button {
 .squelette-badge { height: 60px; }
 .squelette-ligne { border-radius: 4px; }
 .squelette-formulaire { height: 380px; margin-top: 1.2rem; border-radius: 12px; }
+
+/* Loader plein écran (Squelettes.jsx > SqueletteEcranPlein) — forme neutre (anneau)
+   plutôt qu'une icône thématique, pour rester valable pour n'importe quel commerce
+   (thé, parfum, chaussures...) revendu avec ce template. */
+.ecran-plein-loader {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--forest);
+  font-size: 0.9rem;
+}
+
+.loader-anneau {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--forest);
+  animation: loader-tourne 0.8s linear infinite;
+}
+
+@keyframes loader-tourne {
+  to { transform: rotate(360deg); }
+}
 
 .checkout-layout {
   display: grid;
