@@ -99,16 +99,80 @@ export const api = {
 
   // ---------------- COMMANDES ----------------
   async createCommande(commande) {
+    const sousTotal = commande.produits.reduce((s, p) => s + p.prix * p.quantite, 0);
+    const reduction = commande.reductionPromo || 0;
+    const montantTotal = Math.max(0, sousTotal - reduction);
+
     const { data, error } = await supabase.rpc('creer_commande', {
       p_nom: commande.nom,
       p_telephone: commande.telephone,
       p_adresse: commande.quartier,
       p_note: commande.note || '',
       p_produits: commande.produits,
-      p_montant_total: commande.produits.reduce((s, p) => s + p.prix * p.quantite, 0),
+      p_montant_total: montantTotal,
     }).single();
     if (error) throw new Error(error.message);
-    return { success: true, numeroCommande: data.numero_commande, montantTotal: Number(data.montant_total) };
+
+    const resultat = { success: true, numeroCommande: data.numero_commande, montantTotal: Number(data.montant_total) };
+
+    // Enregistre l'utilisation du code promo APRÈS la commande, sans jamais la faire
+    // échouer si ça rate (la commande est déjà passée, c'est ce qui compte).
+    if (commande.codePromo) {
+      try {
+        await this.enregistrerUtilisationCodePromo(resultat.numeroCommande, commande.codePromo, reduction);
+      } catch { /* on ignore : la commande reste valable même sans trace du code */ }
+    }
+
+    return resultat;
+  },
+
+  // ---------------- CODES PROMO ----------------
+  async validerCodePromo(code, montant) {
+    const { data, error } = await supabase.rpc('valider_code_promo', { p_code: code, p_montant: montant }).single();
+    if (error) throw new Error(error.message);
+    return {
+      valide: data.valide,
+      message: data.message,
+      reduction: Number(data.reduction),
+      nouveauTotal: Number(data.nouveau_total),
+    };
+  },
+
+  async enregistrerUtilisationCodePromo(numeroCommande, code, reduction) {
+    const { error } = await supabase.rpc('enregistrer_utilisation_code_promo', {
+      p_numero_commande: numeroCommande, p_code: code, p_reduction: reduction,
+    });
+    if (error) throw new Error(error.message);
+  },
+
+  async getCodesPromo() {
+    const { data, error } = await supabase.from('codes_promo').select('*').order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async createCodePromo(codePromo) {
+    const { error } = await supabase.from('codes_promo').insert({
+      code: codePromo.code.trim().toUpperCase(),
+      type_reduction: codePromo.typeReduction,
+      valeur: codePromo.valeur,
+      date_expiration: codePromo.dateExpiration || null,
+      utilisation_max: codePromo.utilisationMax || null,
+    });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
+  async toggleCodePromo(id, actif) {
+    const { error } = await supabase.from('codes_promo').update({ actif }).eq('id', id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
+  async deleteCodePromo(id) {
+    const { error } = await supabase.from('codes_promo').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return { success: true };
   },
 
   async getCommandeByNumero(numero) {

@@ -6,6 +6,7 @@ import { optimiserImageCloudinary } from '../../utils/cloudinaryOptimize.js';
 import BeneficesList from '../BeneficesList.jsx';
 import InlineOrderForm from '../InlineOrderForm.jsx';
 import OfferCards from './OfferCards.jsx';
+import ProduitsSimilaires from '../ProduitsSimilaires.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
 function estHtmlVide(html) {
@@ -67,6 +68,19 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
 
     case 'offre':
       return <OffreSection section={section} produit={produit} formulaireDomId={formulaireDomId} previsualisation={previsualisation} />;
+
+    case 'produits_similaires':
+      // Rien à afficher sans catégorie sur le produit courant — évite une section
+      // vide sur une fiche mal remplie.
+      if (!produit?.Categorie) return null;
+      return (
+        <ProduitsSimilaires
+          categorie={produit.Categorie}
+          excludeId={produit.ID}
+          titre={section.titreSection}
+          nombre={section.nombre || 4}
+        />
+      );
 
     case 'formulaire_achat':
       return (

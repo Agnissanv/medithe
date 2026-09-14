@@ -18,6 +18,11 @@ export default function Checkout() {
   const [itemsCommandes, setItemsCommandes] = useState([]);
   const [catalogue, setCatalogue] = useState([]);
 
+  const [codePromoInput, setCodePromoInput] = useState('');
+  const [codePromoApplique, setCodePromoApplique] = useState(null);
+  const [promoEnCours, setPromoEnCours] = useState(false);
+  const [promoErreur, setPromoErreur] = useState('');
+
   useEffect(() => {
     fetchCatalogFromCdn().then(setCatalogue).catch(() => {});
   }, []);
@@ -44,6 +49,31 @@ export default function Checkout() {
     return Object.keys(err).length === 0;
   }
 
+  async function handleAppliquerPromo() {
+    if (!codePromoInput.trim()) return;
+    setPromoEnCours(true);
+    setPromoErreur('');
+    try {
+      const res = await api.validerCodePromo(codePromoInput.trim(), sousTotal);
+      if (res.valide) {
+        setCodePromoApplique({ code: codePromoInput.trim().toUpperCase(), reduction: res.reduction, nouveauTotal: res.nouveauTotal });
+      } else {
+        setCodePromoApplique(null);
+        setPromoErreur(res.message);
+      }
+    } catch (err) {
+      setPromoErreur(err.message || "Impossible de vérifier ce code pour le moment.");
+    } finally {
+      setPromoEnCours(false);
+    }
+  }
+
+  function handleRetirerPromo() {
+    setCodePromoApplique(null);
+    setCodePromoInput('');
+    setPromoErreur('');
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!valider()) return;
@@ -63,6 +93,8 @@ export default function Checkout() {
           commissionCloser: i.commissionCloser || 0,
           commissionLivreur: i.commissionLivreur || 0,
         })),
+        codePromo: codePromoApplique?.code || null,
+        reductionPromo: codePromoApplique?.reduction || 0,
       };
       const resultat = await api.createCommande(commande);
       trackPurchase(resultat.numeroCommande, resultat.montantTotal);
@@ -158,7 +190,6 @@ export default function Checkout() {
           {erreurGlobale && <p style={{ color: 'var(--danger)' }}>{erreurGlobale}</p>}
 
           <button className="btn btn-primary" type="submit" disabled={envoi}>
-            {envoi && <span className="spinner-bouton" />}
             {envoi ? 'Envoi en cours…' : 'Confirmer la commande'}
           </button>
           <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
@@ -174,10 +205,49 @@ export default function Checkout() {
               <span className="price-tag">{(i.prix * i.quantite).toLocaleString('fr-FR')} F CFA</span>
             </div>
           ))}
+          {codePromoApplique && (
+            <div style={{ ...styles.recapLigne, color: 'var(--success)' }}>
+              <span>Réduction ({codePromoApplique.code})</span>
+              <span className="price-tag">-{codePromoApplique.reduction.toLocaleString('fr-FR')} F CFA</span>
+            </div>
+          )}
           <hr className="hairline" style={{ margin: '0.8rem 0' }} />
           <div style={{ ...styles.recapLigne, fontWeight: 600 }}>
             <span>Total</span>
-            <span className="price-tag">{sousTotal.toLocaleString('fr-FR')} F CFA</span>
+            <span className="price-tag">
+              {(codePromoApplique ? codePromoApplique.nouveauTotal : sousTotal).toLocaleString('fr-FR')} F CFA
+            </span>
+          </div>
+
+          <div style={styles.promoBox}>
+            {!codePromoApplique ? (
+              <>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    placeholder="Code promo"
+                    value={codePromoInput}
+                    onChange={(e) => setCodePromoInput(e.target.value)}
+                    style={{ ...styles.input, flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={handleAppliquerPromo}
+                    disabled={promoEnCours || !codePromoInput.trim()}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {promoEnCours ? '…' : 'Appliquer'}
+                  </button>
+                </div>
+                {promoErreur && <span style={styles.erreur}>{promoErreur}</span>}
+              </>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
+                <span style={{ color: 'var(--success)' }}>Code {codePromoApplique.code} appliqué ✓</span>
+                <button type="button" className="btn-ghost" onClick={handleRetirerPromo}>Retirer</button>
+              </div>
+            )}
           </div>
         </aside>
       </div>
@@ -221,6 +291,7 @@ const styles = {
     borderRadius: 'var(--radius)', padding: '1.3rem',
   },
   recapLigne: { display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', margin: '0.4rem 0' },
+  promoBox: { marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed var(--line)' },
   ticket: {
     background: 'var(--forest)', color: 'var(--parchment)', padding: '2.5rem',
     borderRadius: 'var(--radius)', maxWidth: '480px', textAlign: 'center',

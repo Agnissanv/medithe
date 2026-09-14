@@ -13,6 +13,7 @@ const TYPES = [
   { value: 'avis', label: 'Témoignages' },
   { value: 'accordeon', label: 'Accordéon / FAQ' },
   { value: 'offre', label: 'Offres / tarifs' },
+  { value: 'produits_similaires', label: 'Produits similaires' },
   { value: 'formulaire_achat', label: "Formulaire d'achat" },
   { value: 'cta', label: 'Bouton CTA' },
 ];
@@ -26,6 +27,7 @@ function creerBlocParDefaut(type) {
     case 'avis': return { id, type, titreSection: '', items: [] };
     case 'accordeon': return { id, type, titreSection: '', items: [] };
     case 'offre': return { id, type, titreSection: '', cartes: [], cibleType: 'scroll', cibleFormulaireId: '' };
+    case 'produits_similaires': return { id, type, titreSection: 'Vous aimerez aussi', nombre: 4 };
     case 'formulaire_achat': return { id, type, titre: '' };
     case 'cta': return { id, type, texte: 'Commander maintenant' };
     default: return { id, type };
@@ -187,6 +189,7 @@ function BlocContenu({ section, sections, onChange, onSupprimer }) {
       {section.type === 'avis' && <AvisForm section={section} onChange={onChange} />}
       {section.type === 'accordeon' && <AccordeonForm section={section} onChange={onChange} />}
       {section.type === 'offre' && <OffreForm section={section} sections={sections} onChange={onChange} />}
+      {section.type === 'produits_similaires' && <ProduitsSimilairesForm section={section} onChange={onChange} />}
 
       {section.type === 'formulaire_achat' && (
         <input
@@ -381,6 +384,28 @@ function AccordeonForm({ section, onChange }) {
         </div>
       ))}
       <button type="button" className="btn-outline btn" onClick={ajouter}>+ Ajouter un item</button>
+    </div>
+  );
+}
+
+function ProduitsSimilairesForm({ section, onChange }) {
+  return (
+    <div>
+      <input
+        type="text" placeholder="Titre de la section (ex: Vous aimerez aussi)"
+        value={section.titreSection} onChange={(e) => onChange({ titreSection: e.target.value })}
+        style={{ ...styles.input, marginBottom: '0.6rem' }}
+      />
+      <label style={styles.label}>Nombre de produits affichés</label>
+      <input
+        type="number" min="1" max="12" value={section.nombre}
+        onChange={(e) => onChange({ nombre: Number(e.target.value) || 4 })}
+        style={{ ...styles.input, maxWidth: '120px' }}
+      />
+      <p style={{ fontSize: '0.78rem', opacity: 0.65, marginTop: '0.5rem' }}>
+        Affiche automatiquement d'autres produits disponibles de la même catégorie que celui-ci.
+        Rien ne s'affiche s'il n'y en a aucun — ce bloc ne casse jamais la mise en page.
+      </p>
     </div>
   );
 }

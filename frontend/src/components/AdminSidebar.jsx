@@ -29,6 +29,7 @@ export default function AdminSidebar({ onNaviguer }) {
         <NavLink to="/admin/commandes" style={linkStyle} onClick={onNaviguer}>Commandes</NavLink>
         <NavLink to="/admin/closers" style={linkStyle} onClick={onNaviguer}>Équipe</NavLink>
         <NavLink to="/admin/pixels" style={linkStyle} onClick={onNaviguer}>Publicité</NavLink>
+        <NavLink to="/admin/codes-promo" style={linkStyle} onClick={onNaviguer}>Codes promo</NavLink>
         <NavLink to="/admin/apparence" style={linkStyle} onClick={onNaviguer}>Apparence</NavLink>
       </nav>
       <button className="btn-ghost" onClick={handleLogout} style={{ color: 'var(--parchment)', opacity: 0.7, marginTop: 'auto' }}>

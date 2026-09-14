@@ -17,8 +17,46 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
   const [envoi, setEnvoi] = useState(false);
   const [confirmation, setConfirmation] = useState(null);
 
+  const [codePromoInput, setCodePromoInput] = useState('');
+  const [codePromoApplique, setCodePromoApplique] = useState(null);
+  const [promoEnCours, setPromoEnCours] = useState(false);
+  const [promoErreur, setPromoErreur] = useState('');
+
   function handleChange(e) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  }
+
+  function handleQuantiteChange(nouvelleQuantite) {
+    setQuantite(nouvelleQuantite);
+    if (codePromoApplique) {
+      setCodePromoApplique(null);
+      setPromoErreur('Quantité modifiée : réappliquez le code.');
+    }
+  }
+
+  async function handleAppliquerPromo() {
+    if (!codePromoInput.trim()) return;
+    setPromoEnCours(true);
+    setPromoErreur('');
+    try {
+      const res = await api.validerCodePromo(codePromoInput.trim(), produit.Prix * quantite);
+      if (res.valide) {
+        setCodePromoApplique({ code: codePromoInput.trim().toUpperCase(), reduction: res.reduction, nouveauTotal: res.nouveauTotal });
+      } else {
+        setCodePromoApplique(null);
+        setPromoErreur(res.message);
+      }
+    } catch (err) {
+      setPromoErreur(err.message || 'Impossible de vérifier ce code pour le moment.');
+    } finally {
+      setPromoEnCours(false);
+    }
+  }
+
+  function handleRetirerPromo() {
+    setCodePromoApplique(null);
+    setCodePromoInput('');
+    setPromoErreur('');
   }
 
   function valider() {
@@ -45,6 +83,8 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
           commissionCloser: produit.CommissionCloser || 0,
           commissionLivreur: produit.CommissionLivreur || 0,
         }],
+        codePromo: codePromoApplique?.code || null,
+        reductionPromo: codePromoApplique?.reduction || 0,
       };
       const resultat = await api.createCommande(commande);
       trackPurchase(resultat.numeroCommande, resultat.montantTotal);
@@ -77,13 +117,44 @@ export default function InlineOrderForm({ produit, domId = 'zone-commande', titr
       <div style={styles.quantiteLigne}>
         <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>Quantité</span>
         <div style={styles.quantiteBox}>
-          <button type="button" className="btn-ghost" onClick={() => setQuantite((q) => Math.max(1, q - 1))}>−</button>
+          <button type="button" className="btn-ghost" onClick={() => handleQuantiteChange(Math.max(1, quantite - 1))}>−</button>
           <span style={{ fontFamily: 'var(--font-mono)', minWidth: '1.5ch', textAlign: 'center' }}>{quantite}</span>
-          <button type="button" className="btn-ghost" onClick={() => setQuantite((q) => Math.min(produit.Stock, q + 1))}>+</button>
+          <button type="button" className="btn-ghost" onClick={() => handleQuantiteChange(Math.min(produit.Stock, quantite + 1))}>+</button>
         </div>
         <span className="price-tag" style={{ marginLeft: 'auto' }}>
-          {(produit.Prix * quantite).toLocaleString('fr-FR')} F CFA
+          {(codePromoApplique ? codePromoApplique.nouveauTotal : produit.Prix * quantite).toLocaleString('fr-FR')} F CFA
         </span>
+      </div>
+
+      <div style={styles.promoBox}>
+        {!codePromoApplique ? (
+          <>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+              <input
+                type="text"
+                placeholder="Code promo"
+                value={codePromoInput}
+                onChange={(e) => setCodePromoInput(e.target.value)}
+                style={{ ...styles.input, flex: 1 }}
+              />
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={handleAppliquerPromo}
+                disabled={promoEnCours || !codePromoInput.trim()}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                {promoEnCours ? '…' : 'Appliquer'}
+              </button>
+            </div>
+            {promoErreur && <span style={{ color: 'var(--danger)', fontSize: '0.75rem' }}>{promoErreur}</span>}
+          </>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem' }}>
+            <span style={{ color: 'var(--success)' }}>Code {codePromoApplique.code} appliqué ✓ (-{codePromoApplique.reduction.toLocaleString('fr-FR')} F CFA)</span>
+            <button type="button" className="btn-ghost" onClick={handleRetirerPromo}>Retirer</button>
+          </div>
+        )}
       </div>
 
       <Champ label="Nom complet" name="nomComplet" value={form.nomComplet} onChange={handleChange} erreur={erreurs.nomComplet} />
@@ -131,6 +202,7 @@ function Champ({ label, name, value, onChange, erreur, type = 'text' }) {
 const styles = {
   form: { background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: '12px', padding: '1.6rem', maxWidth: '480px', margin: '2rem auto' },
   quantiteLigne: { display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' },  quantiteBox: { display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '0.2rem 0.6rem' },
+  promoBox: { marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px dashed var(--line)' },
   input: { width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--parchment)' },
   ticket: { background: 'var(--forest)', borderRadius: '12px', padding: '2rem', maxWidth: '480px', margin: '2rem auto', textAlign: 'center', border: '1px dashed var(--copper)' },
   ticketNumero: { fontFamily: 'var(--font-mono)', fontSize: '1.4rem', color: 'var(--copper)', margin: '0.8rem 0' },
