@@ -7,6 +7,16 @@ import ProductDetailContenu from '../../components/ProductDetailContenu.jsx';
 
 const CATEGORIES = ['Thé vert', 'Thé noir', 'Thé blanc', 'Rooibos', 'Tisane', 'Autre'];
 
+// L'input <input type="datetime-local"> attend "AAAA-MM-JJTHH:mm" en heure LOCALE
+// du navigateur — jamais toISOString() qui est toujours en UTC et décalerait
+// l'heure affichée à l'admin si son fuseau n'est pas UTC+0.
+function versDatetimeLocal(dateIso) {
+  if (!dateIso) return '';
+  const d = new Date(dateIso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi }) {
   const [form, setForm] = useState({
     nom: produitInitial?.Nom || '',
@@ -21,6 +31,14 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     images: produitInitial?.Images || [],
     videoUrl: produitInitial?.VideoUrl || '',
     sections: produitInitial?.Sections?.length ? produitInitial.Sections : [],
+    offresQuantite: produitInitial?.OffresQuantite?.length ? produitInitial.OffresQuantite : [],
+    codePromoActif: produitInitial?.CodePromoActif ?? true,
+    compteARebours: {
+      actif: produitInitial?.CompteARebours?.actif || false,
+      // datetime-local attend "AAAA-MM-JJTHH:mm" en heure locale, pas un ISO UTC avec "Z"
+      echeance: versDatetimeLocal(produitInitial?.CompteARebours?.echeance),
+      texte: produitInitial?.CompteARebours?.texte || '',
+    },
   });
   const [uploadEnCours, setUploadEnCours] = useState(false);
   const [erreurUpload, setErreurUpload] = useState('');
@@ -61,6 +79,34 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     setForm((f) => ({ ...f, images: f.images.filter((i) => i !== url) }));
   }
 
+  const MAX_PALIERS = 3;
+
+  function ajouterPalier() {
+    if (form.offresQuantite.length >= MAX_PALIERS) return;
+    setForm((f) => ({
+      ...f,
+      offresQuantite: [
+        ...f.offresQuantite,
+        { id: crypto.randomUUID(), bandeau: '', label: '', quantiteReelle: 1, prix: '', badge: '' },
+      ],
+    }));
+  }
+
+  function modifierPalier(id, champ, valeur) {
+    setForm((f) => ({
+      ...f,
+      offresQuantite: f.offresQuantite.map((p) => (p.id === id ? { ...p, [champ]: valeur } : p)),
+    }));
+  }
+
+  function retirerPalier(id) {
+    setForm((f) => ({ ...f, offresQuantite: f.offresQuantite.filter((p) => p.id !== id) }));
+  }
+
+  function handleCompteARebours(champ, valeur) {
+    setForm((f) => ({ ...f, compteARebours: { ...f.compteARebours, [champ]: valeur } }));
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
 
@@ -84,6 +130,27 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       return s;
     });
 
+    // Un palier n'est retenu que s'il est réellement rempli (libellé + prix + quantité) —
+    // une ligne ajoutée puis laissée vide par le vendeur ne doit pas polluer le formulaire public.
+    const offresQuantite = form.offresQuantite
+      .filter((p) => p.label.trim() && Number(p.prix) > 0 && Number(p.quantiteReelle) > 0)
+      .map((p) => ({
+        id: p.id,
+        bandeau: (p.bandeau || '').trim(),
+        label: p.label.trim(),
+        quantiteReelle: Number(p.quantiteReelle),
+        prix: Number(p.prix),
+        badge: (p.badge || '').trim(),
+      }));
+
+    const compteARebours = form.compteARebours.actif && form.compteARebours.echeance
+      ? {
+          actif: true,
+          echeance: new Date(form.compteARebours.echeance).toISOString(),
+          texte: form.compteARebours.texte.trim(),
+        }
+      : { actif: false, echeance: null, texte: '' };
+
     onSubmit({
       nom: form.nom,
       description: form.description,
@@ -97,6 +164,9 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       images: form.images,
       videoUrl: form.videoUrl.trim(),
       sections,
+      offresQuantite,
+      codePromoActif: form.codePromoActif,
+      compteARebours,
     });
   }
 
@@ -114,6 +184,11 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     Disponible: form.disponible,
     VideoUrl: form.videoUrl,
     Sections: form.sections,
+    OffresQuantite: form.offresQuantite.filter((p) => p.label.trim() && Number(p.prix) > 0),
+    CodePromoActif: form.codePromoActif,
+    CompteARebours: form.compteARebours.actif && form.compteARebours.echeance
+      ? { actif: true, echeance: new Date(form.compteARebours.echeance).toISOString(), texte: form.compteARebours.texte }
+      : null,
   };
 
   return (
@@ -205,6 +280,111 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
 
       <hr className="hairline" style={{ margin: '0.5rem 0' }} />
 
+      <div>
+        <h3 style={{ margin: '0 0 0.3rem' }}>Formulaire de commande</h3>
+        <p style={{ fontSize: '0.82rem', opacity: 0.7, margin: '0 0 1rem' }}>
+          Tout ce qui suit est optionnel et propre à cette fiche produit.
+        </p>
+
+        <div style={{ marginBottom: '1.2rem' }}>
+          <label style={styles.label}>
+            Paliers de quantité ({form.offresQuantite.length}/{MAX_PALIERS}) — remplace le sélecteur +/-
+            par des choix du type « 1 unité », « 2 Unités -20% », « 3+1 offert »
+          </label>
+          {form.offresQuantite.length === 0 && (
+            <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: '0 0 0.6rem' }}>
+              Aucun palier : le client verra le sélecteur de quantité classique.
+            </p>
+          )}
+          {form.offresQuantite.map((p, index) => (
+            <div key={p.id} style={styles.palierBloc}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <strong style={{ fontSize: '0.8rem' }}>Palier {index + 1}</strong>
+                <button type="button" className="btn-ghost" onClick={() => retirerPalier(p.id)} style={{ color: 'var(--danger)', fontSize: '0.8rem' }}>
+                  Retirer
+                </button>
+              </div>
+              <div style={styles.row}>
+                <Champ
+                  label="Libellé affiché (ex: 3+1 offert)" value={p.label}
+                  onChange={(e) => modifierPalier(p.id, 'label', e.target.value)}
+                />
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Quantité réellement livrée</label>
+                  <input
+                    type="number" min="1" value={p.quantiteReelle}
+                    onChange={(e) => modifierPalier(p.id, 'quantiteReelle', e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+              <div style={styles.row}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Prix final (F CFA)</label>
+                  <input
+                    type="number" min="0" value={p.prix}
+                    onChange={(e) => modifierPalier(p.id, 'prix', e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
+                <Champ
+                  label="Badge (optionnel, ex: Éco 20%)" value={p.badge}
+                  onChange={(e) => modifierPalier(p.id, 'badge', e.target.value)}
+                />
+              </div>
+              <Champ
+                label="Bandeau au-dessus (optionnel, ex: Offre prevention +)" value={p.bandeau}
+                onChange={(e) => modifierPalier(p.id, 'bandeau', e.target.value)}
+              />
+            </div>
+          ))}
+          {form.offresQuantite.length < MAX_PALIERS && (
+            <button type="button" className="btn-outline btn" onClick={ajouterPalier}>+ Ajouter un palier</button>
+          )}
+        </div>
+
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5em', fontSize: '0.9rem', marginBottom: '1.2rem' }}>
+          <input
+            type="checkbox" checked={form.codePromoActif}
+            onChange={(e) => setForm((f) => ({ ...f, codePromoActif: e.target.checked }))}
+          />
+          Afficher le champ « Code promo » sur cette fiche
+        </label>
+
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5em', fontSize: '0.9rem', marginBottom: '0.6rem' }}>
+            <input
+              type="checkbox" checked={form.compteARebours.actif}
+              onChange={(e) => handleCompteARebours('actif', e.target.checked)}
+            />
+            Afficher un compte à rebours (urgence)
+          </label>
+          {form.compteARebours.actif && (
+            <div style={{ paddingLeft: '1.6rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <div style={{ maxWidth: '280px' }}>
+                <label style={styles.label}>Échéance</label>
+                <input
+                  type="datetime-local" value={form.compteARebours.echeance}
+                  onChange={(e) => handleCompteARebours('echeance', e.target.value)}
+                  style={styles.input}
+                />
+              </div>
+              <div>
+                <label style={styles.label}>Message (optionnel)</label>
+                <input
+                  type="text" value={form.compteARebours.texte}
+                  onChange={(e) => handleCompteARebours('texte', e.target.value)}
+                  placeholder="Dépêchez-vous ! Cette offre se termine bientôt"
+                  style={styles.input}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <hr className="hairline" style={{ margin: '0.5rem 0' }} />
+
       <SectionsEditor sections={form.sections} onChange={(sections) => setForm((f) => ({ ...f, sections }))} produitInitial={produitInitial} />
 
       <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem' }}>
@@ -248,6 +428,11 @@ const styles = {
   input: {
     width: '100%', padding: '0.6em 0.8em', border: '1px solid var(--line)',
     borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', background: 'var(--parchment)',
+  },
+  palierBloc: {
+    display: 'flex', flexDirection: 'column', gap: '0.6rem',
+    border: '1px dashed var(--line)', borderRadius: 'var(--radius)',
+    padding: '0.8rem', marginBottom: '0.7rem', background: 'var(--parchment-dark)',
   },
   imagesGrid: { display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '0.5rem' },
   imageThumb: { position: 'relative', width: '80px', height: '80px', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--line)' },
