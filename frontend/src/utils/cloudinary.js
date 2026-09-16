@@ -71,9 +71,34 @@ export async function compressImage(file) {
 }
 
 /**
- * Compresse puis envoie une image vers Cloudinary. Retourne l'URL sécurisée.
+ * Transforme un texte libre en identifiant lisible pour une URL/un nom de fichier :
+ * enlève les accents, met en minuscule, remplace tout ce qui n'est pas alphanumérique
+ * par des tirets. Utilisé pour donner un lien Cloudinary lisible plutôt que
+ * l'identifiant aléatoire généré par défaut (ex: "a8f3k2j9").
  */
-export async function uploadImageToCloudinary(file) {
+export function slugifier(texte) {
+  return (texte || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // enlève les accents
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60) || 'image';
+}
+
+/**
+ * Compresse puis envoie une image vers Cloudinary. Retourne l'URL sécurisée.
+ *
+ * @param {File} file
+ * @param {{ nomPersonnalise?: string, dossier?: string }} [options]
+ *   nomPersonnalise : remplace l'identifiant aléatoire par ce nom dans le lien final
+ *     (ex: "mon-logo-a1b2" → .../upload/v.../mon-logo-a1b2.jpg au lieu de .../a8f3k2j9.jpg).
+ *     Un court suffixe doit y être inclus par l'appelant pour éviter les collisions
+ *     entre deux uploads du même nom (Cloudinary refuse ou écrase sinon selon la config
+ *     du preset, qu'on ne contrôle pas ici).
+ *   dossier : range l'image dans ce dossier Cloudinary (ex: "medithe/medias") plutôt
+ *     qu'à la racine.
+ */
+export async function uploadImageToCloudinary(file, options = {}) {
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
     throw new Error('Cloudinary non configuré (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET manquants)');
   }
@@ -83,6 +108,8 @@ export async function uploadImageToCloudinary(file) {
   const formData = new FormData();
   formData.append('file', compressed);
   formData.append('upload_preset', UPLOAD_PRESET);
+  if (options.nomPersonnalise) formData.append('public_id', options.nomPersonnalise);
+  if (options.dossier) formData.append('folder', options.dossier);
 
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
     method: 'POST',

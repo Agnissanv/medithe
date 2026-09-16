@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
-import { uploadImageToCloudinary } from '../../utils/cloudinary.js';
+import { uploadImageToCloudinary, slugifier } from '../../utils/cloudinary.js';
+
+// Toutes les images de la médiathèque sont rangées dans ce dossier Cloudinary
+// (visible dans le lien final : .../upload/v123/medithe/medias/mon-nom-a1b2.jpg),
+// pour les distinguer des images produits qui restent à la racine.
+const DOSSIER_MEDIATHEQUE = 'medithe/medias';
+
+// Suffixe court pour éviter que deux images avec le même nom personnalisé se
+// remplacent l'une l'autre sur Cloudinary — pas de garantie d'unicité sinon.
+function suffixeUnique() {
+  return Date.now().toString(36).slice(-4);
+}
 
 function obtenirDimensionsImage(url) {
   return new Promise((resolve) => {
@@ -48,16 +59,29 @@ export default function AdminMediatheque() {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const nomFichier = file.name.replace(/\.[^.]+$/, '');
+        let baseSlug = slugifier(nomFichier);
+
+        // Sur un seul fichier, on laisse la main pour choisir le nom qui apparaîtra
+        // dans le lien. Sur plusieurs à la fois, demander un nom par fichier serait
+        // lourd — on garde le nom du fichier original (slugifié) automatiquement.
+        if (files.length === 1) {
+          const saisie = window.prompt('Nom du fichier (apparaîtra dans le lien de l\'image)', baseSlug);
+          if (saisie === null) { setUploadEnCours(false); return; } // annulé
+          baseSlug = slugifier(saisie) || baseSlug;
+        }
+
         setProgression(`Envoi ${i + 1}/${files.length}…`);
         try {
           // uploadImageToCloudinary compresse et respecte les limites de taille/format
           // déjà en place ailleurs sur le site (voir utils/cloudinary.js) : max 1600px,
           // ~2 Mo après compression progressive, JPG/PNG/WebP uniquement.
-          const url = await uploadImageToCloudinary(file);
+          const nomPersonnalise = `${baseSlug}-${suffixeUnique()}`;
+          const url = await uploadImageToCloudinary(file, { nomPersonnalise, dossier: DOSSIER_MEDIATHEQUE });
           const { largeur, hauteur } = await obtenirDimensionsImage(url);
           const media = await api.createMedia({
             url,
-            nom: file.name.replace(/\.[^.]+$/, ''),
+            nom: nomFichier,
             largeur,
             hauteur,
             tailleOctets: file.size,
@@ -127,6 +151,10 @@ export default function AdminMediatheque() {
         Uploade des images à l'avance (logos, bannières, visuels réutilisables) pour les réutiliser
         ensuite sans les réimporter — copie le lien et colle-le où tu en as besoin.
         Compression et limites de taille identiques au reste du site (max ~1600px, ~2 Mo).
+        Pour une seule image à la fois, le nom que tu donnes apparaît directement dans le lien
+        (ex: .../medithe/medias/logo-boutique-a1b2.jpg) — "Renommer" ensuite ne change que
+        l'étiquette affichée ici, pas le lien lui-même (une fois en ligne, un lien Cloudinary
+        ne peut plus être renommé sans réuploader l'image).
       </p>
 
       <div style={styles.barreHaut}>
