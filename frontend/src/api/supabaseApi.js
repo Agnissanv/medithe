@@ -19,7 +19,7 @@ function mapProduit(p) {
     VideoUrl: p.video_url || '',
     Sections: p.sections || [],
     DateAjout: p.date_ajout,
-    OffresQuantite: p.offres_quantite || [],
+    OffresQuantite: p.offres_quantite ? Number(p.offres_quantite) : null,
     CodePromoActif: p.code_promo_actif ?? true,
     CompteARebours: p.compte_a_rebours_actif
       ? { actif: true, echeance: p.compte_a_rebours_echeance, texte: p.compte_a_rebours_texte || '' }
@@ -73,7 +73,7 @@ export const api = {
       disponible: produit.disponible,
       video_url: produit.videoUrl,
       sections: produit.sections,
-      offres_quantite: produit.offresQuantite || [],
+      offres_quantite: produit.offresQuantite ? Number(produit.offresQuantite) : null,
       code_promo_actif: produit.codePromoActif ?? true,
       compte_a_rebours_actif: produit.compteARebours?.actif || false,
       compte_a_rebours_echeance: produit.compteARebours?.echeance || null,
@@ -95,7 +95,7 @@ export const api = {
       disponible: produit.disponible,
       video_url: produit.videoUrl,
       sections: produit.sections,
-      offres_quantite: produit.offresQuantite || [],
+      offres_quantite: produit.offresQuantite ? Number(produit.offresQuantite) : null,
       code_promo_actif: produit.codePromoActif ?? true,
       compte_a_rebours_actif: produit.compteARebours?.actif || false,
       compte_a_rebours_echeance: produit.compteARebours?.echeance || null,
