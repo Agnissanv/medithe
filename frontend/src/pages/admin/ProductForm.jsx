@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, X } from 'lucide-react';
 import { uploadImageToCloudinary, MAX_IMAGES_PAR_PRODUIT } from '../../utils/cloudinary.js';
 import SectionsEditor from './SectionsEditor.jsx';
 import { nettoyerTexteRiche } from '../../utils/richTextClean.js';
 import ProductDetailContenu from '../../components/ProductDetailContenu.jsx';
+import { resoudreMediasDansSections } from '../../utils/resoudreMedias.js';
+import { api } from '../../api/supabaseApi.js';
 
 const CATEGORIES = ['Thé vert', 'Thé noir', 'Thé blanc', 'Rooibos', 'Tisane', 'Autre'];
 
@@ -59,6 +61,10 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
   });
   const [uploadEnCours, setUploadEnCours] = useState(false);
   const [erreurUpload, setErreurUpload] = useState('');
+  // Chargée une fois à l'ouverture du formulaire, pour résoudre automatiquement les
+  // {{MEDIA:NOM}} du bloc Code personnalisé — à l'Aperçu comme à l'enregistrement.
+  const [medias, setMedias] = useState([]);
+  useEffect(() => { api.getMedias().then(setMedias).catch(() => {}); }, []);
   const [apercuOuvert, setApercuOuvert] = useState(false);
 
   function handleChange(e) {
@@ -147,6 +153,10 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       return s;
     });
 
+    // Remplace chaque {{MEDIA:NOM}} d'un bloc "Code personnalisé" par le vrai lien Cloudinary
+    // de l'image portant ce nom dans la Médiathèque — automatique, rien à cliquer.
+    const sectionsAvecMedias = resoudreMediasDansSections(sections, medias);
+
     // Un palier n'est retenu que s'il est réellement rempli (libellé + prix + quantité) —
     // une ligne ajoutée puis laissée vide par le vendeur ne doit pas polluer le formulaire public.
     const offresQuantite = form.offresQuantite
@@ -174,7 +184,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       disponible: form.disponible,
       images: form.images,
       videoUrl: form.videoUrl.trim(),
-      sections,
+      sections: sectionsAvecMedias,
       offresQuantite,
       codePromoActif: form.codePromoActif,
       compteARebours,
@@ -194,7 +204,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     Images: form.images,
     Disponible: form.disponible,
     VideoUrl: form.videoUrl,
-    Sections: form.sections,
+    Sections: resoudreMediasDansSections(form.sections, medias),
     OffresQuantite: form.offresQuantite.filter((p) => p.label.trim() && Number(p.prix) > 0),
     CodePromoActif: form.codePromoActif,
     CompteARebours: construireCompteARebours(form.compteARebours).actif ? construireCompteARebours(form.compteARebours) : null,
@@ -423,7 +433,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
 
       <hr className="hairline" style={{ margin: '0.5rem 0' }} />
 
-      <SectionsEditor sections={form.sections} onChange={(sections) => setForm((f) => ({ ...f, sections }))} produitInitial={produitInitial} />
+      <SectionsEditor sections={form.sections} onChange={(sections) => setForm((f) => ({ ...f, sections }))} produitInitial={produitInitial} medias={medias} />
 
       <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem' }}>
         <button className="btn btn-primary" type="submit" disabled={envoi || uploadEnCours}>

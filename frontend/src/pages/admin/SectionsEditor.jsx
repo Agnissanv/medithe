@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { uploadImageToCloudinary } from '../../utils/cloudinary.js';
 import RichTextField from '../../components/admin/RichTextField.jsx';
 import IconPicker from '../../components/admin/IconPicker.jsx';
+import { listerMediasManquants } from '../../utils/resoudreMedias.js';
 
 const TYPES = [
   { value: 'texte', label: 'Texte enrichi' },
@@ -36,7 +37,7 @@ function creerBlocParDefaut(type) {
   }
 }
 
-export default function SectionsEditor({ sections, onChange, produitInitial }) {
+export default function SectionsEditor({ sections, onChange, produitInitial, medias }) {
   function ajouterBloc(type) {
     onChange([...sections, creerBlocParDefaut(type)]);
   }
@@ -111,6 +112,7 @@ export default function SectionsEditor({ sections, onChange, produitInitial }) {
                 <BlocContenu
                   section={section}
                   sections={sections}
+                  medias={medias}
                   onChange={(patch) => mettreAJour(section.id, patch)}
                   onSupprimer={() => supprimer(section.id)}
                 />
@@ -166,7 +168,7 @@ function BlocTrie({ section, children }) {
   );
 }
 
-function BlocContenu({ section, sections, onChange, onSupprimer }) {
+function BlocContenu({ section, sections, medias, onChange, onSupprimer }) {
   const label = TYPES.find((t) => t.value === section.type)?.label;
 
   return (
@@ -192,7 +194,7 @@ function BlocContenu({ section, sections, onChange, onSupprimer }) {
       {section.type === 'accordeon' && <AccordeonForm section={section} onChange={onChange} />}
       {section.type === 'offre' && <OffreForm section={section} sections={sections} onChange={onChange} />}
       {section.type === 'produits_similaires' && <ProduitsSimilairesForm section={section} onChange={onChange} />}
-      {section.type === 'code_personnalise' && <CodePersonnaliseForm section={section} onChange={onChange} />}
+      {section.type === 'code_personnalise' && <CodePersonnaliseForm section={section} medias={medias} onChange={onChange} />}
 
       {section.type === 'formulaire_achat' && (
         <input
@@ -413,7 +415,12 @@ function ProduitsSimilairesForm({ section, onChange }) {
   );
 }
 
-function CodePersonnaliseForm({ section, onChange }) {
+function CodePersonnaliseForm({ section, medias, onChange }) {
+  // Résolution 100% automatique à l'enregistrement (voir resoudreMediasDansSections, appelé
+  // dans ProductForm) — rien à cliquer ici. Ce hint est juste une aide visuelle en direct pour
+  // repérer un nom mal orthographié ou une image pas encore uploadée, avant même d'enregistrer.
+  const manquants = listerMediasManquants(section.code || '', medias || []);
+
   return (
     <div>
       <textarea
@@ -423,12 +430,26 @@ function CodePersonnaliseForm({ section, onChange }) {
         rows={10}
         style={{ ...styles.input, fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}
       />
+
+      {manquants.length > 0 && (
+        <p style={{ fontSize: '0.78rem', color: 'var(--danger)', marginTop: '0.5rem' }}>
+          ⚠️ Introuvable(s) dans la Médiathèque : {manquants.join(', ')}. Vérifie le nom exact,
+          ou uploade l'image — dès qu'elle existe, le lien se met tout seul au moment d'enregistrer.
+        </p>
+      )}
+
       <p style={{ fontSize: '0.78rem', opacity: 0.65, marginTop: '0.5rem' }}>
         HTML et CSS uniquement. Ce bloc est isolé du reste du site (Shadow DOM) : une balise
         <code>&lt;style&gt;</code> collée ici ne peut jamais affecter le formulaire de commande,
         le header ou une autre section — aucun risque de casser le reste de la fiche produit.
         Les balises <code>&lt;script&gt;</code> ne s'exécutent pas : ce bloc ne permet pas
         d'ajouter du JavaScript.
+      </p>
+      <p style={{ fontSize: '0.78rem', opacity: 0.65, marginTop: '0.3rem' }}>
+        Pour les images : écris <code>{'{{MEDIA:NOM}}'}</code> à la place du lien (ex:
+        <code>{'<img src="{{MEDIA:GO1}}">'}</code>), où <code>NOM</code> est le nom exact affiché
+        dans la Médiathèque. Aucune action à faire ensuite : au moment d'enregistrer (ou dans
+        l'Aperçu), chaque <code>{'{{MEDIA:...}}'}</code> est automatiquement remplacé par le vrai lien.
       </p>
     </div>
   );
