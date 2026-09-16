@@ -11,7 +11,7 @@ create table if not exists public.medias (
   hauteur integer,
   taille_octets integer,
   created_at timestamptz not null default now()
-);
+); 
 
 alter table public.medias enable row level security;
 
