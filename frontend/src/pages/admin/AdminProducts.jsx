@@ -22,10 +22,12 @@ export default function AdminProducts() {
     setEnvoi(true);
     setErreur('');
     try {
-      if (edition === 'nouveau') {
-        await api.createProduit(data);
-      } else {
+      // edition.ID n'existe que pour une vraie modification ; 'nouveau' et une
+      // duplication (produit copié sans ID) doivent tous les deux créer une nouvelle fiche.
+      if (edition !== 'nouveau' && edition?.ID) {
         await api.updateProduit(edition.ID, data);
+      } else {
+        await api.createProduit(data);
       }
       setEdition(null);
       charger();
@@ -34,6 +36,13 @@ export default function AdminProducts() {
     } finally {
       setEnvoi(false);
     }
+  }
+
+  function handleDupliquer(produit) {
+    // Pré-remplit le formulaire "nouveau produit" avec les champs du produit source
+    // (images, sections, prix, etc.) sans son ID, pour qu'Enregistrer crée une fiche
+    // distincte plutôt que d'écraser l'originale.
+    setEdition({ ...produit, ID: null, Nom: `${produit.Nom} (copie)`, _dupliqueDe: produit.Nom });
   }
 
   async function handleSupprimer(produit) {
@@ -52,7 +61,13 @@ export default function AdminProducts() {
   if (edition) {
     return (
       <div style={{ maxWidth: '640px' }}>
-        <h1>{edition === 'nouveau' ? 'Nouveau produit' : `Modifier « ${edition.Nom} »`}</h1>
+        <h1>
+          {edition === 'nouveau'
+            ? 'Nouveau produit'
+            : edition.ID
+            ? `Modifier « ${edition.Nom} »`
+            : `Dupliquer « ${edition._dupliqueDe} »`}
+        </h1>
         {erreur && <p style={{ color: 'var(--danger)' }}>{erreur}</p>}
         <ProductForm
           produitInitial={edition === 'nouveau' ? null : edition}
@@ -102,6 +117,7 @@ export default function AdminProducts() {
                 </td>
                 <td style={{ ...styles.td, display: 'flex', gap: '0.6rem' }}>
                   <button className="btn-ghost" onClick={() => setEdition(p)}>Modifier</button>
+                  <button className="btn-ghost" onClick={() => handleDupliquer(p)}>Dupliquer</button>
                   <button className="btn-ghost" onClick={() => handleSupprimer(p)} style={{ color: 'var(--danger)' }}>Supprimer</button>
                 </td>
               </tr>
