@@ -175,6 +175,37 @@ export const api = {
     return { success: true };
   },
 
+  // ---------------- MÉDIATHÈQUE ----------------
+  async getMedias() {
+    const { data, error } = await supabase.from('medias').select('*').order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async createMedia(media) {
+    const { data, error } = await supabase.from('medias').insert({
+      url: media.url,
+      nom: media.nom || '',
+      largeur: media.largeur || null,
+      hauteur: media.hauteur || null,
+      taille_octets: media.tailleOctets || null,
+    }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async renommerMedia(id, nom) {
+    const { error } = await supabase.from('medias').update({ nom }).eq('id', id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
+  async deleteMedia(id) {
+    const { error } = await supabase.from('medias').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
   async getCommandeByNumero(numero) {
     // Le client public (anon, non connecté) n'a aucun droit direct sur `commandes` — comme pour
     // creer_commande(), on passe par une fonction security definer qui ne renvoie que les champs
