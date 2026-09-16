@@ -206,6 +206,12 @@ export const api = {
     return { success: true };
   },
 
+  async deleteMedias(ids) {
+    const { error } = await supabase.from('medias').delete().in('id', ids);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+
   async getCommandeByNumero(numero) {
     // Le client public (anon, non connecté) n'a aucun droit direct sur `commandes` — comme pour
     // creer_commande(), on passe par une fonction security definer qui ne renvoie que les champs

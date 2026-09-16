@@ -39,6 +39,8 @@ export default function AdminMediatheque() {
   const [progression, setProgression] = useState(null);
   const [recherche, setRecherche] = useState('');
   const [copieId, setCopieId] = useState(null);
+  const [selection, setSelection] = useState(new Set());
+  const [suppressionEnCours, setSuppressionEnCours] = useState(false);
 
   useEffect(() => { charger(); }, []);
 
@@ -116,8 +118,41 @@ export default function AdminMediatheque() {
     try {
       await api.deleteMedia(id);
       setMedias((ms) => ms.filter((m) => m.id !== id));
+      setSelection((s) => { const c = new Set(s); c.delete(id); return c; });
     } catch (err) {
       setErreur(err.message);
+    }
+  }
+
+  function toggleSelection(id) {
+    setSelection((s) => {
+      const copie = new Set(s);
+      if (copie.has(id)) copie.delete(id); else copie.add(id);
+      return copie;
+    });
+  }
+
+  function toutSelectionner() {
+    setSelection(new Set(filtres.map((m) => m.id)));
+  }
+
+  function viderSelection() {
+    setSelection(new Set());
+  }
+
+  async function handleSupprimerSelection() {
+    if (!selection.size) return;
+    if (!window.confirm(`Supprimer ${selection.size} média(s) ? Ils resteront visibles partout où leur lien a déjà été utilisé (produits, blocs...), seule la médiathèque perd la trace.`)) return;
+    setSuppressionEnCours(true);
+    try {
+      const ids = Array.from(selection);
+      await api.deleteMedias(ids);
+      setMedias((ms) => ms.filter((m) => !selection.has(m.id)));
+      setSelection(new Set());
+    } catch (err) {
+      setErreur(err.message);
+    } finally {
+      setSuppressionEnCours(false);
     }
   }
 
@@ -170,8 +205,34 @@ export default function AdminMediatheque() {
           onChange={(e) => setRecherche(e.target.value)}
           style={{ ...styles.input, maxWidth: '260px' }}
         />
+        {filtres.length > 0 && (
+          <button
+            type="button" className="btn-ghost"
+            onClick={selection.size === filtres.length ? viderSelection : toutSelectionner}
+            style={{ fontSize: '0.8rem' }}
+          >
+            {selection.size === filtres.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+          </button>
+        )}
       </div>
       {erreurUpload && <p style={{ color: 'var(--danger)', fontSize: '0.82rem', marginTop: '0.5rem' }}>{erreurUpload}</p>}
+
+      {selection.size > 0 && (
+        <div style={styles.barreSelection}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>
+            {selection.size} média{selection.size > 1 ? 's' : ''} sélectionné{selection.size > 1 ? 's' : ''}
+          </span>
+          <button type="button" className="btn-ghost" onClick={viderSelection} disabled={suppressionEnCours}>
+            Annuler
+          </button>
+          <button
+            type="button" className="btn-ghost" onClick={handleSupprimerSelection}
+            disabled={suppressionEnCours} style={{ color: 'var(--danger)' }}
+          >
+            {suppressionEnCours ? 'Suppression…' : `Supprimer (${selection.size})`}
+          </button>
+        </div>
+      )}
 
       {filtres.length === 0 ? (
         <p style={{ opacity: 0.6, marginTop: '1.5rem' }}>
@@ -183,6 +244,9 @@ export default function AdminMediatheque() {
             <div key={m.id} style={styles.carte}>
               <div style={styles.imageZone}>
                 <img src={m.url} alt={m.nom} style={styles.image} loading="lazy" />
+                <label style={styles.checkboxZone}>
+                  <input type="checkbox" checked={selection.has(m.id)} onChange={() => toggleSelection(m.id)} />
+                </label>
               </div>
               <div style={styles.corps}>
                 <button type="button" onClick={() => handleRenommer(m.id, m.nom)} style={styles.nomBouton} title="Renommer">
@@ -223,8 +287,17 @@ const styles = {
     border: '1px solid var(--line)', borderRadius: 'var(--radius)', overflow: 'hidden',
     background: 'var(--parchment-dark)', display: 'flex', flexDirection: 'column',
   },
-  imageZone: { aspectRatio: '1 / 1', background: 'var(--sage-light)' },
+  imageZone: { position: 'relative', aspectRatio: '1 / 1', background: 'var(--sage-light)' },
   image: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  checkboxZone: {
+    position: 'absolute', top: '6px', left: '6px', background: 'rgba(255,255,255,0.9)',
+    borderRadius: '4px', padding: '3px 4px', display: 'flex', cursor: 'pointer',
+  },
+  barreSelection: {
+    display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
+    background: 'var(--parchment-dark)', border: '1px solid var(--line)', borderRadius: 'var(--radius)',
+    padding: '0.6rem 0.9rem', marginTop: '0.8rem',
+  },
   corps: { padding: '0.6rem 0.7rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' },
   nomBouton: {
     background: 'none', border: 'none', padding: 0, textAlign: 'left', fontSize: '0.85rem',
