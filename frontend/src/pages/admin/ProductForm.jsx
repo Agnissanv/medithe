@@ -17,6 +17,19 @@ function versDatetimeLocal(dateIso) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+// Construit l'objet CompteARebours envoyé/prévisualisé à partir de l'état du formulaire —
+// un seul endroit pour valider les deux types (échéance réelle vs minuteur en boucle)
+// plutôt que de dupliquer la logique entre handleSubmit et produitApercu.
+function construireCompteARebours(c) {
+  if (!c.actif) return { actif: false, type: 'echeance', echeance: null, dureeMinutes: null, texte: '' };
+  if (c.type === 'boucle') {
+    if (!c.dureeMinutes || Number(c.dureeMinutes) <= 0) return { actif: false, type: 'boucle', echeance: null, dureeMinutes: null, texte: '' };
+    return { actif: true, type: 'boucle', echeance: null, dureeMinutes: Number(c.dureeMinutes), texte: c.texte.trim() };
+  }
+  if (!c.echeance) return { actif: false, type: 'echeance', echeance: null, dureeMinutes: null, texte: '' };
+  return { actif: true, type: 'echeance', echeance: new Date(c.echeance).toISOString(), dureeMinutes: null, texte: c.texte.trim() };
+}
+
 export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi }) {
   const [form, setForm] = useState({
     nom: produitInitial?.Nom || '',
@@ -35,8 +48,12 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     codePromoActif: produitInitial?.CodePromoActif ?? true,
     compteARebours: {
       actif: produitInitial?.CompteARebours?.actif || false,
+      // 'echeance' = vraie date/heure, identique pour tous les visiteurs.
+      // 'boucle' = minuteur qui redémarre tout seul à chaque fois qu'il atteint 0 (par visiteur).
+      type: produitInitial?.CompteARebours?.type || 'echeance',
       // datetime-local attend "AAAA-MM-JJTHH:mm" en heure locale, pas un ISO UTC avec "Z"
       echeance: versDatetimeLocal(produitInitial?.CompteARebours?.echeance),
+      dureeMinutes: produitInitial?.CompteARebours?.dureeMinutes ?? '',
       texte: produitInitial?.CompteARebours?.texte || '',
     },
   });
@@ -143,13 +160,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
         badge: (p.badge || '').trim(),
       }));
 
-    const compteARebours = form.compteARebours.actif && form.compteARebours.echeance
-      ? {
-          actif: true,
-          echeance: new Date(form.compteARebours.echeance).toISOString(),
-          texte: form.compteARebours.texte.trim(),
-        }
-      : { actif: false, echeance: null, texte: '' };
+    const compteARebours = construireCompteARebours(form.compteARebours);
 
     onSubmit({
       nom: form.nom,
@@ -186,9 +197,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
     Sections: form.sections,
     OffresQuantite: form.offresQuantite.filter((p) => p.label.trim() && Number(p.prix) > 0),
     CodePromoActif: form.codePromoActif,
-    CompteARebours: form.compteARebours.actif && form.compteARebours.echeance
-      ? { actif: true, echeance: new Date(form.compteARebours.echeance).toISOString(), texte: form.compteARebours.texte }
-      : null,
+    CompteARebours: construireCompteARebours(form.compteARebours).actif ? construireCompteARebours(form.compteARebours) : null,
   };
 
   return (
@@ -361,14 +370,43 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
           </label>
           {form.compteARebours.actif && (
             <div style={{ paddingLeft: '1.6rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-              <div style={{ maxWidth: '280px' }}>
-                <label style={styles.label}>Échéance</label>
-                <input
-                  type="datetime-local" value={form.compteARebours.echeance}
-                  onChange={(e) => handleCompteARebours('echeance', e.target.value)}
-                  style={styles.input}
-                />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.85rem' }}>
+                  <input
+                    type="radio" name="typeCompteARebours" checked={form.compteARebours.type === 'echeance'}
+                    onChange={() => handleCompteARebours('type', 'echeance')}
+                  />
+                  Échéance fixe — même heure pour tous les visiteurs, s'arrête une fois passée
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.85rem' }}>
+                  <input
+                    type="radio" name="typeCompteARebours" checked={form.compteARebours.type === 'boucle'}
+                    onChange={() => handleCompteARebours('type', 'boucle')}
+                  />
+                  Minuteur en boucle — redémarre tout seul à chaque fois qu'il atteint 0
+                </label>
               </div>
+
+              {form.compteARebours.type === 'boucle' ? (
+                <div style={{ maxWidth: '200px' }}>
+                  <label style={styles.label}>Durée (minutes)</label>
+                  <input
+                    type="number" min="1" value={form.compteARebours.dureeMinutes}
+                    onChange={(e) => handleCompteARebours('dureeMinutes', e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
+              ) : (
+                <div style={{ maxWidth: '280px' }}>
+                  <label style={styles.label}>Échéance</label>
+                  <input
+                    type="datetime-local" value={form.compteARebours.echeance}
+                    onChange={(e) => handleCompteARebours('echeance', e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
+              )}
+
               <div>
                 <label style={styles.label}>Message (optionnel)</label>
                 <input

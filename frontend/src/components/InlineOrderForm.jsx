@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/supabaseApi.js';
 import { trackInitiateCheckout, trackPurchase } from '../utils/tracking.js';
@@ -135,8 +135,13 @@ export default function InlineOrderForm({ produit, domId = 'formulaire-loohoo', 
     <form id={domId} onSubmit={handleSubmit} style={styles.form}>
       <h3 style={{ marginTop: 0 }}>{titre || `Commander ${produit.Nom}`}</h3>
 
-      {produit.CompteARebours?.actif && produit.CompteARebours?.echeance && (
-        <CompteARebours echeance={produit.CompteARebours.echeance} texte={produit.CompteARebours.texte} />
+      {produit.CompteARebours?.actif && (produit.CompteARebours.type === 'boucle' ? produit.CompteARebours.dureeMinutes : produit.CompteARebours.echeance) && (
+        <CompteARebours
+          type={produit.CompteARebours.type}
+          echeance={produit.CompteARebours.echeance}
+          dureeMinutes={produit.CompteARebours.dureeMinutes}
+          texte={produit.CompteARebours.texte}
+        />
       )}
 
       {paliers ? (
@@ -244,20 +249,34 @@ export default function InlineOrderForm({ produit, domId = 'formulaire-loohoo', 
   );
 }
 
-// Vraie échéance (même heure pour tous les visiteurs), pas un minuteur qui se relance.
-// Se cache tout seul une fois l'échéance passée plutôt que d'afficher un compte négatif.
-function CompteARebours({ echeance, texte }) {
-  const calculerRestant = () => new Date(echeance).getTime() - Date.now();
+// Deux types de compte à rebours :
+// - 'echeance' : vraie date/heure, identique pour tous les visiteurs, se cache une fois passée.
+// - 'boucle' : minuteur de durée fixe qui redémarre tout seul à chaque fois qu'il atteint 0,
+//   propre à chaque visite (pas partagé entre visiteurs). Calculé à partir de l'heure d'arrivée
+//   sur la page modulo la durée, pour ne jamais dériver même si l'onglet est mis en pause.
+function CompteARebours({ type, echeance, dureeMinutes, texte }) {
+  const dureeSecondes = Math.max(0, Math.round((dureeMinutes || 0) * 60));
+  const debutRef = useRef(Date.now());
+
+  const calculerRestant = () => {
+    if (type === 'boucle') {
+      if (dureeSecondes <= 0) return 0;
+      const ecoule = Math.floor((Date.now() - debutRef.current) / 1000) % dureeSecondes;
+      return dureeSecondes - ecoule;
+    }
+    return Math.floor((new Date(echeance).getTime() - Date.now()) / 1000);
+  };
+
   const [restant, setRestant] = useState(calculerRestant);
 
   useEffect(() => {
     const id = setInterval(() => setRestant(calculerRestant()), 1000);
     return () => clearInterval(id);
-  }, [echeance]);
+  }, [type, echeance, dureeSecondes]);
 
-  if (restant <= 0) return null;
+  if (type === 'boucle' ? dureeSecondes <= 0 : restant <= 0) return null;
 
-  const totalSecondes = Math.floor(restant / 1000);
+  const totalSecondes = Math.max(0, restant);
   const jours = Math.floor(totalSecondes / 86400);
   const heures = Math.floor((totalSecondes % 86400) / 3600);
   const minutes = Math.floor((totalSecondes % 3600) / 60);
