@@ -204,6 +204,6 @@ const styles = {
     background: 'var(--parchment)', fontFamily: 'var(--font-body)',
   },
   table: { width: '100%', borderCollapse: 'collapse', marginTop: '1rem' },
-  th: { textAlign: 'left', padding: '0.6em 0.8em', borderBottom: '2px solid var(--line)', fontSize: '0.82rem', opacity: 0.7 },
-  td: { padding: '0.6em 0.8em', borderBottom: '1px solid var(--line)', fontSize: '0.9rem' },
+  th: { textAlign: 'left', padding: '0.6rem', borderBottom: '1px solid var(--line)', fontSize: '0.8rem', color: 'var(--sage)', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  td: { padding: '0.7rem 0.6rem', borderBottom: '1px solid var(--line)', fontSize: '0.9rem', verticalAlign: 'top' },
 };
