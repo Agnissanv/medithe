@@ -5,7 +5,7 @@ import { trackInitiateCheckout, trackPurchase } from '../utils/tracking.js';
 
 const TELEPHONE_REGEX = /^[0-9+()\s.-]{8,20}$/;
 
-export default function InlineOrderForm({ produit, domId = 'zone-commande', titre, previsualisation = false }) {
+export default function InlineOrderForm({ produit, domId = 'formulaire-loohoo', titre, previsualisation = false }) {
   const [quantite, setQuantite] = useState(1);
 
   useEffect(() => {

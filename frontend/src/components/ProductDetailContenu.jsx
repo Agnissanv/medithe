@@ -5,7 +5,7 @@ import ProductGallery from './ProductGallery.jsx';
 import SectionRenderer from './sections/SectionRenderer.jsx';
 import InlineOrderForm from './InlineOrderForm.jsx';
 
-const ID_FORMULAIRE_DEFAUT = 'zone-commande-defaut';
+const ID_FORMULAIRE_DEFAUT = 'formulaire-loohoo';
 
 // Rendu visuel pur d'une fiche produit — partagé entre la vraie page (ProductDetail.jsx,
 // qui gère le fetch/SEO/tracking) et l'aperçu admin (ProductForm.jsx, qui passe
