@@ -79,10 +79,11 @@ export default function AdminMediatheque() {
           // déjà en place ailleurs sur le site (voir utils/cloudinary.js) : max 1600px,
           // ~2 Mo après compression progressive, JPG/PNG/WebP uniquement.
           const nomPersonnalise = `${baseSlug}-${suffixeUnique()}`;
-          const url = await uploadImageToCloudinary(file, { nomPersonnalise, dossier: DOSSIER_MEDIATHEQUE });
+          const { url, publicId } = await uploadImageToCloudinary(file, { nomPersonnalise, dossier: DOSSIER_MEDIATHEQUE });
           const { largeur, hauteur } = await obtenirDimensionsImage(url);
           const media = await api.createMedia({
             url,
+            publicId,
             nom: nomFichier,
             largeur,
             hauteur,
@@ -113,12 +114,12 @@ export default function AdminMediatheque() {
     }
   }
 
-  async function handleSupprimer(id) {
-    if (!window.confirm('Supprimer ce média ? Il restera visible partout où son lien a déjà été utilisé (produits, blocs...), seule la médiathèque perd la trace.')) return;
+  async function handleSupprimer(media) {
+    if (!window.confirm('Supprimer ce média ? Il restera visible partout où son lien a déjà été utilisé (produits, blocs...), seule la médiathèque perd la trace. Le fichier sera aussi effacé de Cloudinary.')) return;
     try {
-      await api.deleteMedia(id);
-      setMedias((ms) => ms.filter((m) => m.id !== id));
-      setSelection((s) => { const c = new Set(s); c.delete(id); return c; });
+      await api.deleteMedia(media.id, media.public_id);
+      setMedias((ms) => ms.filter((m) => m.id !== media.id));
+      setSelection((s) => { const c = new Set(s); c.delete(media.id); return c; });
     } catch (err) {
       setErreur(err.message);
     }
@@ -142,11 +143,11 @@ export default function AdminMediatheque() {
 
   async function handleSupprimerSelection() {
     if (!selection.size) return;
-    if (!window.confirm(`Supprimer ${selection.size} média(s) ? Ils resteront visibles partout où leur lien a déjà été utilisé (produits, blocs...), seule la médiathèque perd la trace.`)) return;
+    if (!window.confirm(`Supprimer ${selection.size} média(s) ? Ils resteront visibles partout où leur lien a déjà été utilisé (produits, blocs...), seule la médiathèque perd la trace. Les fichiers seront aussi effacés de Cloudinary.`)) return;
     setSuppressionEnCours(true);
     try {
-      const ids = Array.from(selection);
-      await api.deleteMedias(ids);
+      const aSupprimer = (medias || []).filter((m) => selection.has(m.id));
+      await api.deleteMedias(aSupprimer);
       setMedias((ms) => ms.filter((m) => !selection.has(m.id)));
       setSelection(new Set());
     } catch (err) {
@@ -260,7 +261,7 @@ export default function AdminMediatheque() {
                   <button type="button" className="btn-ghost" onClick={() => handleCopier(m)} style={{ fontSize: '0.78rem' }}>
                     {copieId === m.id ? '✓ Copié' : 'Copier le lien'}
                   </button>
-                  <button type="button" className="btn-ghost" onClick={() => handleSupprimer(m.id)} style={{ fontSize: '0.78rem', color: 'var(--danger)' }}>
+                  <button type="button" className="btn-ghost" onClick={() => handleSupprimer(m)} style={{ fontSize: '0.78rem', color: 'var(--danger)' }}>
                     Supprimer
                   </button>
                 </div>

@@ -82,6 +82,13 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
         />
       );
 
+    case 'code_personnalise':
+      // HTML/CSS libre collé par l'admin. Volontairement HTML/CSS uniquement : une balise
+      // <script> insérée via dangerouslySetInnerHTML ne s'exécute jamais (comportement
+      // standard du navigateur), donc pas de risque d'exécution de script imprévu ici.
+      if (estHtmlVide(section.code)) return null;
+      return <div className="section-generique" dangerouslySetInnerHTML={{ __html: section.code || '' }} />;
+
     case 'formulaire_achat':
       return (
         <div className="section-generique">

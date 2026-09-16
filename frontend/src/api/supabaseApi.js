@@ -185,6 +185,7 @@ export const api = {
   async createMedia(media) {
     const { data, error } = await supabase.from('medias').insert({
       url: media.url,
+      public_id: media.publicId || null,
       nom: media.nom || '',
       largeur: media.largeur || null,
       hauteur: media.hauteur || null,
@@ -200,13 +201,34 @@ export const api = {
     return { success: true };
   },
 
-  async deleteMedia(id) {
+  // Best-effort : la suppression Cloudinary ne doit jamais empêcher la ligne de
+  // disparaître de la base (c'est la demande initiale d'Isaac), même si Cloudinary
+  // ne répond pas — dans ce cas rare le fichier reste orphelin là-bas, sans bloquer l'admin.
+  async _supprimerFichiersCloudinary(publicIds) {
+    const aTraiter = (publicIds || []).filter(Boolean);
+    if (!aTraiter.length) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      await fetch('/api/delete-media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicIds: aTraiter, accessToken: session?.access_token }),
+      });
+    } catch { /* best-effort, voir commentaire ci-dessus */ }
+  },
+
+  async deleteMedia(id, publicId) {
+    await this._supprimerFichiersCloudinary([publicId]);
     const { error } = await supabase.from('medias').delete().eq('id', id);
     if (error) throw new Error(error.message);
     return { success: true };
   },
 
-  async deleteMedias(ids) {
+  // items : [{ id, public_id }, ...] — un tableau d'objets média, pas juste des ids,
+  // pour avoir accès au public_id de chacun et les effacer aussi sur Cloudinary.
+  async deleteMedias(items) {
+    const ids = items.map((m) => m.id);
+    await this._supprimerFichiersCloudinary(items.map((m) => m.public_id));
     const { error } = await supabase.from('medias').delete().in('id', ids);
     if (error) throw new Error(error.message);
     return { success: true };

@@ -45,7 +45,7 @@ export default function ProductForm({ produitInitial, onSubmit, onAnnuler, envoi
       const aTraiter = files.slice(0, placesRestantes);
       const urls = [];
       for (const file of aTraiter) {
-        const url = await uploadImageToCloudinary(file);
+        const { url } = await uploadImageToCloudinary(file);
         urls.push(url);
       }
       setForm((f) => ({ ...f, images: [...f.images, ...urls] }));

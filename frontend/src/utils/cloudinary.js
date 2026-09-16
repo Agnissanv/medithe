@@ -86,7 +86,7 @@ export function slugifier(texte) {
 }
 
 /**
- * Compresse puis envoie une image vers Cloudinary. Retourne l'URL sécurisée.
+ * Compresse puis envoie une image vers Cloudinary.
  *
  * @param {File} file
  * @param {{ nomPersonnalise?: string, dossier?: string }} [options]
@@ -97,6 +97,10 @@ export function slugifier(texte) {
  *     du preset, qu'on ne contrôle pas ici).
  *   dossier : range l'image dans ce dossier Cloudinary (ex: "medithe/medias") plutôt
  *     qu'à la racine.
+ * @returns {Promise<{ url: string, publicId: string }>}
+ *   url : lien sécurisé à afficher/stocker. publicId : identifiant Cloudinary complet
+ *     (dossier inclus, ex: "medithe/medias/mon-logo-a1b2"), nécessaire pour supprimer
+ *     le fichier plus tard via l'API Cloudinary (une URL seule ne suffit pas pour ça).
  */
 export async function uploadImageToCloudinary(file, options = {}) {
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
@@ -122,7 +126,7 @@ export async function uploadImageToCloudinary(file, options = {}) {
   }
 
   const data = await res.json();
-  return data.secure_url;
+  return { url: data.secure_url, publicId: data.public_id };
 }
 
 export const MAX_IMAGES_PAR_PRODUIT = 6;
