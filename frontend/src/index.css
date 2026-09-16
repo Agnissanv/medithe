@@ -40,6 +40,10 @@
 
 * { box-sizing: border-box; }
 
+html {
+  scroll-behavior: smooth; /* défilement fluide vers les ancres (#formulaire-loohoo, etc.) */
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -142,6 +146,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
 }
 
 /* Fiche produit : mise en page responsive + barre d'achat fixe sur mobile */
