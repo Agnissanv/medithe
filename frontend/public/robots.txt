@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /connexion
+Disallow: /closing
+Disallow: /livraison
+Disallow: /panier
+Disallow: /commande
 
-Sitemap: https://medithe.com/sitemap.xml
+Sitemap: https://medithe.looh-oo.com/sitemap.xml
