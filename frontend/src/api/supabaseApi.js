@@ -19,10 +19,16 @@ function mapProduit(p) {
     VideoUrl: p.video_url || '',
     Sections: p.sections || [],
     DateAjout: p.date_ajout,
-    OffresQuantite: p.offres_quantite ? Number(p.offres_quantite) : null,
+    OffresQuantite: p.offres_quantite || [],
     CodePromoActif: p.code_promo_actif ?? true,
     CompteARebours: p.compte_a_rebours_actif
-      ? { actif: true, echeance: p.compte_a_rebours_echeance, texte: p.compte_a_rebours_texte || '' }
+      ? {
+          actif: true,
+          type: p.compte_a_rebours_type || 'echeance',
+          echeance: p.compte_a_rebours_echeance,
+          dureeMinutes: p.compte_a_rebours_duree_minutes || null,
+          texte: p.compte_a_rebours_texte || '',
+        }
       : null,
   };
 }
@@ -73,10 +79,12 @@ export const api = {
       disponible: produit.disponible,
       video_url: produit.videoUrl,
       sections: produit.sections,
-      offres_quantite: produit.offresQuantite ? Number(produit.offresQuantite) : null,
+      offres_quantite: produit.offresQuantite || [],
       code_promo_actif: produit.codePromoActif ?? true,
       compte_a_rebours_actif: produit.compteARebours?.actif || false,
+      compte_a_rebours_type: produit.compteARebours?.type || 'echeance',
       compte_a_rebours_echeance: produit.compteARebours?.echeance || null,
+      compte_a_rebours_duree_minutes: produit.compteARebours?.dureeMinutes || null,
       compte_a_rebours_texte: produit.compteARebours?.texte || null,
     }).select().single();
     if (error) throw new Error(error.message);
@@ -95,10 +103,14 @@ export const api = {
       disponible: produit.disponible,
       video_url: produit.videoUrl,
       sections: produit.sections,
-      offres_quantite: produit.offresQuantite ? Number(produit.offresQuantite) : null,
+      commission_closer: produit.commissionCloser,
+      commission_livreur: produit.commissionLivreur,
+      offres_quantite: produit.offresQuantite || [],
       code_promo_actif: produit.codePromoActif ?? true,
       compte_a_rebours_actif: produit.compteARebours?.actif || false,
+      compte_a_rebours_type: produit.compteARebours?.type || 'echeance',
       compte_a_rebours_echeance: produit.compteARebours?.echeance || null,
+      compte_a_rebours_duree_minutes: produit.compteARebours?.dureeMinutes || null,
       compte_a_rebours_texte: produit.compteARebours?.texte || null,
       date_modif: new Date().toISOString(),
     }).eq('id', id);

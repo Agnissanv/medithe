@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FaqAccordion from '../FaqAccordion.jsx';
 import AvisList from '../AvisList.jsx';
@@ -12,6 +12,26 @@ import { useCart } from '../../context/CartContext.jsx';
 function estHtmlVide(html) {
   if (!html) return true;
   return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim().length === 0;
+}
+
+// Isole réellement le HTML/CSS collé par l'admin dans un Shadow DOM, pour que
+// les sélecteurs/styles qu'il contient (ex: balise <style> non préfixée) ne
+// puissent jamais atteindre le reste de la page (header, formulaire de commande,
+// autres sections) — c'est ce que le texte d'aide de l'admin promet déjà.
+function BlocCodeIsole({ html }) {
+  const hoteRef = useRef(null);
+  const racineOmbreRef = useRef(null);
+
+  useEffect(() => {
+    const hote = hoteRef.current;
+    if (!hote) return;
+    if (!racineOmbreRef.current) {
+      racineOmbreRef.current = hote.attachShadow({ mode: 'open' });
+    }
+    racineOmbreRef.current.innerHTML = html || '';
+  }, [html]);
+
+  return <div ref={hoteRef} />;
 }
 
 export default function SectionRenderer({ section, produit, formulaireDomId, previsualisation = false }) {
@@ -83,11 +103,16 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
       );
 
     case 'code_personnalise':
-      // HTML/CSS libre collé par l'admin. Volontairement HTML/CSS uniquement : une balise
-      // <script> insérée via dangerouslySetInnerHTML ne s'exécute jamais (comportement
-      // standard du navigateur), donc pas de risque d'exécution de script imprévu ici.
+      // HTML/CSS libre collé par l'admin, rendu dans un Shadow DOM (BlocCodeIsole) :
+      // un <style> collé ici ne peut jamais fuiter sur le reste de la page. Volontairement
+      // HTML/CSS uniquement : une balise <script> insérée via innerHTML ne s'exécute jamais
+      // (comportement standard du navigateur), donc pas de risque d'exécution de script imprévu ici.
       if (estHtmlVide(section.code)) return null;
-      return <div className="section-generique" dangerouslySetInnerHTML={{ __html: section.code || '' }} />;
+      return (
+        <div className="section-generique">
+          <BlocCodeIsole html={section.code} />
+        </div>
+      );
 
     case 'formulaire_achat':
       return (
