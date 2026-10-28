@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 // Fait le pont entre un événement client (vue produit, ajout panier, achat…) et les
 // API de conversion serveur-à-serveur de Meta, TikTok et Google (GA4). Contourne les
 // bloqueurs de pub et la perte de données iOS puisque l'appel part de notre serveur,
@@ -32,8 +35,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Paramètres manquants (evenement, event_id)' });
   }
 
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(503).json({ error: 'Envoi serveur non configuré : variables SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY absentes sur Vercel' });
+  }
+
   try {
-    const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const [{ data: configs, error: erreurConfigs }, { data: pixels, error: erreurPixels }] = await Promise.all([
       supabaseAdmin.from('parametres_api_conversion').select('*').eq('actif', true),

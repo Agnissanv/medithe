@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 // Supprime un ou plusieurs fichiers sur Cloudinary via leur API Admin, qui exige la
 // clé secrète (jamais exposable côté navigateur) — d'où le passage par une fonction
 // serveur, même principe que create-user.js / track-event.js.
@@ -16,14 +20,17 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'publicIds manquant' });
   }
   if (!accessToken) return res.status(401).json({ error: 'Aucun jeton de connexion reçu' });
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(500).json({ error: 'Serveur non configuré : variables Supabase absentes sur Vercel' });
+  }
 
-  const supabasePublic = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY);
+  const supabasePublic = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   const { data: { user: appelant }, error: erreurAuth } = await supabasePublic.auth.getUser(accessToken);
   if (erreurAuth || !appelant) {
     return res.status(401).json({ error: 'Non authentifié : ' + (erreurAuth?.message || 'utilisateur introuvable') });
   }
 
-  const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const { data: profilAppelant, error: erreurProfilAppelant } = await supabaseAdmin
     .from('profiles').select('role').eq('id', appelant.id).single();
   if (erreurProfilAppelant) {
@@ -33,7 +40,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: `Réservé aux administrateurs (rôle détecté : ${profilAppelant?.role || 'aucun'})` });
   }
 
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.VITE_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
   if (!cloudName || !apiKey || !apiSecret) {

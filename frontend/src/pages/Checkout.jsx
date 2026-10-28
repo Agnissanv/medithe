@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { api } from '../api/supabaseApi.js';
-import { fetchCatalogFromCdn } from '../utils/catalogSync.js';
 import ProductCard from '../components/ProductCard.jsx';
 import { trackInitiateCheckout, trackPurchase } from '../utils/tracking.js';
 
@@ -23,8 +22,10 @@ export default function Checkout() {
   const [promoEnCours, setPromoEnCours] = useState(false);
   const [promoErreur, setPromoErreur] = useState('');
 
+  // Produits proposés après la commande (« Envie d'en profiter encore plus ? »), lus dans Supabase.
+  // Avant : catalogue Cloudinary jamais publié, la section ne s'affichait donc jamais.
   useEffect(() => {
-    fetchCatalogFromCdn().then(setCatalogue).catch(() => {});
+    api.getProduits().then((liste) => setCatalogue(liste.filter((p) => p.Disponible && p.Stock > 0))).catch(() => {});
   }, []);
 
   useEffect(() => {

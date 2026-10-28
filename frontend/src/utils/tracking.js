@@ -26,14 +26,22 @@ function injecterScripts(pixels) {
 
   if (facebookIds.length && !scriptsInjectes.has('facebook')) {
     scriptsInjectes.add('facebook');
-    window.fbq = window.fbq || function () {
-      (window.fbq.q = window.fbq.q || []).push(arguments);
-    };
-    window._fbq = window._fbq || window.fbq;
-    injecterScriptExterne('https://connect.facebook.net/en_US/fbevents.js', () => {
-      facebookIds.forEach((id) => window.fbq('init', id));
-      window.fbq('track', 'PageView');
-    });
+    // Amorce officielle de Meta : les appels attendent dans fbq.queue, que fbevents.js vide à son chargement.
+    // Le PageView est envoyé par trackPageView() (avec un event_id partagé avec l'envoi serveur), pas ici.
+    if (!window.fbq) {
+      const fbq = function () {
+        if (fbq.callMethod) fbq.callMethod.apply(fbq, arguments);
+        else fbq.queue.push(arguments);
+      };
+      fbq.push = fbq;
+      fbq.loaded = true;
+      fbq.version = '2.0';
+      fbq.queue = [];
+      window.fbq = fbq;
+      if (!window._fbq) window._fbq = fbq;
+    }
+    facebookIds.forEach((id) => window.fbq('init', id));
+    injecterScriptExterne('https://connect.facebook.net/en_US/fbevents.js');
   }
 
   if (tiktokIds.length && !scriptsInjectes.has('tiktok')) {
