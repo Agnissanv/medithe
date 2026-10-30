@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Appelée tous les 3 jours par la tâche planifiée de Vercel (vercel.json) : une petite lecture suffit
+// Appelée tous les 2 jours par la tâche planifiée de Vercel (vercel.json) : une petite lecture suffit
 // pour que Supabase (offre gratuite) ne mette pas le projet en pause après 7 jours sans activité.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;

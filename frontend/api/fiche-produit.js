@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       const { data: p } = await supabase.from('produits').select('nom, description, prix, images').eq('id', id).maybeSingle();
       if (p) {
-        const nom = p.nom.trim();
+        const nom = p.nom.trim().replace(/[.\s]+$/, ''); // pas de point avant le prix
         const titre = `${nom} : ${nombre(p.prix)} F CFA | MédiThé`;
         const description = `${p.description ? `${p.description.trim()}. ` : ''}${nombre(p.prix)} F CFA. Livraison à domicile, paiement à la livraison.`;
         const photo = p.images?.[0];
