@@ -5,6 +5,10 @@ let scriptsInjectes = new Set();
 
 async function chargerPixels() {
   if (pixelsCharges) return pixelsCharges;
+  if (import.meta.env.DEV) { // pas de faux événements dans les statistiques pendant le développement
+    pixelsCharges = [];
+    return pixelsCharges;
+  }
   const { data } = await supabase.from('parametres_pixels').select('*').eq('actif', true);
   pixelsCharges = data || [];
   injecterScripts(pixelsCharges);
@@ -99,14 +103,23 @@ function obtenirClientId() {
   return id;
 }
 
-function envoyerEvenementServeur(evenement, eventId, donnees) {
+function lireCookie(nom) {
+  const trouve = document.cookie.split('; ').find((c) => c.startsWith(nom + '='));
+  return trouve ? trouve.slice(nom.length + 1) : undefined;
+}
+
+function envoyerEvenementServeur(evenement, eventId, donnees, telephone) {
+  if (import.meta.env.DEV) return;
   // Best-effort : on n'attend jamais cet appel et on ignore ses erreurs, pour ne
   // jamais ralentir ou casser une action utilisateur (ajout panier, commande…).
   try {
     fetch('/api/track-event', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ evenement, event_id: eventId, donnees, client_id: obtenirClientId() }),
+      body: JSON.stringify({
+        evenement, event_id: eventId, donnees, client_id: obtenirClientId(),
+        fbp: lireCookie('_fbp'), fbc: lireCookie('_fbc'), telephone,
+      }),
       keepalive: true,
     }).catch(() => {});
   } catch {
@@ -159,7 +172,7 @@ export async function trackInitiateCheckout(items, total) {
   envoyerEvenementServeur('InitiateCheckout', eventId, donnees);
 }
 
-export async function trackPurchase(numeroCommande, total) {
+export async function trackPurchase(numeroCommande, total, telephone) {
   const pixels = await chargerPixels();
   const eventId = genererEventId();
   const donnees = { order_id: numeroCommande, value: total, currency: 'XOF' };
@@ -168,5 +181,5 @@ export async function trackPurchase(numeroCommande, total) {
     window.ttq.instance(p.pixel_id).track('CompletePayment', { value: total, currency: 'XOF' }, { event_id: eventId })
   );
   if (window.gtag) window.gtag('event', 'purchase', { transaction_id: numeroCommande, value: total, currency: 'XOF' });
-  envoyerEvenementServeur('Purchase', eventId, donnees);
+  envoyerEvenementServeur('Purchase', eventId, donnees, telephone);
 }

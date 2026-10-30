@@ -28,7 +28,7 @@ export default function ProductGallery({ images = [], videoUrl, nom }) {
             src={optimiserImageCloudinary(slide.src)}
             alt={nom}
             style={styles.image}
-            fetchPriority="high"
+            {...{ fetchpriority: 'high' }}
             width="800"
             height="600"
           />

@@ -108,7 +108,7 @@ export default function InlineOrderForm({ produit, domId = 'formulaire-loohoo', 
         reductionPromo: codePromoApplique?.reduction || 0,
       };
       const resultat = await api.createCommande(commande);
-      trackPurchase(resultat.numeroCommande, resultat.montantTotal);
+      trackPurchase(resultat.numeroCommande, resultat.montantTotal, form.telephone);
       setConfirmation(resultat);
     } catch (err) {
       setErreurGlobale(err.message || 'Une erreur est survenue.');

@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient.js';
 
 const STATUTS_EXCLUS_CA = ['Annulé / Rejeté', 'Client oiseau', 'Injoignable', 'Échec de livraison'];
+const COLONNES_CATALOGUE = 'id, nom, description, prix, prix_barre, commission_closer, commission_livreur, categorie, stock, images, disponible, date_ajout';
 
 // --- Traduction snake_case (base) -> PascalCase (déjà utilisé partout dans l'app) ---
 function mapProduit(p) {
@@ -59,9 +60,22 @@ export const api = {
     return data.map(mapProduit);
   },
 
+  // Catalogue public : seulement ce qu'affichent les cartes, pas le contenu complet des fiches (sections).
+  async getCatalogue() {
+    const { data, error } = await supabase.from('produits').select(COLONNES_CATALOGUE).order('date_ajout', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data.map(mapProduit);
+  },
+
   async getProduit(id) {
-    const { data, error } = await supabase.from('produits').select('*').eq('id', id).single();
-    if (error) throw new Error('Produit introuvable');
+    const { data, error } = await supabase.from('produits').select('*').eq('id', id).maybeSingle();
+    // 22P02 : l'adresse ne contient pas un identifiant valide, c'est donc un produit qui n'existe pas
+    if (error && error.code !== '22P02') throw new Error('Connexion au catalogue impossible');
+    if (!data) {
+      const introuvable = new Error('Produit introuvable');
+      introuvable.introuvable = true;
+      throw introuvable;
+    }
     return mapProduit(data);
   },
 
@@ -368,6 +382,7 @@ export const api = {
           return total + c.Produits.reduce((s, item) => s + (item.quantite * (item.commissionLivreur || 0)), 0);
         }, 0);
         return {
+          id: p.id,
           nom: p.nom,
           role: p.role,
           traitees: cmdsLivrees.length,
@@ -386,6 +401,7 @@ export const api = {
       }, 0);
 
       return {
+        id: p.id,
         nom: p.nom,
         role: p.role,
         traitees: cmds.length,
@@ -409,9 +425,14 @@ export const api = {
     return json;
   },
 
-  async removeCompte(userId) {
-    const { error } = await supabase.from('profiles').delete().eq('id', userId);
-    if (error) throw new Error(error.message);
-    return { success: true };
+  async removeCompte(userId, accessToken) {
+    const res = await fetch('/api/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, accessToken }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || "Impossible de retirer ce compte pour le moment.");
+    return json;
   },
 };

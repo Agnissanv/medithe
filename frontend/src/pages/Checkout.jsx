@@ -25,7 +25,7 @@ export default function Checkout() {
   // Produits proposés après la commande (« Envie d'en profiter encore plus ? »), lus dans Supabase.
   // Avant : catalogue Cloudinary jamais publié, la section ne s'affichait donc jamais.
   useEffect(() => {
-    api.getProduits().then((liste) => setCatalogue(liste.filter((p) => p.Disponible && p.Stock > 0))).catch(() => {});
+    api.getCatalogue().then((liste) => setCatalogue(liste.filter((p) => p.Disponible && p.Stock > 0))).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function Checkout() {
         reductionPromo: codePromoApplique?.reduction || 0,
       };
       const resultat = await api.createCommande(commande);
-      trackPurchase(resultat.numeroCommande, resultat.montantTotal);
+      trackPurchase(resultat.numeroCommande, resultat.montantTotal, form.telephone);
       setItemsCommandes(items);
       setCommandeConfirmee(resultat);
       clearCart();

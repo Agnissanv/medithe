@@ -1,16 +1,11 @@
-/**
- * Upload direct vers Cloudinary depuis le navigateur, sans passer par un backend,
- * via un upload preset non signé. Compression côté client avant envoi pour
- * limiter la consommation du quota Cloudinary (cahier des charges §5).
- *
- * Config nécessaire dans .env :
- *   VITE_CLOUDINARY_CLOUD_NAME=xxxxx
- *   VITE_CLOUDINARY_UPLOAD_PRESET=xxxxx (preset non signé, avec limite de taille
- *     imposée côté Cloudinary — voir docs/GUIDE_APPS_SCRIPT.md et la console Cloudinary)
- */
+import { supabase } from '../lib/supabaseClient.js';
 
-const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+/**
+ * Envoi d'images vers Cloudinary depuis le navigateur. Chaque envoi est signé par le
+ * serveur (api/sign-upload.js), réservé aux admins connectés : personne d'autre ne peut
+ * déposer de fichier sur le compte. Compression côté client avant envoi pour limiter la
+ * consommation du quota Cloudinary (cahier des charges §5).
+ */
 
 const MAX_DIMENSION = 1600; // px, largeur/hauteur max après compression
 const JPEG_QUALITY = 0.75;
@@ -102,20 +97,31 @@ export function slugifier(texte) {
  *     (dossier inclus, ex: "medithe/medias/mon-logo-a1b2"), nécessaire pour supprimer
  *     le fichier plus tard via l'API Cloudinary (une URL seule ne suffit pas pour ça).
  */
-export async function uploadImageToCloudinary(file, options = {}) {
-  if (!CLOUD_NAME || !UPLOAD_PRESET) {
-    throw new Error('Cloudinary non configuré (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET manquants)');
-  }
+async function demanderSignature({ nomPersonnalise, dossier }) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('Session expirée : reconnectez-vous.');
 
+  const res = await fetch('/api/sign-upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accessToken: session.access_token, nomPersonnalise, dossier }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || "L'envoi d'images est indisponible pour le moment.");
+  return json;
+}
+
+export async function uploadImageToCloudinary(file, options = {}) {
   const compressed = await compressImage(file);
+  const { cloudName, apiKey, signature, parametres } = await demanderSignature(options);
 
   const formData = new FormData();
   formData.append('file', compressed);
-  formData.append('upload_preset', UPLOAD_PRESET);
-  if (options.nomPersonnalise) formData.append('public_id', options.nomPersonnalise);
-  if (options.dossier) formData.append('folder', options.dossier);
+  formData.append('api_key', apiKey);
+  formData.append('signature', signature);
+  Object.entries(parametres).forEach(([cle, valeur]) => formData.append(cle, valeur));
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
     method: 'POST',
     body: formData,
   });

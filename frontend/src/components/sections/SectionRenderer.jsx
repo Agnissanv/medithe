@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FaqAccordion from '../FaqAccordion.jsx';
 import AvisList from '../AvisList.jsx';
 import { optimiserImageCloudinary } from '../../utils/cloudinaryOptimize.js';
+import { nettoyerHtml, nettoyerCodePersonnalise } from '../../utils/nettoyerHtml.js';
 import BeneficesList from '../BeneficesList.jsx';
 import InlineOrderForm from '../InlineOrderForm.jsx';
 import OfferCards from './OfferCards.jsx';
@@ -28,7 +29,7 @@ function BlocCodeIsole({ html }) {
     if (!racineOmbreRef.current) {
       racineOmbreRef.current = hote.attachShadow({ mode: 'open' });
     }
-    racineOmbreRef.current.innerHTML = html || '';
+    racineOmbreRef.current.innerHTML = nettoyerCodePersonnalise(html);
   }, [html]);
 
   return <div ref={hoteRef} />;
@@ -43,7 +44,7 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
       return (
         <section className="section-generique">
           {section.titre && <h2>{section.titre}</h2>}
-          <div className="contenu-riche" dangerouslySetInnerHTML={{ __html: section.contenuHtml || '' }} />
+          <div className="contenu-riche" dangerouslySetInnerHTML={{ __html: nettoyerHtml(section.contenuHtml) }} />
         </section>
       );
 
@@ -105,8 +106,7 @@ export default function SectionRenderer({ section, produit, formulaireDomId, pre
     case 'code_personnalise':
       // HTML/CSS libre collé par l'admin, rendu dans un Shadow DOM (BlocCodeIsole) :
       // un <style> collé ici ne peut jamais fuiter sur le reste de la page. Volontairement
-      // HTML/CSS uniquement : une balise <script> insérée via innerHTML ne s'exécute jamais
-      // (comportement standard du navigateur), donc pas de risque d'exécution de script imprévu ici.
+      // HTML/CSS uniquement : tout ce qui peut exécuter du code est retiré par nettoyerCodePersonnalise.
       if (estHtmlVide(section.code)) return null;
       return (
         <div className="section-generique">

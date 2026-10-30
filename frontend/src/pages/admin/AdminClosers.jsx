@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/supabaseApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useConfirm } from '../../context/ConfirmContext.jsx';
 import { SqueletteTableau } from '../../components/Squelettes.jsx';
 
 
 export default function AdminClosers() {
   const { session } = useAuth();
+  const confirmer = useConfirm();
   const [stats, setStats] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState('');
@@ -46,6 +48,21 @@ export default function AdminClosers() {
     }
   }
 
+  async function handleRetirer(compte) {
+    const ok = await confirmer(
+      "Cette personne ne pourra plus se connecter. Ses commandes restent enregistrées, mais elle disparaîtra de ce tableau : vérifiez d'abord ce qu'il reste à lui payer.",
+      { titre: `Retirer l'accès de ${compte.nom}`, labelConfirmer: "Retirer l'accès" },
+    );
+    if (!ok) return;
+    setErreur('');
+    try {
+      await api.removeCompte(compte.id, session.access_token);
+      charger();
+    } catch (err) {
+      setErreur(err.message);
+    }
+  }
+
   function reinitialiserDates() {
     setDateDebut('');
     setDateFin('');
@@ -67,7 +84,7 @@ export default function AdminClosers() {
         <form onSubmit={handleCreerCompte} style={styles.formAjout}>
           <input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="Nom (ex: Joël)" style={styles.input} required />
           <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email" style={styles.input} required />
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Mot de passe" style={styles.input} required minLength={6} />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Mot de passe" style={styles.input} required minLength={8} />
           <select value={role} onChange={(e) => setRole(e.target.value)} style={styles.input}>
             <option value="closer">Closer</option>
             <option value="livreur">Livreur</option>
@@ -123,6 +140,7 @@ export default function AdminClosers() {
               <th style={styles.th}>Exclues</th>
               <th style={styles.th}>Montant généré</th>
               <th style={styles.th}>À payer</th>
+              <th style={styles.th}></th>
             </tr>
           </thead>
           <tbody>
@@ -137,6 +155,11 @@ export default function AdminClosers() {
                 <td style={{ ...styles.td, fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--copper-dark)' }}>
                   {c.montantAPayer.toLocaleString('fr-FR')} F
                 </td>
+                <td style={styles.td}>
+                  <button type="button" className="btn-outline btn" style={{ padding: '0.3em 0.7em', fontSize: '0.8rem' }} onClick={() => handleRetirer(c)}>
+                    Retirer l'accès
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -150,6 +173,7 @@ export default function AdminClosers() {
               <td style={{ ...styles.td, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--copper-dark)' }}>
                 {totalAPayer.toLocaleString('fr-FR')} F
               </td>
+              <td></td>
             </tr>
           </tfoot>
         </table>

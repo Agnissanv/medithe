@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../api/supabaseApi.js';
-import { mockProduits } from '../data/mockProduits.js';
 import { useSEO } from '../hooks/useSEO.js';
 import { trackViewContent } from '../utils/tracking.js';
 import ProductDetailContenu from '../components/ProductDetailContenu.jsx';
+import Introuvable from './Introuvable.jsx';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [produit, setProduit] = useState(null);
+  const [erreur, setErreur] = useState(null); // null | 'introuvable' | 'connexion'
+  const [essai, setEssai] = useState(0);
 
   useEffect(() => {
     let annule = false;
+    setErreur(null);
     api.getProduit(id)
       .then((p) => { if (!annule) setProduit(p); })
-      .catch(() => { if (!annule) setProduit(mockProduits.find((p) => p.ID === id) || null); });
+      .catch((e) => { if (!annule) setErreur(e.introuvable ? 'introuvable' : 'connexion'); });
     return () => { annule = true; };
-  }, [id]);
+  }, [id, essai]);
 
   useEffect(() => {
     if (produit) trackViewContent(produit);
@@ -40,6 +43,15 @@ export default function ProductDetail() {
     } : null,
   });
 
+  if (erreur === 'introuvable') return <Introuvable />;
+  if (erreur) {
+    return (
+      <div role="alert" className="container" style={{ padding: '4rem 1.5rem', textAlign: 'center' }}>
+        <p>Ce thé ne peut pas s'afficher pour le moment. Vérifiez votre connexion, puis réessayez.</p>
+        <button type="button" className="btn btn-primary" onClick={() => setEssai((n) => n + 1)}>Réessayer</button>
+      </div>
+    );
+  }
   if (!produit) return <ProductDetailSquelette />;
 
   return <ProductDetailContenu produit={produit} />;

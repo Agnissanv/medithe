@@ -7,7 +7,7 @@ export default function ProduitsSimilaires({ categorie, excludeId, titre, nombre
 
   useEffect(() => {
     if (!categorie) { setProduits([]); return; }
-    api.getProduits()
+    api.getCatalogue()
       .then((tous) => {
         const filtres = tous
           .filter((p) => p.Categorie === categorie && p.ID !== excludeId && p.Disponible)

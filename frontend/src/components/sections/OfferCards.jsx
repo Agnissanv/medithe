@@ -1,4 +1,5 @@
 import React from 'react';
+import { nettoyerHtml } from '../../utils/nettoyerHtml.js';
 
 export default function OfferCards({ cartes = [], onChoisir }) {
   if (!cartes.length) return null;
@@ -19,7 +20,7 @@ export default function OfferCards({ cartes = [], onChoisir }) {
             </div>
           )}
           {c.description && (
-            <div className="contenu-riche offre-description" dangerouslySetInnerHTML={{ __html: c.description }} />
+            <div className="contenu-riche offre-description" dangerouslySetInnerHTML={{ __html: nettoyerHtml(c.description) }} />
           )}
           {c.fonctionnalites?.length > 0 && (
             <ul className="offre-liste">

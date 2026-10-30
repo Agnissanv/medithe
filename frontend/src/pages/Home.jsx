@@ -3,23 +3,28 @@ import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
 import { SqueletteGrilleProduits } from '../components/Squelettes.jsx';
 import { api } from '../api/supabaseApi.js';
-import { mockProduits } from '../data/mockProduits.js';
+import { optimiserImageCloudinary } from '../utils/cloudinaryOptimize.js';
 
 export default function Home() {
   const [produits, setProduits] = useState([]);
   const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState(false);
   const [recherche, setRecherche] = useState('');
   const [categorie, setCategorie] = useState('Toutes');
   const [triPrix, setTriPrix] = useState('defaut');
   const [disponibleUniquement, setDisponibleUniquement] = useState(false);
   const catalogueRef = useRef(null);
 
-  useEffect(() => {
-    api.getProduits()
+  function chargerCatalogue() {
+    setChargement(true);
+    setErreur(false);
+    api.getCatalogue()
       .then(setProduits)
-      .catch(() => setProduits(mockProduits))
+      .catch(() => setErreur(true))
       .finally(() => setChargement(false));
-  }, []);
+  }
+
+  useEffect(chargerCatalogue, []);
 
   const categories = useMemo(
     () => ['Toutes', ...new Set(produits.map((p) => p.Categorie))],
@@ -102,7 +107,7 @@ export default function Home() {
               <button key={cat.nom} onClick={() => allerAuCatalogue(cat.nom)} style={styles.categorieCarte}>
                 <div style={styles.categorieImageZone}>
                   {cat.image ? (
-                    <img src={cat.image} alt={cat.nom} style={styles.categorieImage} />
+                    <img src={optimiserImageCloudinary(cat.image, 240)} alt={cat.nom} style={styles.categorieImage} loading="lazy" decoding="async" width="240" height="240" />
                   ) : (
                     <span style={{ fontSize: '1.5rem', color: 'var(--sage)' }}>◈</span>
                   )}
@@ -120,7 +125,7 @@ export default function Home() {
           <div className="container moment-grid">
             <div style={styles.momentImageZone}>
               {produitDuMoment.Images?.[0] ? (
-                <img src={produitDuMoment.Images[0]} alt={produitDuMoment.Nom} style={styles.momentImage} />
+                <img src={optimiserImageCloudinary(produitDuMoment.Images[0], 640)} alt={produitDuMoment.Nom} style={styles.momentImage} loading="lazy" decoding="async" width="640" height="480" />
               ) : (
                 <span style={{ fontSize: '2.5rem', color: 'var(--sage)' }}>◈</span>
               )}
@@ -181,6 +186,11 @@ export default function Home() {
 
         {chargement ? (
           <SqueletteGrilleProduits />
+        ) : erreur ? (
+          <div role="alert" style={{ textAlign: 'center', padding: '2rem 0' }}>
+            <p>Le catalogue ne répond pas pour le moment. Vérifiez votre connexion, puis réessayez.</p>
+            <button type="button" className="btn btn-primary" onClick={chargerCatalogue}>Réessayer</button>
+          </div>
         ) : produitsFiltres.length === 0 ? (
           <p>Aucun thé ne correspond à cette recherche.</p>
         ) : (

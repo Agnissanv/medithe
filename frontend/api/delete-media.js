@@ -27,26 +27,26 @@ export default async function handler(req, res) {
   const supabasePublic = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   const { data: { user: appelant }, error: erreurAuth } = await supabasePublic.auth.getUser(accessToken);
   if (erreurAuth || !appelant) {
-    return res.status(401).json({ error: 'Non authentifié : ' + (erreurAuth?.message || 'utilisateur introuvable') });
+    return res.status(401).json({ error: 'Session expirée : reconnectez-vous.' });
   }
 
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const { data: profilAppelant, error: erreurProfilAppelant } = await supabaseAdmin
     .from('profiles').select('role').eq('id', appelant.id).single();
   if (erreurProfilAppelant) {
-    return res.status(500).json({ error: 'Erreur lecture profil : ' + erreurProfilAppelant.message });
+    console.error('Lecture du profil :', erreurProfilAppelant.message);
+    return res.status(500).json({ error: 'Vérification du compte impossible pour le moment.' });
   }
   if (profilAppelant?.role !== 'admin') {
-    return res.status(403).json({ error: `Réservé aux administrateurs (rôle détecté : ${profilAppelant?.role || 'aucun'})` });
+    return res.status(403).json({ error: 'Réservé aux administrateurs' });
   }
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.VITE_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
   if (!cloudName || !apiKey || !apiSecret) {
-    return res.status(500).json({
-      error: 'Cloudinary non configuré côté serveur (CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET manquants dans les variables d\'environnement Vercel)',
-    });
+    console.error('delete-media : variables Cloudinary manquantes sur Vercel');
+    return res.status(500).json({ error: "La suppression d'images n'est pas configurée sur le serveur." });
   }
 
   // Endpoint de suppression groupée (jusqu'à 100 public_ids par appel), authentifié
@@ -63,10 +63,12 @@ export default async function handler(req, res) {
     );
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) {
-      return res.status(resp.status).json({ error: data?.error?.message || 'Échec de suppression Cloudinary' });
+      console.error('delete-media : refus de Cloudinary', resp.status, data?.error?.message);
+      return res.status(502).json({ error: 'Échec de suppression sur Cloudinary' });
     }
     return res.status(200).json({ success: true, deleted: data.deleted || {} });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('delete-media :', err.message);
+    return res.status(500).json({ error: 'Échec de suppression sur Cloudinary' });
   }
 }

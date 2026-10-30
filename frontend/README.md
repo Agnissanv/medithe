@@ -16,12 +16,6 @@ npm run build
 
 Le dossier `dist/` généré peut être déployé tel quel sur Vercel ou Netlify.
 
-## Sans API configurée
-
-Tant que `VITE_API_URL` n'est pas renseignée dans `.env`, le catalogue affiche
-des données de démonstration (`src/data/mockProduits.js`) pour permettre de
-développer l'interface sans dépendre du backend.
-
 ## Pages
 
 - `/` — Catalogue avec recherche, filtres catégorie/prix/disponibilité
@@ -37,7 +31,7 @@ développer l'interface sans dépendre du backend.
 - `/admin/produits` — gestion des produits, upload d'images vers Cloudinary avec compression automatique côté navigateur
 - `/admin/commandes` — liste des commandes, filtre par statut, mise à jour du statut, export CSV
 
-Nécessite `VITE_CLOUDINARY_CLOUD_NAME` et `VITE_CLOUDINARY_UPLOAD_PRESET` dans `.env` pour l'upload d'images (voir `.env.example`). Le preset Cloudinary doit être configuré en **non signé** avec une limite de taille imposée côté Cloudinary (pas seulement côté formulaire).
+L'envoi d'images passe par `api/sign-upload.js`, réservé aux admins connectés. Variables Vercel nécessaires : `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` et `VITE_CLOUDINARY_CLOUD_NAME` (aucun preset non signé).
 
 cd frontend
 npm install

@@ -1,18 +1,30 @@
+import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const VERSION_META = 'v26.0';
+const HOTES_AUTORISES = [
+  'medithe.looh-oo.com', 'medithe.vercel.app',
+  process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL,
+].filter(Boolean);
+const DELAI_ACHAT_MS = 2 * 60 * 60 * 1000; // un achat se déclare juste après la commande
+const COOKIE_META = /^fb\.\d\.\d+\.[\w.-]{1,250}$/;
 
 // Fait le pont entre un événement client (vue produit, ajout panier, achat…) et les
 // API de conversion serveur-à-serveur de Meta, TikTok et Google (GA4). Contourne les
 // bloqueurs de pub et la perte de données iOS puisque l'appel part de notre serveur,
 // pas du navigateur du visiteur.
 //
-// Corps attendu : { evenement, event_id, donnees, client_id }
+// Corps attendu : { evenement, event_id, donnees, client_id, fbp, fbc, telephone }
 //   evenement : 'PageView' | 'ViewContent' | 'AddToCart' | 'InitiateCheckout' | 'Purchase'
 //   event_id  : identifiant partagé avec l'appel navigateur (fbq/ttq), pour éviter les doublons
 //   donnees   : { content_id, content_name, value, currency, order_id, num_items, ... }
-//   client_id : identifiant visiteur stable (cookie), utilisé par GA4
+//   client_id : identifiant visiteur stable (cookie), utilisé par GA4 et Meta
+//   fbp, fbc  : cookies Meta du visiteur, pour relier l'événement à la personne qui a vu la pub
+//   telephone : seulement pour un achat, jamais transmis tel quel (chiffré en SHA-256 pour Meta)
 
 const NOMS_META = {
   PageView: 'PageView', ViewContent: 'ViewContent', AddToCart: 'AddToCart',
@@ -30,9 +42,11 @@ const NOMS_GA4 = {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
 
-  const { evenement, event_id: eventId, donnees = {}, client_id: clientId } = req.body || {};
-  if (!evenement || !eventId) {
-    return res.status(400).json({ error: 'Paramètres manquants (evenement, event_id)' });
+  if (!origineAutorisee(req)) return res.status(403).json({ error: 'Origine non autorisée' });
+
+  const { evenement, event_id: eventId, donnees: donneesRecues = {}, client_id: clientId, fbp, fbc, telephone } = req.body || {};
+  if (!NOMS_META[evenement] || typeof eventId !== 'string' || !eventId || eventId.length > 100) {
+    return res.status(400).json({ error: 'Événement invalide' });
   }
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -40,6 +54,10 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Un achat doit correspondre à une vraie commande récente, et sa valeur vient de la base, pas du navigateur
+    const donnees = evenement === 'Purchase' ? await verifierAchat(donneesRecues) : donneesRecues;
+    if (!donnees) return res.status(400).json({ error: 'Commande inconnue' });
+
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const [{ data: configs, error: erreurConfigs }, { data: pixels, error: erreurPixels }] = await Promise.all([
@@ -54,6 +72,10 @@ export default async function handler(req, res) {
       ip: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || '',
       userAgent: req.headers['user-agent'] || '',
       pageUrl: req.headers['referer'] || req.headers['origin'] || '',
+      fbp: COOKIE_META.test(fbp || '') ? fbp : null,
+      fbc: COOKIE_META.test(fbc || '') ? fbc : null,
+      idClient: clientId ? hacher(String(clientId)) : null,
+      telephone: evenement === 'Purchase' ? telephoneHache(telephone) : null,
     };
 
     const envois = configs.map(async (cfg) => {
@@ -71,15 +93,46 @@ export default async function handler(req, res) {
         }
         return { plateforme: cfg.plateforme, ok: true };
       } catch (err) {
-        return { plateforme: cfg.plateforme, ok: false, erreur: err.message };
+        console.error(`track-event ${cfg.plateforme} :`, err.message);
+        return { plateforme: cfg.plateforme, ok: false };
       }
     });
 
     const resultats = await Promise.all(envois);
     res.status(200).json({ ok: true, envoyes: resultats });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('track-event :', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
+}
+
+function origineAutorisee(req) {
+  try {
+    return HOTES_AUTORISES.includes(new URL(req.headers.origin || req.headers.referer).host);
+  } catch {
+    return false;
+  }
+}
+
+async function verifierAchat(donnees) {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  const { data, error } = await supabase.rpc('suivre_commande', { p_numero: String(donnees.order_id || '') });
+  const commande = data?.[0];
+  if (error || !commande) return null;
+  if (Date.now() - new Date(commande.date_heure).getTime() > DELAI_ACHAT_MS) return null;
+  return { ...donnees, value: Number(commande.montant_total) };
+}
+
+const hacher = (valeur) => crypto.createHash('sha256').update(valeur).digest('hex');
+
+// Meta attend le numéro international, chiffres seuls, puis chiffré. Sans indicatif, on suppose la Côte d'Ivoire (10 chiffres).
+function telephoneHache(telephone) {
+  const brut = String(telephone || '').trim();
+  const chiffres = brut.replace(/\D/g, '');
+  if (!chiffres) return null;
+  if (brut.startsWith('+')) return hacher(chiffres);
+  if (chiffres.startsWith('00')) return hacher(chiffres.slice(2));
+  return hacher(chiffres.length === 10 ? `225${chiffres}` : chiffres);
 }
 
 async function envoyerMeta(cfg, idsPixel, evenement, eventId, donnees, contexte) {
@@ -96,6 +149,10 @@ async function envoyerMeta(cfg, idsPixel, evenement, eventId, donnees, contexte)
       user_data: {
         client_ip_address: contexte.ip,
         client_user_agent: contexte.userAgent,
+        ...(contexte.fbp ? { fbp: contexte.fbp } : {}),
+        ...(contexte.fbc ? { fbc: contexte.fbc } : {}),
+        ...(contexte.idClient ? { external_id: [contexte.idClient] } : {}),
+        ...(contexte.telephone ? { ph: [contexte.telephone] } : {}),
       },
       custom_data: {
         currency: donnees.currency,
@@ -110,13 +167,17 @@ async function envoyerMeta(cfg, idsPixel, evenement, eventId, donnees, contexte)
   };
   if (cfg.test_event_code) payload.test_event_code = cfg.test_event_code;
 
-  await Promise.all(idsPixel.map((pixelId) =>
-    fetch(`https://graph.facebook.com/v19.0/${pixelId}/events`, {
+  await Promise.all(idsPixel.map(async (pixelId) => {
+    const reponse = await fetch(`https://graph.facebook.com/${VERSION_META}/${pixelId}/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-    })
-  ));
+    });
+    if (!reponse.ok) {
+      const detail = await reponse.json().catch(() => ({}));
+      throw new Error(`Meta a refusé l'événement (${reponse.status}) : ${detail?.error?.message || 'sans détail'}`);
+    }
+  }));
 }
 
 async function envoyerTikTok(cfg, codesPixel, evenement, eventId, donnees, contexte) {

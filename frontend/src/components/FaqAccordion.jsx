@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { nettoyerHtml } from '../utils/nettoyerHtml.js';
 
 export default function FaqAccordion({ items = [] }) {
   const [ouvert, setOuvert] = useState(null);
@@ -13,7 +14,7 @@ export default function FaqAccordion({ items = [] }) {
             <span>{ouvert === i ? '−' : '+'}</span>
           </button>
           {ouvert === i && (
-            <div className="contenu-riche" style={styles.reponse} dangerouslySetInnerHTML={{ __html: item.reponse }} />
+            <div className="contenu-riche" style={styles.reponse} dangerouslySetInnerHTML={{ __html: nettoyerHtml(item.reponse) }} />
           )}
         </div>
       ))}

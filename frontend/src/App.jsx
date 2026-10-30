@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import PublicLayout from './components/PublicLayout.jsx';
 import Login from './pages/Login.jsx';
 import RequireRole from './components/RequireRole.jsx';
+import Introuvable from './pages/Introuvable.jsx';
 import Home from './pages/Home.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import Cart from './pages/Cart.jsx';
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/commande" element={<Checkout />} />
         <Route path="/suivi" element={<OrderTracking />} />
         <Route path="/a-propos" element={<About />} />
+        <Route path="*" element={<Introuvable />} />
       </Route>
 
       {/* Connexion unique pour toute l'équipe (admin, closer, livreur) */}
