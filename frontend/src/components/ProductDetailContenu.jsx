@@ -22,7 +22,7 @@ export default function ProductDetailContenu({ produit, previsualisation = false
           {previsualisation ? (
             <span className="eyebrow">← Retour au catalogue</span>
           ) : (
-            <Link to="/" className="eyebrow">← Retour au catalogue</Link>
+            <Link to="/produits" className="eyebrow">← Retour au catalogue</Link>
           )}
 
           {/* ZONE HAUTE — galerie + titre/prix/formulaire par défaut (fixe, non déplaçable) */}

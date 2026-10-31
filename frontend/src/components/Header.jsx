@@ -23,11 +23,14 @@ export default function Header() {
             <NavLink to="/" end style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
               Accueil
             </NavLink>
-            <NavLink to="/suivi" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
-              Suivre ma commande
+            <NavLink to="/produits" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
+              Nos produits
             </NavLink>
             <NavLink to="/a-propos" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
               À propos
+            </NavLink>
+            <NavLink to="/suivi" style={({ isActive }) => ({ ...styles.navLink, ...(isActive ? styles.navLinkActif : {}) })}>
+              Suivre ma commande
             </NavLink>
           </nav>
 
@@ -61,11 +64,11 @@ export default function Header() {
               Accueil
             </NavLink>
             <NavLink
-              to="/suivi"
+              to="/produits"
               style={({ isActive }) => ({ ...styles.navLinkMobile, ...(isActive ? styles.navLinkMobileActif : {}) })}
               onClick={() => setMenuOuvert(false)}
             >
-              Suivre ma commande
+              Nos produits
             </NavLink>
             <NavLink
               to="/a-propos"
@@ -73,6 +76,13 @@ export default function Header() {
               onClick={() => setMenuOuvert(false)}
             >
               À propos
+            </NavLink>
+            <NavLink
+              to="/suivi"
+              style={({ isActive }) => ({ ...styles.navLinkMobile, ...(isActive ? styles.navLinkMobileActif : {}) })}
+              onClick={() => setMenuOuvert(false)}
+            >
+              Suivre ma commande
             </NavLink>
           </nav>
         )}

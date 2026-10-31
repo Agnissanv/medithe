@@ -11,7 +11,7 @@ export default function Cart() {
       <div className="container" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
         <h2>Votre panier est vide</h2>
         <p style={{ opacity: 0.75 }}>Parcourez le catalogue pour ajouter des thés.</p>
-        <Link to="/" className="btn btn-primary" style={{ marginTop: '1rem' }}>Voir le catalogue</Link>
+        <Link to="/produits" className="btn btn-primary" style={{ marginTop: '1rem' }}>Voir le catalogue</Link>
       </div>
     );
   }

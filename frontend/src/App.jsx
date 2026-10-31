@@ -5,6 +5,7 @@ import Login from './pages/Login.jsx';
 import RequireRole from './components/RequireRole.jsx';
 import Introuvable from './pages/Introuvable.jsx';
 import Home from './pages/Home.jsx';
+import Produits from './pages/Produits.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
@@ -39,6 +40,7 @@ export default function App() {
       {/* Vitrine publique */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/produits" element={<Produits />} />
         <Route path="/produit/:id" element={<ProductDetail />} />
         <Route path="/panier" element={<Cart />} />
         <Route path="/commande" element={<Checkout />} />

@@ -1,35 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard.jsx';
-import { SqueletteGrilleProduits } from '../components/Squelettes.jsx';
-import { api } from '../api/supabaseApi.js';
+import Catalogue from '../components/Catalogue.jsx';
+import { useCatalogue } from '../hooks/useCatalogue.js';
 import { optimiserImageCloudinary } from '../utils/cloudinaryOptimize.js';
 
 export default function Home() {
-  const [produits, setProduits] = useState([]);
-  const [chargement, setChargement] = useState(true);
-  const [erreur, setErreur] = useState(false);
-  const [recherche, setRecherche] = useState('');
+  const { produits, chargement, erreur, recharger } = useCatalogue();
   const [categorie, setCategorie] = useState('Toutes');
-  const [triPrix, setTriPrix] = useState('defaut');
-  const [disponibleUniquement, setDisponibleUniquement] = useState(false);
   const catalogueRef = useRef(null);
-
-  function chargerCatalogue() {
-    setChargement(true);
-    setErreur(false);
-    api.getCatalogue()
-      .then(setProduits)
-      .catch(() => setErreur(true))
-      .finally(() => setChargement(false));
-  }
-
-  useEffect(chargerCatalogue, []);
-
-  const categories = useMemo(
-    () => ['Toutes', ...new Set(produits.map((p) => p.Categorie))],
-    [produits]
-  );
 
   const vignettesCategories = useMemo(() => {
     const parCategorie = {};
@@ -48,17 +26,6 @@ export default function Home() {
     if (!liste.length) return null;
     return [...liste].sort((a, b) => new Date(b.DateAjout) - new Date(a.DateAjout))[0];
   }, [produits]);
-
-  const produitsFiltres = useMemo(() => {
-    let liste = produits.filter((p) =>
-      p.Nom.toLowerCase().includes(recherche.toLowerCase())
-    );
-    if (categorie !== 'Toutes') liste = liste.filter((p) => p.Categorie === categorie);
-    if (disponibleUniquement) liste = liste.filter((p) => p.Disponible && p.Stock > 0);
-    if (triPrix === 'croissant') liste = [...liste].sort((a, b) => a.Prix - b.Prix);
-    if (triPrix === 'decroissant') liste = [...liste].sort((a, b) => b.Prix - a.Prix);
-    return liste;
-  }, [produits, recherche, categorie, triPrix, disponibleUniquement]);
 
   function allerAuCatalogue(cat) {
     if (cat) setCategorie(cat);
@@ -153,52 +120,13 @@ export default function Home() {
       )}
 
       {/* CATALOGUE COMPLET */}
-      <section className="container" style={{ padding: '3rem 1.5rem' }} ref={catalogueRef} id="catalogue">
-        <h2 style={{ marginBottom: '1.5rem' }}>Tous nos thés</h2>
-
-        <div style={styles.filtres}>
-          <input
-            type="search"
-            placeholder="Rechercher un thé…"
-            value={recherche}
-            onChange={(e) => setRecherche(e.target.value)}
-            style={styles.input}
-          />
-          <select value={categorie} onChange={(e) => setCategorie(e.target.value)} style={styles.select}>
-            {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <select value={triPrix} onChange={(e) => setTriPrix(e.target.value)} style={styles.select}>
-            <option value="defaut">Trier par prix</option>
-            <option value="croissant">Prix croissant</option>
-            <option value="decroissant">Prix décroissant</option>
-          </select>
-          <label style={styles.checkbox}>
-            <input
-              type="checkbox"
-              checked={disponibleUniquement}
-              onChange={(e) => setDisponibleUniquement(e.target.checked)}
-            />
-            En stock uniquement
-          </label>
-        </div>
-
-        <hr className="hairline" style={{ margin: '1.5rem 0' }} />
-
-        {chargement ? (
-          <SqueletteGrilleProduits />
-        ) : erreur ? (
-          <div role="alert" style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <p>Le catalogue ne répond pas pour le moment. Vérifiez votre connexion, puis réessayez.</p>
-            <button type="button" className="btn btn-primary" onClick={chargerCatalogue}>Réessayer</button>
-          </div>
-        ) : produitsFiltres.length === 0 ? (
-          <p>Aucun thé ne correspond à cette recherche.</p>
-        ) : (
-          <div className="catalogue-grid">
-            {produitsFiltres.map((p) => <ProductCard key={p.ID} produit={p} />)}
-          </div>
-        )}
-      </section>
+      <div ref={catalogueRef} id="catalogue">
+        <Catalogue
+          titre="Tous nos thés"
+          produits={produits} chargement={chargement} erreur={erreur} onReessayer={recharger}
+          categorie={categorie} onCategorie={setCategorie}
+        />
+      </div>
     </div>
   );
 }
@@ -254,14 +182,4 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
   momentImage: { width: '100%', height: '100%', objectFit: 'cover' },
-  filtres: { display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' },
-  input: {
-    flex: '1 1 220px', padding: '0.6em 0.9em', border: '1px solid var(--line)',
-    borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', background: 'var(--parchment-dark)',
-  },
-  select: {
-    padding: '0.6em 0.9em', border: '1px solid var(--line)',
-    borderRadius: 'var(--radius)', background: 'var(--parchment-dark)', fontFamily: 'var(--font-body)',
-  },
-  checkbox: { display: 'flex', alignItems: 'center', gap: '0.5em', fontSize: '0.9rem' },
 };

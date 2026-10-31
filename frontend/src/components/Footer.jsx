@@ -17,7 +17,7 @@ export default function Footer() {
 
         <div className="footer-colonne-liens">
           <h4 style={styles.titreColonne}>Liens rapides</h4>
-          <Link to="/" style={styles.lien}>Catalogue</Link>
+          <Link to="/produits" style={styles.lien}>Nos produits</Link>
           <Link to="/suivi" style={styles.lien}>Suivre ma commande</Link>
           <Link to="/a-propos" style={styles.lien}>À propos</Link>
           <Link to="/panier" style={styles.lien}>Mon panier</Link>
