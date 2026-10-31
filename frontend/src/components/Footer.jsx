@@ -33,9 +33,6 @@ export default function Footer() {
 
       <div className="container" style={styles.copyright}>
         <span>© {new Date().getFullYear()} MédiThé — Tous droits réservés</span>
-        <a href="https://www.agnissanisaac.com/" target="_blank" rel="noreferrer" style={styles.credit}>
-          Créé par Code A-Z
-        </a>
       </div>
     </footer>
   );
@@ -50,9 +47,6 @@ const styles = {
     borderTop: '1px solid var(--line-dark)', marginTop: '2rem', padding: '1.2rem 1.5rem',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap',
     color: 'var(--parchment)', opacity: 0.6, fontSize: '0.78rem',
-  },
-  credit: {
-    color: 'inherit', opacity: 0.85, textDecoration: 'none', borderBottom: '1px solid var(--line-dark)',
   },
   badgeLoohoo: {
     display: 'inline-block', marginTop: '0.7rem', padding: '0.3rem 0.7rem',
